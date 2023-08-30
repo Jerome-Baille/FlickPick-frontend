@@ -1,0 +1,24 @@
+.search-result-card
+    height: 100%
+    overflow: hidden
+    background-color: #8B5A2B
+    cursor: pointer
+
+    &:hover
+        box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.5)
+
+    &__check-mark
+        color: green
+        position: absolute
+        top: 10px
+        left: 10px
+        z-index: 10
+        font-size: 30px
+    
+    &__poster-container
+        height: 500px
+
+    &__poster
+        width: 100%
+        height: 100%
+        object-fit: fill

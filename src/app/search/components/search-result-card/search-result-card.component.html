@@ -1,0 +1,17 @@
+<mat-card class="search-result-card" (click)="onCardClick()">
+    <span class="search-result-card__check-mark" *ngIf="isChecked(result.id)">
+        <fa-icon [icon]="faCircleCheck" />
+    </span>
+    <div class="search-result-card__poster-container">
+        <img mat-card-image class="search-result-card__poster"
+            [src]="result.poster_path ? imageUrlBase + result.poster_path : 'assets/images/poster-not-found.png'"
+            alt="{{ result.title || result.name }}" />
+    </div>
+    <mat-card-content>
+        <p>
+            {{ result.title || result.name }}
+            <span *ngIf="result.release_date || result.first_air_date">({{ (result.release_date ||
+                result.first_air_date) | date:'yyyy'}})</span>
+        </p>
+    </mat-card-content>
+</mat-card>
