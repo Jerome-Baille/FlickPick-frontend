@@ -6,5 +6,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./header.component.sass']
 })
 export class HeaderComponent {
+  isDrawerOpen = false;
 
+  constructor() { }
+
+  toggleDrawer() {
+    this.isDrawerOpen = !this.isDrawerOpen;
+  }
 }
