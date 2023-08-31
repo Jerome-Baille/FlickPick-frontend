@@ -20,6 +20,9 @@ import { SearchResultCardComponent } from './components/search-result-card/searc
     SearchRoutingModule,
     SharedModule,
     CoreModule
+  ],
+  exports: [
+    SearchResultsComponent
   ]
 })
 export class SearchModule { }

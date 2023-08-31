@@ -1,6 +1,6 @@
-<mat-card class="search-result-card" (click)="onCardClick()">
-    <span class="search-result-card__check-mark" *ngIf="isChecked(result.id)">
-        <fa-icon [icon]="faCircleCheck" />
+<mat-card class="search-result-card">
+    <span class="search-result-card__check-mark" (click)="onCardClick()">
+        <fa-icon [icon]="isChecked(result.id) ? faCircleCheck : faCirclePlus" />
     </span>
     <div class="search-result-card__poster-container">
         <img mat-card-image class="search-result-card__poster"

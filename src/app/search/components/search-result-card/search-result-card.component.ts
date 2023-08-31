@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-search-result-card',
@@ -11,21 +11,29 @@ export class SearchResultCardComponent {
   imageUrlBase = 'https://image.tmdb.org/t/p/original';
 
   faCircleCheck = faCircleCheck;
+  faCirclePlus = faCirclePlus;
 
   onCardClick() {
+    let media_type = '';
+    if (this.result.title) {
+      media_type = 'movie';
+    } else if (this.result.name) {
+      media_type = 'tv';
+    }
     const storedIdsString = localStorage.getItem('storedIds');
     let storedIds = storedIdsString ? JSON.parse(storedIdsString) : [];
-    if (!storedIds.includes(this.result.id)) {
-      storedIds.push(this.result.id);
+    const index = storedIds.findIndex((item: { id: number, media_type: string }) => item.id === this.result.id);
+    if (index === -1) {
+      storedIds.push({ id: this.result.id, media_type });
     } else {
-      storedIds = storedIds.filter((id: number) => id !== this.result.id);
+      storedIds.splice(index, 1);
     }
     localStorage.setItem('storedIds', JSON.stringify(storedIds));
   }
 
-  isChecked(id: number) {
-    const storedIdsString = localStorage.getItem('storedIds');
-    const storedIds = storedIdsString ? JSON.parse(storedIdsString) : [];
-    return storedIds.includes(id);
+  isChecked(id: number): boolean {
+    const storedIdsString: string | null = localStorage.getItem('storedIds');
+    const storedIds: { id: number, media_type: string }[] = storedIdsString ? JSON.parse(storedIdsString) : [];
+    return storedIds.some(item => item.id === id);
   }
 }
