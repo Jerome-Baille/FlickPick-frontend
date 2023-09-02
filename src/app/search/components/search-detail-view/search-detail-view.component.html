@@ -5,7 +5,7 @@
                 <img mat-card-image
                     [src]="media.poster_path ? TMDB_IMAGE_BASE_URL + media.poster_path : 'assets/images/poster-not-found.png'"
                     alt="{{ media.title || media.name }}" />
-                <div class="overlay">
+                <div *ngIf="media.videos.results && media.videos.results.length !== 0" class="overlay">
                     <button mat-icon-button class="play-button">
                         <mat-icon>play_arrow</mat-icon>
                     </button>
@@ -83,6 +83,11 @@
                         <span class="cast-name">{{ cast.name }}</span>
                         <span class="cast-character">{{ cast.character }}</span>
                     </div>
+                </li>
+                <li>
+                    <button mat-button class="show-more-button" (click)="onNavigateToCast()">
+                        <span>Show more</span>
+                    </button>
                 </li>
             </ol>
         </mat-card-content>

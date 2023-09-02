@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { faFilm } from '@fortawesome/free-solid-svg-icons';
 import { TMDB_IMAGE_BASE_URL } from 'config/tmdb-api';
+import { DataService } from 'src/app/services/data.service';
 import { TmdbService } from 'src/app/services/tmdb.service';
 import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
 
@@ -23,7 +24,9 @@ export class SearchDetailViewComponent {
   constructor(
     private tmdbService: TmdbService,
     private route: ActivatedRoute,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private dataService: DataService,
+    private router: Router
   ) {
     const id = parseInt(this.route.snapshot.paramMap.get('id')!, 10);
 
@@ -40,6 +43,8 @@ export class SearchDetailViewComponent {
         console.log(this.media);
         this.getCast();
         this.getSimilar(this.mediaType);
+        this.dataService.setCastData(this.media.credits.cast);
+        this.dataService.setCrewData(this.media.credits.crew);
       },
       error: (error) => {
         console.error('Error:', error);
@@ -97,5 +102,11 @@ export class SearchDetailViewComponent {
   getSimilar(mediaType: string) {
     const similar = mediaType === 'movie' ? this.media.similar?.results : this.media.recommendations?.results;
     this.similarArray = similar.slice(0, 8);
+  }
+
+  onNavigateToCast() {
+    const baseUrl = this.route.snapshot.url.join('/') + '/cast';
+    const fullUrl = '/media/' + baseUrl;
+    this.router.navigate([fullUrl]);
   }
 }

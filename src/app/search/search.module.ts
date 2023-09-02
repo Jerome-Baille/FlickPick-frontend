@@ -8,6 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 import { CoreModule } from '../core/core.module';
 import { SearchResultCardComponent } from './components/search-result-card/search-result-card.component';
 import { SearchDetailViewComponent } from './components/search-detail-view/search-detail-view.component';
+import { CastDetailViewComponent } from './components/cast-detail-view/cast-detail-view.component';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { SearchDetailViewComponent } from './components/search-detail-view/searc
     SearchComponent,
     SearchResultsComponent,
     SearchResultCardComponent,
-    SearchDetailViewComponent
+    SearchDetailViewComponent,
+    CastDetailViewComponent
   ],
   imports: [
     CommonModule,
