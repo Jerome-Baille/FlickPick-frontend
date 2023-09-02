@@ -2,7 +2,7 @@
     <span class="toolbar__title" routerLink="/">Flick Pick</span>
     <span class="spacer"></span>
     <div class="toolbar__links">
-        <a mat-button routerLink="/search">Search</a>
+        <a mat-button routerLink="/media">Search</a>
         <a mat-button routerLink="/profile">Profile</a>
     </div>
     <button mat-icon-button class="hamburger-button" (click)="toggleDrawer()">
@@ -11,7 +11,7 @@
 
     <div *ngIf="isDrawerOpen" class="drawer">
         <mat-list class="drawer__list">
-            <a mat-list-item routerLink="/search" (click)="toggleDrawer()">Search</a>
+            <a mat-list-item routerLink="/media" (click)="toggleDrawer()">Search</a>
             <a mat-list-item routerLink="/profile" (click)="toggleDrawer()">Profile</a>
         </mat-list>
     </div>

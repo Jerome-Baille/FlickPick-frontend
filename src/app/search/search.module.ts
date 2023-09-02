@@ -7,13 +7,15 @@ import { SearchResultsComponent } from './components/search-results/search-resul
 import { SharedModule } from '../shared/shared.module';
 import { CoreModule } from '../core/core.module';
 import { SearchResultCardComponent } from './components/search-result-card/search-result-card.component';
+import { SearchDetailViewComponent } from './components/search-detail-view/search-detail-view.component';
 
 
 @NgModule({
   declarations: [
     SearchComponent,
     SearchResultsComponent,
-    SearchResultCardComponent
+    SearchResultCardComponent,
+    SearchDetailViewComponent
   ],
   imports: [
     CommonModule,

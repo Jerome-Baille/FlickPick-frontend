@@ -1,10 +1,10 @@
-<mat-card class="search-result-card">
-    <span class="search-result-card__check-mark" (click)="onCardClick()">
+<mat-card class="search-result-card" (click)="onNavigateToDetail()">
+    <span class="search-result-card__check-mark" (click)="onCardClick($event)">
         <fa-icon [icon]="isChecked(result.id) ? faCircleCheck : faCirclePlus" />
     </span>
     <div class="search-result-card__poster-container">
         <img mat-card-image class="search-result-card__poster"
-            [src]="result.poster_path ? imageUrlBase + result.poster_path : 'assets/images/poster-not-found.png'"
+            [src]="result.poster_path ? TMDB_IMAGE_BASE_URL + result.poster_path : 'assets/images/poster-not-found.png'"
             alt="{{ result.title || result.name }}" />
     </div>
     <mat-card-content>

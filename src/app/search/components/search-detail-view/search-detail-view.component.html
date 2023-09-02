@@ -1,0 +1,109 @@
+<main>
+    <mat-card class="media-card media-card-grid" *ngIf="media">
+        <div class="poster-column">
+            <div class="poster-container" (click)="findTrailer()">
+                <img mat-card-image
+                    [src]="media.poster_path ? TMDB_IMAGE_BASE_URL + media.poster_path : 'assets/images/poster-not-found.png'"
+                    alt="{{ media.title || media.name }}" />
+                <div class="overlay">
+                    <button mat-icon-button class="play-button">
+                        <mat-icon>play_arrow</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="media-card-text">
+            <mat-card-header>
+                <mat-card-title>
+                    <h1>{{ media.title || media.name }}</h1>
+                </mat-card-title>
+                <mat-card-subtitle class="media-card-subtitle">
+                    <h3>{{ media.tagline }}</h3>
+                </mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-actions class="card-actions">
+                <div class="rating-container">
+                    <mat-progress-spinner mode="determinate" [value]="media.vote_average * 10"
+                        [color]="getBorderColor(media.vote_average)" [diameter]="60" />
+                    <span class="rating">{{ roundVoteAverage(media.vote_average) }}%</span>
+                </div>
+
+                <button mat-button class="tmdb-icon" (click)="goToExternalLink()">
+                    <img [src]="'assets/images/tmdb-logo.svg'" alt="Logo of the movie database.">
+                </button>
+            </mat-card-actions>
+
+            <mat-card-content class="media-card-content">    
+                <p>
+                    <span class="accent">Release Date :</span>
+                    {{ (media.release_date || media.first_air_date) | date: 'dd/MM/yyyy' }}
+                </p>
+                <p>
+                    <span class="accent">Genres : </span>
+                    <span *ngFor="let genre of media.genres; let last = last">{{ genre.name }}{{ !last ? ', ' : ''}}</span>
+                </p>
+                <p>
+                    <span class="accent">Status :</span>
+                    {{ media.status }}
+                </p>
+                <p *ngIf="media.runtime" >
+                    <span class="accent">Runtime :</span>
+                    {{ getDuration(media.runtime || media.episode_run_time) }}
+                </p>
+                <p>
+                    <span class="accent" *ngIf="media.number_of_seasons">Seasons :</span>
+                    {{ media.number_of_seasons }}
+                </p>
+                <p>
+                    <span class="accent" *ngIf="media.number_of_episodes">Episodes :</span>
+                    {{ media.number_of_episodes }}
+                </p>
+                <p>
+                    <span class="accent">Synopsis :</span>
+                    {{ media.overview }}
+                </p>
+            </mat-card-content>
+        </div>
+    </mat-card>
+    
+    <mat-card *ngIf="castArray" class="media-card">
+        <mat-card-header>
+            <mat-card-title>
+                <h3>Cast</h3>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <ol class="cast-container">
+                <li class="cast-card" *ngFor="let cast of castArray">
+                    <img [src]="cast.profile_path ? TMDB_IMAGE_BASE_URL + cast.profile_path : 'assets/images/poster-not-found.png'"
+                        alt="{{ cast.name }}" />
+                    <div class="cast-text">
+                        <span class="cast-name">{{ cast.name }}</span>
+                        <span class="cast-character">{{ cast.character }}</span>
+                    </div>
+                </li>
+            </ol>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card *ngIf="similarArray" class="media-card">
+        <mat-card-header>
+            <mat-card-title>
+                <h3>Similar</h3>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <ol class="similar-container">
+                <li class="similar-card" *ngFor="let similar of similarArray">
+                    <img [src]="similar.poster_path ? TMDB_IMAGE_BASE_URL + similar.poster_path : 'assets/images/poster-not-found.png'"
+                        alt="{{ similar.title || similar.name }}" />
+                    <div class="similar-text">
+                        <span class="similar-title">{{ similar.title || similar.name }}</span>
+                    </div>
+                </li>
+            </ol>
+        </mat-card-content>
+    </mat-card>
+</main>

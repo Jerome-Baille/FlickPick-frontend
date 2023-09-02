@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { faCircleCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
+import { TMDB_IMAGE_BASE_URL } from 'config/tmdb-api';
 
 @Component({
   selector: 'app-search-result-card',
@@ -8,18 +10,25 @@ import { faCircleCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 })
 export class SearchResultCardComponent {
   @Input() result: any;
-  imageUrlBase = 'https://image.tmdb.org/t/p/original';
+  TMDB_IMAGE_BASE_URL = TMDB_IMAGE_BASE_URL;
 
   faCircleCheck = faCircleCheck;
   faCirclePlus = faCirclePlus;
 
-  onCardClick() {
-    let media_type = '';
+  constructor(private router: Router) { }
+
+  getMediaType(): string {
     if (this.result.title) {
-      media_type = 'movie';
+      return 'movie';
     } else if (this.result.name) {
-      media_type = 'tv';
+      return 'tv';
     }
+    return '';
+  }
+
+  onCardClick(event: any) {
+    event.stopPropagation();
+    let media_type = this.getMediaType();
     const storedIdsString = localStorage.getItem('storedIds');
     let storedIds = storedIdsString ? JSON.parse(storedIdsString) : [];
     const index = storedIds.findIndex((item: { id: number, media_type: string }) => item.id === this.result.id);
@@ -35,5 +44,9 @@ export class SearchResultCardComponent {
     const storedIdsString: string | null = localStorage.getItem('storedIds');
     const storedIds: { id: number, media_type: string }[] = storedIdsString ? JSON.parse(storedIdsString) : [];
     return storedIds.some(item => item.id === id);
+  }
+
+  onNavigateToDetail() {
+    this.router.navigate(['/media/detail', this.getMediaType(), this.result.id], { state: { media: this.result } });
   }
 }

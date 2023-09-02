@@ -30,4 +30,19 @@ export class TmdbService {
     return this.http.get(`${this.baseUrl}search/tv`, { params }); 
   }
 
+  getMovieDetails(id: number): Observable<any> {
+    const params = new HttpParams()
+      .set('api_key', TMDB_API_KEY)
+      .set('append_to_response', 'videos,credits,similar');
+  
+    return this.http.get(`${this.baseUrl}movie/${id}`, { params })
+  }
+
+  getTVShowDetails(id: number): Observable<any> {
+    const params = new HttpParams()
+      .set('api_key', TMDB_API_KEY)
+      .set('append_to_response', 'videos,credits,recommendations');
+
+    return this.http.get(`${this.baseUrl}tv/${id}`, { params });
+  }
 }

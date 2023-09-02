@@ -9,9 +9,15 @@ import {MatCardModule} from '@angular/material/card';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { VideoModalComponent } from './components/video-modal/video-modal.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import { YouTubePlayerModule } from '@angular/youtube-player';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    VideoModalComponent
+  ],
   imports: [
     CommonModule,
     FontAwesomeModule,
@@ -22,7 +28,10 @@ import {MatListModule} from '@angular/material/list';
     MatButtonModule,
     MatCardModule,
     MatSidenavModule,
-    MatListModule
+    MatListModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    YouTubePlayerModule
   ],
   exports: [
     FontAwesomeModule,
@@ -33,7 +42,11 @@ import {MatListModule} from '@angular/material/list';
     MatButtonModule,
     MatCardModule,
     MatSidenavModule,
-    MatListModule
+    MatListModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    VideoModalComponent,
+    YouTubePlayerModule
   ]
 })
 export class SharedModule { }
