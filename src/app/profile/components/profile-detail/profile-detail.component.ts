@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TMDB_API_KEY } from 'config/tmdb-api';
+import { TMDB_API_KEY, TMDB_BASE_API_URL } from 'config/tmdb-api';
 
 @Component({
   selector: 'app-profile-detail',
@@ -20,11 +20,10 @@ export class ProfileDetailComponent implements OnInit {
   async getMediaDetails() {
     const storedIdsString: string | null = localStorage.getItem('storedIds');
     const storedIds: { id: number, media_type: string }[] = storedIdsString ? JSON.parse(storedIdsString) : [];
-    const baseUrl: string = 'https://api.themoviedb.org/3';
     const mediaDetails: any[] = [];
 
     for (const item of storedIds) {
-      const url: string = `${baseUrl}/${item.media_type}/${item.id}?api_key=${TMDB_API_KEY}`;
+      const url: string = `${TMDB_BASE_API_URL}/${item.media_type}/${item.id}?api_key=${TMDB_API_KEY}`;
       const response: Response = await fetch(url);
       const data: any = await response.json();
       mediaDetails.push(data);

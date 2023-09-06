@@ -4,6 +4,8 @@
     <div class="toolbar__links">
         <a mat-button routerLink="/media">Search</a>
         <a mat-button routerLink="/profile">Profile</a>
+        <a mat-button routerLink="/auth" *ngIf="!isLoggedIn">Login</a>
+        <a mat-button (click)="onLogout()" *ngIf="isLoggedIn">Logout</a>
     </div>
     <button mat-icon-button class="hamburger-button" (click)="toggleDrawer()">
         <mat-icon>menu</mat-icon>
@@ -16,4 +18,3 @@
         </mat-list>
     </div>
 </mat-toolbar>
-

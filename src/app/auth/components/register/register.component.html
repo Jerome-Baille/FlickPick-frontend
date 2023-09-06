@@ -1,0 +1,21 @@
+<main>
+    <mat-card class="auth-card">
+        <mat-card-header>
+            <mat-card-title>
+                <h1>Register</h1>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="auth-card-content">
+            <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-card-form">
+                <mat-form-field>
+                    <input matInput placeholder="Username" formControlName="username">
+                </mat-form-field>
+                <mat-form-field>
+                    <input matInput type="password" placeholder="Password" formControlName="password">
+                </mat-form-field>
+                <button mat-raised-button color="primary" [disabled]="!registerForm.valid">Register</button>
+            </form>
+            <p>Already have an account? <a routerLink="/auth/login">Login</a></p>
+        </mat-card-content>
+    </mat-card>
+</main>
