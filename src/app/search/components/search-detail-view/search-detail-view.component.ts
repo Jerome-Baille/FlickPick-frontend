@@ -87,7 +87,7 @@ export class SearchDetailViewComponent {
     // Filter the videos to only include those that are trailers
     const trailers = videos.filter((video: { type: string }) => video.type === 'Trailer');
 
-    this.dialog.open(VideoModalComponent,{
+    this.dialog.open(VideoModalComponent, {
       data: {
         trailers: trailers
       }
@@ -108,5 +108,9 @@ export class SearchDetailViewComponent {
     const baseUrl = this.route.snapshot.url.join('/') + '/cast';
     const fullUrl = '/media/' + baseUrl;
     this.router.navigate([fullUrl]);
+  }
+
+  goBack() {
+    window.history.back();
   }
 }

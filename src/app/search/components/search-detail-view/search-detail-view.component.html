@@ -1,5 +1,9 @@
 <main>
     <mat-card class="media-card media-card-grid" *ngIf="media">
+        <button mat-icon-button class="back-button" (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+
         <div class="poster-column">
             <div class="poster-container" (click)="findTrailer()">
                 <img mat-card-image
@@ -18,13 +22,13 @@
                 <mat-card-title>
                     <h1>{{ media.title || media.name }}</h1>
                 </mat-card-title>
-                <mat-card-subtitle class="media-card-subtitle">
+                <mat-card-subtitle class="media-card-subtitle" *ngIf="media.tagline">
                     <h3>{{ media.tagline }}</h3>
                 </mat-card-subtitle>
             </mat-card-header>
 
             <mat-card-actions class="card-actions">
-                <div class="rating-container">
+                <div class="rating-container" *ngIf="media.vote_average">
                     <mat-progress-spinner mode="determinate" [value]="media.vote_average * 10"
                         [color]="getBorderColor(media.vote_average)" [diameter]="60" />
                     <span class="rating">{{ roundVoteAverage(media.vote_average) }}%</span>
@@ -36,15 +40,15 @@
             </mat-card-actions>
 
             <mat-card-content class="media-card-content">    
-                <p>
+                <p *ngIf="media.release_date || media.first_air_date">
                     <span class="accent">Release Date :</span>
                     {{ (media.release_date || media.first_air_date) | date: 'dd/MM/yyyy' }}
                 </p>
-                <p>
+                <p *ngIf="media.genres">
                     <span class="accent">Genres : </span>
                     <span *ngFor="let genre of media.genres; let last = last">{{ genre.name }}{{ !last ? ', ' : ''}}</span>
                 </p>
-                <p>
+                <p *ngIf="media.status">
                     <span class="accent">Status :</span>
                     {{ media.status }}
                 </p>
@@ -52,15 +56,15 @@
                     <span class="accent">Runtime :</span>
                     {{ getDuration(media.runtime || media.episode_run_time) }}
                 </p>
-                <p>
-                    <span class="accent" *ngIf="media.number_of_seasons">Seasons :</span>
+                <p *ngIf="media.number_of_seasons">
+                    <span class="accent">Seasons :</span>
                     {{ media.number_of_seasons }}
                 </p>
-                <p>
-                    <span class="accent" *ngIf="media.number_of_episodes">Episodes :</span>
+                <p *ngIf="media.number_of_episodes">
+                    <span class="accent">Episodes :</span>
                     {{ media.number_of_episodes }}
                 </p>
-                <p>
+                <p *ngIf="media.overview">
                     <span class="accent">Synopsis :</span>
                     {{ media.overview }}
                 </p>

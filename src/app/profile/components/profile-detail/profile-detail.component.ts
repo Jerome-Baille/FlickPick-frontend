@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { TMDB_API_KEY, TMDB_BASE_API_URL } from 'config/tmdb-api';
+import { DataService } from 'src/app/services/data.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile-detail',
@@ -10,27 +12,43 @@ export class ProfileDetailComponent implements OnInit {
   movies!: any[];
   tvShows!: any[];
 
-  constructor() { }
+  private itemRemovedSubscription!: Subscription;
+
+  constructor(
+    private dataService: DataService,
+    private localStorageService: LocalStorageService
+  ) { }
 
   ngOnInit(): void {
     // Call the getMediaDetails function to retrieve media data
     this.getMediaDetails();
+
+    // Subscribe to the item removed event
+    this.itemRemovedSubscription = this.localStorageService.itemRemoved$.subscribe(() => {
+      // Refresh the data when an item is removed
+      this.getMediaDetails();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Unsubscribe from the itemRemovedSubscription to prevent memory leaks
+    if (this.itemRemovedSubscription) {
+      this.itemRemovedSubscription.unsubscribe();
+    }
   }
 
   async getMediaDetails() {
-    const storedIdsString: string | null = localStorage.getItem('storedIds');
-    const storedIds: { id: number, media_type: string }[] = storedIdsString ? JSON.parse(storedIdsString) : [];
-    const mediaDetails: any[] = [];
+    this.dataService.getPersonnalList().subscribe({
+      next: (response: any) => {
+        localStorage.setItem('userPersonalList', JSON.stringify(response));
 
-    for (const item of storedIds) {
-      const url: string = `${TMDB_BASE_API_URL}/${item.media_type}/${item.id}?api_key=${TMDB_API_KEY}`;
-      const response: Response = await fetch(url);
-      const data: any = await response.json();
-      mediaDetails.push(data);
-    }
-
-    // Split the media data into movies and TV shows
-    this.movies = mediaDetails.filter(item => item.title);
-    this.tvShows = mediaDetails.filter(item => item.name);
+        // Split the media data into movies and TV shows
+        this.movies = response.filter((item: any) => item.mediaType === 'movie');
+        this.tvShows = response.filter((item: any) => item.mediaType === 'tv');
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
   }
 }

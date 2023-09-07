@@ -1,17 +1,18 @@
 <mat-card class="search-result-card" (click)="onNavigateToDetail()">
-    <span class="search-result-card__check-mark" (click)="onCardClick($event)">
-        <fa-icon [icon]="isChecked(result.id) ? faCircleCheck : faCirclePlus" />
+    <span class="search-result-card__check-mark"
+        (click)="isChecked(result.tmdbId) ? removeMedia($event) : addMedia($event)">
+        <fa-icon [icon]="isChecked(result.tmdbId) ? faCircleCheck : faCirclePlus" />
     </span>
     <div class="search-result-card__poster-container">
         <img mat-card-image class="search-result-card__poster"
-            [src]="result.poster_path ? TMDB_IMAGE_BASE_URL + result.poster_path : 'assets/images/poster-not-found.png'"
+            [src]="(result.poster_path || result.posterPath) ? TMDB_IMAGE_BASE_URL + (result.poster_path || result.posterPath) : 'assets/images/poster-not-found.png'"
             alt="{{ result.title || result.name }}" />
     </div>
     <mat-card-content>
         <p>
             {{ result.title || result.name }}
-            <span *ngIf="result.release_date || result.first_air_date">({{ (result.release_date ||
-                result.first_air_date) | date:'yyyy'}})</span>
+            <span *ngIf="result.release_date || result.first_air_date || result.releaseDate">({{ (result.release_date ||
+                result.first_air_date || result.releaseDate) | date:'yyyy'}})</span>
         </p>
     </mat-card-content>
 </mat-card>
