@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject, catchError, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, switchMap, tap, throwError } from 'rxjs';
 import { BACKEND_API_URL } from 'config/backend-api';
 import { CookieService } from './cookie.service';
 import { Router } from '@angular/router';
@@ -31,6 +31,7 @@ interface RegisterResponse {
 })
 export class AuthService {
   isLoggedIn$ = new Subject<boolean>();
+  private accessTokenSubject = new BehaviorSubject<string>('');
 
   constructor(
     private http: HttpClient,
@@ -63,4 +64,25 @@ export class AuthService {
 
     this.router.navigate(['/']);
   }
+
+    // Method to handle token refresh
+    refreshToken(): Observable<string> {
+      const refreshToken = this.cookieService.getCookie('PPrefreshToken');
+      if (!refreshToken) {
+        this.logout();
+        return throwError(() => 'Refresh token not found');
+      }
+      return this.http.post<any>(`${BACKEND_API_URL.auth}/refresh`, { refreshToken }).pipe(
+        switchMap((response: any) => {
+          const newAccessToken = response.accessToken;
+          this.cookieService.setCookie('FPaccessToken', newAccessToken, response.accessTokenExpireDate);
+          this.accessTokenSubject.next(newAccessToken);
+          return this.accessTokenSubject;
+        }),
+        catchError((error) => {
+          this.logout();
+          return throwError(() => error);
+        })
+      );
+    }
 }

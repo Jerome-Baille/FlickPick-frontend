@@ -13,10 +13,12 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { VideoModalComponent } from './components/video-modal/video-modal.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import { YouTubePlayerModule } from '@angular/youtube-player';
+import { LoaderComponent } from './components/loader/loader.component';
 
 @NgModule({
   declarations: [
-    VideoModalComponent
+    VideoModalComponent,
+    LoaderComponent
   ],
   imports: [
     CommonModule,
@@ -50,7 +52,8 @@ import { YouTubePlayerModule } from '@angular/youtube-player';
     MatProgressSpinnerModule,
     MatDialogModule,
     VideoModalComponent,
-    YouTubePlayerModule
+    YouTubePlayerModule,
+    LoaderComponent
   ]
 })
 export class SharedModule { }
