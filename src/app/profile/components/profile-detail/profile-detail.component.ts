@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { Subscription } from 'rxjs';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-profile-detail',
@@ -12,12 +13,24 @@ export class ProfileDetailComponent implements OnInit {
   movies!: any[];
   tvShows!: any[];
 
+  userProfile!: any;
+
   private itemRemovedSubscription!: Subscription;
 
   constructor(
     private dataService: DataService,
-    private localStorageService: LocalStorageService
-  ) { }
+    private localStorageService: LocalStorageService,
+    private userService: UserService
+  ) {
+    this.userService.getUserProfileById().subscribe({
+      next: (response: any) => {
+        this.userProfile = response;
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Call the getMediaDetails function to retrieve media data
