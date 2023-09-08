@@ -45,8 +45,4 @@ export class CastDetailViewComponent {
     localStorage.removeItem('castData');
     localStorage.removeItem('crewData');
   }
-
-  onBackClick(): void {
-    window.history.back();
-  }
 }

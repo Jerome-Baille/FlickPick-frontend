@@ -17,11 +17,12 @@ export class ProfileListComponent {
     private dataService: DataService
   ) {
     this.route.params.subscribe(params => {
-      this.listName = params['listName'];
-      this.dataService.getMediaItemsInList(this.listName).subscribe({
+      const listId = params['listId'];
+      this.dataService.getMediaItemsInList(listId).subscribe({
         next: (response: any) => {
-          this.movies = response.filter((item: any) => item.mediaType === 'movie');
-          this.tvShows = response.filter((item: any) => item.mediaType === 'tv');
+          this.listName = response.name;
+          this.movies = response.MediaItems.filter((item: any) => item.mediaType === 'movie');
+          this.tvShows = response.MediaItems.filter((item: any) => item.mediaType === 'tv');
         },
         error: (error) => {
           console.log(error);

@@ -4,6 +4,8 @@ import { faCircleCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { TMDB_IMAGE_BASE_URL } from 'config/tmdb-api';
 import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ActionModalComponent } from 'src/app/shared/components/action-modal/action-modal.component';
 
 interface Media {
   tmdbId: number;
@@ -31,14 +33,17 @@ export class SearchResultCardComponent implements OnInit {
   constructor(
     private router: Router,
     private dataService: DataService,
-    private localStorageService: LocalStorageService
-  ) { }
+    private localStorageService: LocalStorageService,
+    public dialog: MatDialog
+  ) {  }
 
   ngOnInit(): void {
     if (this.result) {
       this.mediaType = this.getMediaType();
 
       this.result.tmdbId = this.result.tmdbId ? this.result.tmdbId : this.result.id;
+
+      console.log(this.result)
     }
   }
 
@@ -56,21 +61,32 @@ export class SearchResultCardComponent implements OnInit {
   addMedia(event: any) {
     event.stopPropagation();
 
-    const tmdbId = this.result.tmdbId;
-    const mediaType = this.mediaType;
-    const title = this.result.title || this.result.name;
-    const releaseDate = this.result.release_date || this.result.first_air_date;
-    const posterPath = this.result.poster_path;
-    this.dataService.addMediaItem({ tmdbId, mediaType, listName: "My_Personal_List", title, releaseDate, posterPath }).subscribe({
-      next: (response: any) => {
-        console.log(response);
-      },
-      error: (error) => {
-        console.log(error);
+    const dialogRef = this.dialog.open(ActionModalComponent);
+
+    dialogRef.afterClosed().subscribe(dialogRes => {
+      if (dialogRes) {
+        for (const res of dialogRes) {
+          const data = {
+            listId: res,
+            tmdbId: this.result.tmdbId,
+            mediaType: this.mediaType,
+            title: this.result.title || this.result.name,
+            releaseDate: this.result.release_date || this.result.first_air_date,
+            posterPath: this.result.poster_path,
+            overview: this.result.overview
+          }
+
+          this.dataService.addMediaItem(data).subscribe({
+            next: (response: any) => {
+              console.log(response);
+            },
+            error: (error) => {
+              console.log(error);
+            }
+          });
+        }
       }
     });
-
-    this.manageStorage({ tmdbId, mediaType, title, releaseDate, posterPath });
   }
 
   removeMedia(event: any) {
@@ -95,9 +111,10 @@ export class SearchResultCardComponent implements OnInit {
   }
 
   isChecked(tmdbId: number): boolean {
-    const storedIdsString: string | null = localStorage.getItem('userPersonalList');
-    const storedIds: { tmdbId: number, mediaType: string }[] = storedIdsString ? JSON.parse(storedIdsString) : [];
-    return storedIds.some(item => item.tmdbId === tmdbId);
+    return false
+    // const storedIdsString: string | null = localStorage.getItem('userPersonalList');
+    // const storedIds: { tmdbId: number, mediaType: string }[] = storedIdsString ? JSON.parse(storedIdsString) : [];
+    // return storedIds.some(item => item.tmdbId === tmdbId);
   }
 
   onNavigateToDetail() {

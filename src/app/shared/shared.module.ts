@@ -14,11 +14,19 @@ import { VideoModalComponent } from './components/video-modal/video-modal.compon
 import {MatDialogModule} from '@angular/material/dialog';
 import { YouTubePlayerModule } from '@angular/youtube-player';
 import { LoaderComponent } from './components/loader/loader.component';
+import { MediaTableViewComponent } from './components/media-table-view/media-table-view.component';
+import { MatTableModule } from '@angular/material/table';
+import { BackButtonComponent } from './components/back-button/back-button.component';
+import { ActionModalComponent } from './components/action-modal/action-modal.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
     VideoModalComponent,
-    LoaderComponent
+    LoaderComponent,
+    MediaTableViewComponent,
+    BackButtonComponent,
+    ActionModalComponent
   ],
   imports: [
     CommonModule,
@@ -35,7 +43,9 @@ import { LoaderComponent } from './components/loader/loader.component';
     MatListModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    YouTubePlayerModule
+    YouTubePlayerModule,
+    MatTableModule,
+    MatCheckboxModule
   ],
   exports: [
     FontAwesomeModule,
@@ -53,7 +63,11 @@ import { LoaderComponent } from './components/loader/loader.component';
     MatDialogModule,
     VideoModalComponent,
     YouTubePlayerModule,
-    LoaderComponent
+    LoaderComponent,
+    MatTableModule,
+    MediaTableViewComponent,
+    BackButtonComponent,
+    MatCheckboxModule
   ]
 })
 export class SharedModule { }

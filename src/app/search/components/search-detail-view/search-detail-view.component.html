@@ -1,8 +1,6 @@
 <main>
     <mat-card class="media-card media-card-grid" *ngIf="media">
-        <button mat-icon-button class="back-button" (click)="goBack()">
-            <mat-icon>arrow_back</mat-icon>
-        </button>
+        <app-back-button />
 
         <div class="poster-column">
             <div class="poster-container" (click)="findTrailer()">

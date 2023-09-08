@@ -33,7 +33,7 @@
                 </mat-list-item>
                 <ng-container *ngIf="userProfile.Lists?.length; else noLists">
                     <mat-list-item *ngFor="let list of userProfile.Lists">
-                        <span matLine routerLink="/profile/list/{{ list.name }}" class="list-element list-element-link">{{ list.name }}</span>
+                        <span matLine routerLink="/profile/list/{{ list.id }}" class="list-element list-element-link">{{ list.name }}</span>
                     </mat-list-item>
                 </ng-container>
                 <ng-template #noLists>

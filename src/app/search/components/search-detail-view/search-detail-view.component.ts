@@ -109,8 +109,4 @@ export class SearchDetailViewComponent {
     const fullUrl = '/media/' + baseUrl;
     this.router.navigate([fullUrl]);
   }
-
-  goBack() {
-    window.history.back();
-  }
 }

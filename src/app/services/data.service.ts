@@ -15,6 +15,7 @@ interface Media {
   title?: string;
   releaseDate?: Date;
   posterPath?: string;
+  overview?: string;
 }
 
 @Injectable({
@@ -48,9 +49,6 @@ export class DataService {
   }
 
   addMediaItem(data: Media){
-    if (data.listName) {
-      data.listName = data.listName.replace(/ /g, "_");
-    }
     return this.http.post(BACKEND_API_URL.media, data);
   }
 
@@ -58,8 +56,8 @@ export class DataService {
     return this.http.delete(`${BACKEND_API_URL.media}/list`, { body: data });
   }
 
-  getMediaItemsInList(listName: string) {
-    return this.http.get(`${BACKEND_API_URL.media}/list/${listName}`);
+  getMediaItemsInList(listId: number) {
+    return this.http.get(`${BACKEND_API_URL.media}/list/${listId}`);
   }
 
   getPersonnalList() {

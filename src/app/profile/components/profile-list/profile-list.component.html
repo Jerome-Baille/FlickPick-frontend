@@ -1,5 +1,6 @@
 <main>
     <mat-card class="list-card">
+        <app-back-button />
         <mat-card-header *ngIf="listName">
             <mat-card-title>
                 <h1>
@@ -7,8 +8,15 @@
                 </h1>
             </mat-card-title>
         </mat-card-header>
-        <mat-card-content>
-            <app-search-results [movies]="movies" [tvShows]="tvShows"></app-search-results>
+        <mat-card-content *ngIf="movies && tvShows">
+            <ng-container *ngIf="movies.length > 0">
+                <h2>Movies</h2>
+                <app-media-table-view [mediaItems]="movies" />
+            </ng-container>
+            <ng-container *ngIf="tvShows.length > 0">
+                <h2>TvShows</h2>
+                <app-media-table-view [mediaItems]="tvShows" />
+            </ng-container>
         </mat-card-content>
     </mat-card>
 </main>
