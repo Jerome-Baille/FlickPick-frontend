@@ -1,7 +1,7 @@
-<table mat-table [dataSource]="mediaItems" class="mat-elevation-z8">
+<table mat-table [dataSource]="mediaItems" class="mat-elevation-z8 table-view-container">
     <!-- Poster column -->
     <ng-container matColumnDef="poster">
-        <td mat-cell *matCellDef="let mediaItem">
+        <td mat-cell *matCellDef="let mediaItem" class="table-img-container">
             <img class="media-table-img" [src]="'https://image.tmdb.org/t/p/w300' + mediaItem.posterPath"
                 alt="{{ mediaItem.title }} poster">
         </td>

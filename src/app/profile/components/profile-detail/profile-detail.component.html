@@ -1,5 +1,4 @@
 <main>
-    <!-- <app-search-results [movies]="movies" [tvShows]="tvShows"></app-search-results> -->
     <mat-card class="profile-card" *ngIf="userProfile">
         <mat-card-header class="profile-card-title">
             <mat-card-title>
@@ -15,9 +14,16 @@
                 <mat-list-item>
                     <h2>Group(s)</h2>
                 </mat-list-item>
+                <div>
+                    <mat-form-field>
+                        <input matInput placeholder="Group Name" [(ngModel)]="groupName">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" (click)="createGroup()">Create Group</button>
+                </div>
                 <ng-container *ngIf="userProfile.Groups?.length; else noGroups">
                     <mat-list-item *ngFor="let group of userProfile.Groups">
-                        <span matLine routerLink="/profile/group/{{ group.name }}" class="list-element list-element-link">{{ group.name }}</span>
+                        <span matLine routerLink="/profile/group/{{ group.name }}"
+                            class="list-element list-element-link">{{ group.name }}</span>
                     </mat-list-item>
                 </ng-container>
                 <ng-template #noGroups>
@@ -31,9 +37,16 @@
                 <mat-list-item>
                     <h2>List(s)</h2>
                 </mat-list-item>
+                <div>
+                    <mat-form-field>
+                        <input matInput placeholder="List Name" [(ngModel)]="listName">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" (click)="createList()">Create List</button>
+                </div>
                 <ng-container *ngIf="userProfile.Lists?.length; else noLists">
                     <mat-list-item *ngFor="let list of userProfile.Lists">
-                        <span matLine routerLink="/profile/list/{{ list.id }}" class="list-element list-element-link">{{ list.name }}</span>
+                        <span matLine routerLink="/profile/list/{{ list.id }}" class="list-element list-element-link">{{
+                            list.name }}</span>
                     </mat-list-item>
                 </ng-container>
                 <ng-template #noLists>

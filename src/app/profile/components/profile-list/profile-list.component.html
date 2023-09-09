@@ -1,21 +1,39 @@
 <main>
     <mat-card class="list-card">
-        <app-back-button />
+        <app-back-button></app-back-button>
         <mat-card-header *ngIf="listName">
             <mat-card-title>
-                <h1>
-                    {{ listName}}
-                </h1>
+                <div class="list-name-container">
+                    <h1 *ngIf="!isEditing">{{ listName }}</h1>
+                    <div *ngIf="!isEditing">
+                        <button mat-icon-button (click)="enterEditMode()">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </div>
+                    <div *ngIf="isEditing" class="list-card-editing">
+                        <input matInput type="text" [(ngModel)]="editedListName" #listNameInput
+                            [ngModelOptions]="{ standalone: true }" />
+                        <button mat-icon-button color="primary" (click)="updateListName(editedListName)">
+                            <mat-icon>done</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="isEditing = false">
+                            <mat-icon>clear</mat-icon>
+                        </button>
+                    </div>
+                </div>
             </mat-card-title>
         </mat-card-header>
-        <mat-card-content *ngIf="movies && tvShows">
+        <ng-container *ngIf="!movies && !tvShows">
+            <span>This list is empty.</span>
+        </ng-container>
+        <mat-card-content *ngIf="movies || tvShows">
             <ng-container *ngIf="movies.length > 0">
                 <h2>Movies</h2>
-                <app-media-table-view [mediaItems]="movies" />
+                <app-media-table-view [mediaItems]="movies"></app-media-table-view>
             </ng-container>
             <ng-container *ngIf="tvShows.length > 0">
                 <h2>TvShows</h2>
-                <app-media-table-view [mediaItems]="tvShows" />
+                <app-media-table-view [mediaItems]="tvShows"></app-media-table-view>
             </ng-container>
         </mat-card-content>
     </mat-card>

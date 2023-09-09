@@ -11,6 +11,9 @@ export class ProfileListComponent {
   movies!: any[];
   tvShows!: any[];
   listName: string = '';
+  listId!: number;
+  isEditing: boolean = false;
+  editedListName: string = "";
 
   constructor(
     private route: ActivatedRoute,
@@ -21,13 +24,39 @@ export class ProfileListComponent {
       this.dataService.getMediaItemsInList(listId).subscribe({
         next: (response: any) => {
           this.listName = response.name;
-          this.movies = response.MediaItems.filter((item: any) => item.mediaType === 'movie');
-          this.tvShows = response.MediaItems.filter((item: any) => item.mediaType === 'tv');
+          this.listId = response.id;
+
+          if (response.MediaItems?.length > 0) {
+            this.movies = response.MediaItems.filter((item: any) => item.mediaType === 'movie');
+            this.tvShows = response.MediaItems.filter((item: any) => item.mediaType === 'tv');
+          }
         },
         error: (error) => {
           console.log(error);
         }
       })
+    });
+  }
+
+  enterEditMode(): void {
+    this.isEditing = true;
+    this.editedListName = this.listName;
+  }
+
+  updateListName(newListName: string): void {
+    this.listName = newListName;
+    this.isEditing = false;
+
+    const updatedList = {
+      name: this.listName
+    }
+    this.dataService.updateList(this.listId, updatedList).subscribe({
+      next: (response: any) => {
+        console.log(response);
+      },
+      error: (error) => {
+        console.log(error);
+      }
     });
   }
 }

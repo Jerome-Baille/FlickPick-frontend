@@ -44,7 +44,7 @@ export class DataService {
     return this.http.get(BACKEND_API_URL.list);
   }
 
-  createList(list: List) {
+  createList(list: any) {
     return this.http.post(BACKEND_API_URL.list, list);
   }
 
@@ -62,5 +62,13 @@ export class DataService {
 
   getPersonnalList() {
     return this.http.get(`${BACKEND_API_URL.media}/list/My_Personal_List`);
+  }
+
+  createGroup(group: any) {
+    return this.http.post(BACKEND_API_URL.group, group); // needs name. Can add userIds and listName.
+  }
+
+  updateList(listId: number, updatedList: any) {
+    return this.http.patch(`${BACKEND_API_URL.list}/${listId}`, updatedList);
   }
 }
