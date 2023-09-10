@@ -15,9 +15,6 @@
                     <h2>Group(s)</h2>
                 </mat-list-item>
                 <div>
-                    <mat-form-field>
-                        <input matInput placeholder="Group Name" [(ngModel)]="groupName">
-                    </mat-form-field>
                     <button mat-raised-button color="primary" (click)="createGroup()">Create Group</button>
                 </div>
                 <ng-container *ngIf="userProfile.Groups?.length; else noGroups">

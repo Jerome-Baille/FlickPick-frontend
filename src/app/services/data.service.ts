@@ -18,6 +18,12 @@ interface Media {
   overview?: string;
 }
 
+interface Group {
+  name: string;
+  userIds: number[];
+  listName: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -64,11 +70,15 @@ export class DataService {
     return this.http.get(`${BACKEND_API_URL.media}/list/My_Personal_List`);
   }
 
-  createGroup(group: any) {
-    return this.http.post(BACKEND_API_URL.group, group); // needs name. Can add userIds and listName.
+  createGroup(groupData: Group) {
+    return this.http.post(BACKEND_API_URL.group, groupData); // needs name, userIds and listName.
   }
 
   updateList(listId: number, updatedList: any) {
     return this.http.patch(`${BACKEND_API_URL.list}/${listId}`, updatedList);
+  }
+
+  getUsers(){
+    return this.http.get(BACKEND_API_URL.user);
   }
 }

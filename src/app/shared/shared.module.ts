@@ -19,6 +19,11 @@ import { MatTableModule } from '@angular/material/table';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { ActionModalComponent } from './components/action-modal/action-modal.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import { CreateGroupModalComponent } from './components/create-group-modal/create-group-modal.component';
+import {MatOptionModule} from '@angular/material/core';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import {MatChipsModule} from '@angular/material/chips';
 
 @NgModule({
   declarations: [
@@ -26,7 +31,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     LoaderComponent,
     MediaTableViewComponent,
     BackButtonComponent,
-    ActionModalComponent
+    ActionModalComponent,
+    CreateGroupModalComponent
   ],
   imports: [
     CommonModule,
@@ -45,7 +51,11 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatDialogModule,
     YouTubePlayerModule,
     MatTableModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatOptionModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatChipsModule
   ],
   exports: [
     FontAwesomeModule,
@@ -67,7 +77,11 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     MatTableModule,
     MediaTableViewComponent,
     BackButtonComponent,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatOptionModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatChipsModule
   ]
 })
 export class SharedModule { }

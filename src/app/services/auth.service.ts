@@ -67,7 +67,7 @@ export class AuthService {
 
     // Method to handle token refresh
     refreshToken(): Observable<string> {
-      const refreshToken = this.cookieService.getCookie('PPrefreshToken');
+      const refreshToken = this.cookieService.getCookie('FPrefreshToken');
       if (!refreshToken) {
         this.logout();
         return throwError(() => 'Refresh token not found');
