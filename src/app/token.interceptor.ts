@@ -9,13 +9,13 @@ import {
 import { CookieService } from './services/cookie.service';
 import { LoaderService } from './services/loader.service';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, switchMap, finalize, filter } from 'rxjs/operators';
+import { catchError, switchMap, finalize, filter, tap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   private isRefreshingToken = false;
-  private tokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  private accessTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor(
     private cookieService: CookieService,
@@ -59,16 +59,16 @@ export class TokenInterceptor implements HttpInterceptor {
   private handleTokenRefreshAndRetry(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.isRefreshingToken) {
       this.isRefreshingToken = true;
-      this.tokenSubject.next(null);
+      this.accessTokenSubject.next(null);
 
       return this.authService.refreshToken().pipe(
-        switchMap((newToken: string | null) => {
+        switchMap((newToken: string) => {
           if (newToken !== null) {
             // Store the new token and update the headers in the original request
-            this.tokenSubject.next(newToken);
+            this.accessTokenSubject.next(newToken);
             request = request.clone({
               setHeaders: {
-                Authorization: newToken || '' // Use an empty string if newToken is null
+                Authorization: `Bearer ${newToken}`
               }
             });
 
@@ -94,7 +94,7 @@ export class TokenInterceptor implements HttpInterceptor {
       );
     } else {
       // If token refresh is already in progress, wait for it to complete and then retry the request
-      return this.tokenSubject.pipe(
+      return this.accessTokenSubject.pipe(
         filter((token): token is string => token !== null),
         switchMap((token: string) => {
           // Retry the request with the new token
