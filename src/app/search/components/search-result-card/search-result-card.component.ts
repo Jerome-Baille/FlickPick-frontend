@@ -42,8 +42,6 @@ export class SearchResultCardComponent implements OnInit {
       this.mediaType = this.getMediaType();
 
       this.result.tmdbId = this.result.tmdbId ? this.result.tmdbId : this.result.id;
-
-      console.log(this.result)
     }
   }
 

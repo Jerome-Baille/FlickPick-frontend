@@ -1,35 +1,43 @@
 <mat-dialog-content>
     <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="form">
-        <mat-form-field>
-            <mat-label>Group Title</mat-label>
-            <input matInput placeholder="Name" formControlName="name" (keyup)="replaceSpacesWithUnderscores($event)">
-        </mat-form-field>
-        <mat-form-field>
-            <mat-label>Choose a list</mat-label>
-            <input type="text" matInput placeholder="List Name" formControlName="listName" [matAutocomplete]="autoList"
-                (keyup)="replaceSpacesWithUnderscores($event)">
-            <mat-autocomplete #autoList="matAutocomplete" [displayWith]="displayListName">
-                <mat-option *ngFor="let listName of listNames" [value]="listName">
-                    {{listName}}
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
-        <mat-form-field>
-            <mat-label>Group Members</mat-label>
-            <input #userInput type="text" matInput placeholder="Group Members"
-                [matAutocomplete]="autoUser" multiple>
-            <mat-autocomplete #autoUser="matAutocomplete" [displayWith]="displayUser">
-                <mat-option *ngFor="let user of users" [value]="user" (click)="toggleUserSelection(user)">
-                    {{ user.username }}
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
-        <div class="chip-container">
-            <mat-chip *ngFor="let user of selectedUsers" [removable]="true" (removed)="toggleUserSelection(user)">
-                {{user.username}}
-                <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
-        </div>
+        <ng-container *ngIf="groupForm.contains('name')">
+            <mat-form-field>
+                <mat-label>Title</mat-label>
+                <input matInput placeholder="Title" formControlName="name"
+                    (keyup)="replaceSpacesWithUnderscores($event)">
+            </mat-form-field>
+        </ng-container>
+        <ng-container *ngIf="groupForm.contains('listName')">
+            <mat-form-field>
+                <mat-label>Choose a list</mat-label>
+                <input type="text" matInput placeholder="List Name" formControlName="listName"
+                    [matAutocomplete]="autoList" (keyup)="replaceSpacesWithUnderscores($event)">
+                <mat-autocomplete #autoList="matAutocomplete" [displayWith]="displayListName">
+                    <mat-option *ngFor="let listName of filteredListNames | async" [value]="listName">
+                        {{listName}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </ng-container>
+        <ng-container *ngIf="groupForm.contains('userIds')">
+            <mat-form-field>
+                <mat-label>Group Members</mat-label>
+                <input #userInput type="text" matInput placeholder="Group Members" [matAutocomplete]="autoUser"
+                    multiple>
+                <mat-autocomplete #autoUser="matAutocomplete" [displayWith]="displayUser">
+                    <mat-option *ngFor="let user of filteredUsers | async" [value]="user"
+                        (click)="toggleUserSelection(user)">
+                        {{ user.username }}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+            <div class="chip-container">
+                <mat-chip *ngFor="let user of selectedUsers" [removable]="true" (removed)="toggleUserSelection(user)">
+                    {{user.username}}
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+            </div>
+        </ng-container>
         <mat-dialog-actions class="form-actions">
             <button mat-button mat-dialog-close>Cancel</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="!groupForm.valid"

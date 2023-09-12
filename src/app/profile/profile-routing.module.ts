@@ -7,7 +7,7 @@ import { ProfileGroupComponent } from './components/profile-group/profile-group.
 const routes: Routes = [
   { path: 'own', component: ProfileDetailComponent },
   { path: 'list/:listId', component: ProfileListComponent },
-  { path: 'group/:groupName', component: ProfileGroupComponent },
+  { path: 'group/:groupId', component: ProfileGroupComponent },
   { path: '', pathMatch: 'full', redirectTo:'own' }
 ];
 

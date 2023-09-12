@@ -59,4 +59,8 @@ export class ProfileListComponent {
       }
     });
   }
+
+  replaceSpacesWithUnderscores(event: any) {
+    event.target.value = event.target.value.replace(/\s+/g, '_');
+  }
 }

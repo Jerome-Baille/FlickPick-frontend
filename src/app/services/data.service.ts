@@ -81,4 +81,20 @@ export class DataService {
   getUsers(){
     return this.http.get(BACKEND_API_URL.user);
   }
+
+  getGroupById(groupId: number) {
+    return this.http.get(`${BACKEND_API_URL.group}/${groupId}`);
+  }
+
+  updateGroup(groupId: number, updatedGroup: any) {
+    return this.http.patch(`${BACKEND_API_URL.group}/${groupId}`, updatedGroup);
+  }
+
+  deleteList(listId: number) {
+    return this.http.delete(`${BACKEND_API_URL.list}/${listId}`);
+  }
+
+  deleteGroup(groupId: number) {
+    return this.http.delete(`${BACKEND_API_URL.group}/${groupId}`);
+  }
 }
