@@ -1,18 +1,22 @@
 <mat-card class="search-result-card" (click)="onNavigateToDetail()">
-    <span class="search-result-card__check-mark"
-        (click)="isChecked(result.tmdbId) ? removeMedia($event) : addMedia($event)">
-        <fa-icon [icon]="isChecked(result.tmdbId) ? faCircleCheck : faCirclePlus" />
-    </span>
     <div class="search-result-card__poster-container">
         <img mat-card-image class="search-result-card__poster"
             [src]="(result.poster_path || result.posterPath) ? TMDB_IMAGE_BASE_URL + (result.poster_path || result.posterPath) : 'assets/images/poster-not-found.png'"
             alt="{{ result.title || result.name }}" />
     </div>
     <mat-card-content>
-        <p>
+        <p class="overview">
             {{ result.title || result.name }}
             <span *ngIf="result.release_date || result.first_air_date || result.releaseDate">({{ (result.release_date ||
                 result.first_air_date || result.releaseDate) | date:'yyyy'}})</span>
         </p>
     </mat-card-content>
+
+    <mat-card-actions class="result-card-action">
+        <button mat-icon-button 
+            (click)="isChecked(result.tmdbId) ? removeMedia($event) : addMedia($event)">
+            <fa-icon [icon]="isChecked(result.tmdbId) ? faCircleCheck : faCirclePlus" />
+        </button>
+        <app-fav-button [media]="result"/>
+    </mat-card-actions>
 </mat-card>

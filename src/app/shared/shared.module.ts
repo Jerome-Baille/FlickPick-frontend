@@ -24,6 +24,7 @@ import {MatOptionModule} from '@angular/material/core';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatChipsModule} from '@angular/material/chips';
+import { FavButtonComponent } from './components/fav-button/fav-button.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import {MatChipsModule} from '@angular/material/chips';
     MediaTableViewComponent,
     BackButtonComponent,
     ActionModalComponent,
-    CreateGroupModalComponent
+    CreateGroupModalComponent,
+    FavButtonComponent
   ],
   imports: [
     CommonModule,
@@ -81,7 +83,8 @@ import {MatChipsModule} from '@angular/material/chips';
     MatOptionModule,
     MatAutocompleteModule,
     MatFormFieldModule,
-    MatChipsModule
+    MatChipsModule,
+    FavButtonComponent
   ]
 })
 export class SharedModule { }

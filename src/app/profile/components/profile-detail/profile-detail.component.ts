@@ -3,6 +3,7 @@ import { DataService } from 'src/app/services/data.service';
 import { UserService } from 'src/app/services/user.service';
 import { CreateGroupModalComponent } from 'src/app/shared/components/create-group-modal/create-group-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-profile-detail',
@@ -15,6 +16,8 @@ export class ProfileDetailComponent {
 
   userProfile!: any;
   listName: string = '';
+
+  faCirclePlus = faCirclePlus;
 
   constructor(
     private userService: UserService,
@@ -109,6 +112,18 @@ export class ProfileDetailComponent {
       next: (response: any) => {
         window.alert(response.message);
         this.userProfile.Groups = this.userProfile.Groups.filter((g: any) => g.id !== group.id);
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    })
+  }
+
+  removeFromFavorites(item: any){
+    this.dataService.removeFromFavorites({tmdbId: item.tmdbId, mediaType: item.mediaType}).subscribe({
+      next: (response: any) => {
+        window.alert(response.message);
+        this.userProfile.MediaItems = this.userProfile.MediaItems.filter((f: any) => f.id !== item.id);
       },
       error: (error) => {
         console.log(error);

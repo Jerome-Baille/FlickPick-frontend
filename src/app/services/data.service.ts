@@ -97,4 +97,16 @@ export class DataService {
   deleteGroup(groupId: number) {
     return this.http.delete(`${BACKEND_API_URL.group}/${groupId}`);
   }
+
+  addToFavorites(data: Media) {
+    return this.http.post(`${BACKEND_API_URL.user}/favorite`, data);
+  }
+
+  removeFromFavorites(data: Media) {
+    return this.http.delete(`${BACKEND_API_URL.user}/favorite`, { body: data });
+  }
+
+  getUserFavorites() {
+    return this.http.get(`${BACKEND_API_URL.user}/favorite`);
+  }
 }
