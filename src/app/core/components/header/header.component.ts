@@ -13,9 +13,7 @@ export class HeaderComponent {
   constructor(
     private authService: AuthService
   ) {
-    this.authService.isLoggedIn$.subscribe((isLoggedIn) => {
-      this.isLoggedIn = isLoggedIn;
-    });
+    this.isLoggedIn = this.authService.isUserLoggedIn();
   }
 
   toggleDrawer() {

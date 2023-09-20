@@ -1,21 +1,29 @@
 <main>
     <mat-card class="auth-card">
-        <mat-card-header>
+        <mat-card-header class="auth-card-title">
             <mat-card-title>
-                <h1>Login</h1>
+                <h1>
+                    {{ isUserLoggedIn ? 'Welcome back!' : 'Login' }}
+                </h1>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content class="auth-card-content">
-            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-card-form">
-                <mat-form-field>
-                    <input matInput placeholder="Username" formControlName="username">
-                </mat-form-field>
-                <mat-form-field>
-                    <input matInput type="password" placeholder="Password" formControlName="password">
-                </mat-form-field>
-                <button mat-raised-button color="primary" [disabled]="!loginForm.valid">Login</button>
-            </form>
-            <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
+            <ng-container *ngIf="isUserLoggedIn">
+                <button mat-raised-button color="warn" (click)="onLogout()">Logout</button>
+            </ng-container>
+
+            <section *ngIf="!isUserLoggedIn">
+                <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-card-form">
+                    <mat-form-field>
+                        <input matInput placeholder="Username" formControlName="username">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput type="password" placeholder="Password" formControlName="password">
+                    </mat-form-field>
+                    <button mat-raised-button color="primary" [disabled]="!loginForm.valid">Login</button>
+                </form>
+                <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
+            </section>
         </mat-card-content>
     </mat-card>
 </main>
