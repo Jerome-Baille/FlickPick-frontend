@@ -26,7 +26,8 @@ import { CastDetailViewComponent } from './components/cast-detail-view/cast-deta
     CoreModule
   ],
   exports: [
-    SearchResultsComponent
+    SearchResultsComponent,
+    SearchResultCardComponent
   ]
 })
 export class SearchModule { }

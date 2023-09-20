@@ -109,4 +109,24 @@ export class DataService {
   getUserFavorites() {
     return this.http.get(`${BACKEND_API_URL.user}/favorite`);
   }
+
+  createVote(data: Media) {
+    return this.http.post(`${BACKEND_API_URL.vote}`, data);
+  }
+
+  getVotesByUserAndGroup(groupId: number) {
+    return this.http.get(`${BACKEND_API_URL.vote}/group-and-user/${groupId}`);
+  }
+
+  deleteVote(data: Media) {
+    return this.http.delete(`${BACKEND_API_URL.vote}`, { body: data });
+  }
+
+  getAllMediaItemsForUserInGroup(groupId: number) {
+    return this.http.get(`${BACKEND_API_URL.group}/media/${groupId}`);
+  }
+
+  getVotesByGroup(groupId: number) {
+    return this.http.get(`${BACKEND_API_URL.vote}/group/${groupId}`);
+  }
 }

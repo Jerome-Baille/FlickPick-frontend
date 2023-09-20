@@ -1,0 +1,66 @@
+.choosing-game
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+    gap: 1rem
+    margin-bottom: 2rem
+
+    ul
+        list-style-type: none
+
+.mat-header
+    margin: auto
+
+.mat-card-container
+    display: grid
+    grid-template-columns: repeat(2, 1fr)
+    gap: 1rem
+
+.mat-card
+    transition: background-color 0.2s
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1)
+    background-color: #181D39
+    border-radius: 8px
+    overflow: hidden
+    margin: auto
+
+    .mat-card-content
+        padding: 16px
+
+    p
+        font-size: 16px // Customize the font size as needed
+        text-align: center
+
+.mat-card-text
+    margin: 1rem !important
+
+.mat-card-button
+    &:hover
+        cursor: pointer
+        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3)
+
+.checkbox-text
+    color: white
+
+.checkbox-container
+    display: flex
+    flex-direction: column
+    align-items: center
+    gap: 1rem
+
+.mat-card-poster
+    max-width: 100%
+    height: auto
+    object-fit: cover
+
+.mat-card-poster-container
+    display: flex
+    justify-content: center
+    align-items: center
+
+.genre-list
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))
+    gap: 2rem
+    width: 100%
+    padding: 0

@@ -6,17 +6,19 @@ import { DataService } from 'src/app/services/data.service';
 import { CreateGroupModalComponent } from 'src/app/shared/components/create-group-modal/create-group-modal.component';
 
 @Component({
-  selector: 'app-profile-group',
-  templateUrl: './profile-group.component.html',
-  styleUrls: ['./profile-group.component.sass']
+  selector: 'app-group-detail',
+  templateUrl: './group-detail.component.html',
+  styleUrls: ['./group-detail.component.sass']
 })
-export class ProfileGroupComponent {
-  groupName: string = '';
-  groupId!: number;
+export class GroupDetailComponent {
   isEditing: boolean = false;
   editedGroupName: string = '';
+
+  groupData: any = {};
   groupMembers: any[] = [];
   groupList: any[] = [];
+  groupMedia: any[] = [];
+
 
   faCirclePlus = faCirclePlus;
 
@@ -27,12 +29,13 @@ export class ProfileGroupComponent {
   ) {
     this.route.params.subscribe(params => {
       const groupId = params['groupId'];
+
       this.dataService.getGroupById(groupId).subscribe({
         next: (response: any) => {
-          this.groupName = response.name;
-          this.groupId = response.id;
-          this.groupMembers = response.Users;
-          this.groupList = response.Lists;
+          this.groupData = response.group;
+          this.groupMembers = response.group.Users;
+          this.groupList = response.group.Lists;
+          this.groupMedia = response.MediaItems;
         },
         error: (error) => {
           console.log(error);
@@ -43,17 +46,17 @@ export class ProfileGroupComponent {
 
   enterEditMode(): void {
     this.isEditing = true;
-    this.editedGroupName = this.groupName;
+    this.editedGroupName = this.groupData.name;
   }
 
   updateGroupName(newGroupName: string): void {
-    this.groupName = newGroupName;
+    this.groupData.name = newGroupName;
     this.isEditing = false;
 
     const updatedGroup = {
-      name: this.groupName
+      name: this.groupData.name
     }
-    this.dataService.updateGroup(this.groupId, updatedGroup).subscribe({
+    this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
       next: (response: any) => {
         console.log(response);
       },
@@ -76,7 +79,7 @@ export class ProfileGroupComponent {
           userIds: this.groupMembers.map((m: any) => m.id).concat(result.users.map((u: any) => u.id))
         }
 
-        this.dataService.updateGroup(this.groupId, updatedGroup).subscribe({
+        this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
           next: (response: any) => {
             console.log(response);
             this.groupMembers = result.users;
@@ -94,7 +97,7 @@ export class ProfileGroupComponent {
       const updatedGroup = {
         userIds: this.groupMembers.filter((m: any) => m.id !== member.id).map((m: any) => m.id)
       }
-      this.dataService.updateGroup(this.groupId, updatedGroup).subscribe({
+      this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
         next: (response: any) => {
           console.log(response);
           this.groupMembers = this.groupMembers.filter((m: any) => m.id !== member.id);
@@ -123,7 +126,7 @@ export class ProfileGroupComponent {
           listName: result.listName
         }
 
-        this.dataService.updateGroup(this.groupId, updatedGroup).subscribe({
+        this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
           next: (response: any) => {
             this.groupList = response.group.Lists;
           },

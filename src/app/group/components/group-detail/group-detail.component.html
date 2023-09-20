@@ -1,0 +1,72 @@
+<main>
+    <mat-card class="list-card">
+        <app-back-button></app-back-button>
+        <mat-card-header *ngIf="groupData.name" class="group-header">
+            <mat-card-title>
+                <div class="list-name-container">
+                    <h1 *ngIf="!isEditing">{{ groupData.name }}</h1>
+                    <div *ngIf="!isEditing">
+                        <button mat-icon-button (click)="enterEditMode()">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </div>
+                    <div *ngIf="isEditing" class="list-card-editing">
+                        <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
+                            [ngModelOptions]="{ standalone: true }" (keyup)="replaceSpacesWithUnderscores($event)" />
+                        <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
+                            <mat-icon>done</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="isEditing = false">
+                            <mat-icon>clear</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <mat-accordion *ngIf="groupMembers && groupMembers.length > 0">
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <div class="members-container">
+                                <h2>Members ({{ groupMembers.length }})</h2>
+                                <button mat-icon-button color="primary" (click)="addMember()">
+                                    <fa-icon [icon]="faCirclePlus" />
+                                </button>
+                            </div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <mat-chip-listbox>
+                        <mat-chip color="primary" *ngFor="let member of groupMembers">
+                            <button matChipRemove color="warn" (click)="deleteMember(member)">
+                                <mat-icon>cancel</mat-icon>
+                            </button>
+                            {{ member.username }}
+                        </mat-chip>
+                    </mat-chip-listbox>
+                </mat-expansion-panel>
+            </mat-accordion>
+
+            <section *ngIf="groupList && groupList.length > 0">
+                <header class="list-header">
+                    <h2>List</h2>
+                    <p routerLink="/profile/list/{{ groupList[0].id }}">
+                        {{ groupList[0].name }}
+                    </p>
+                    <button mat-icon-button color="primary" (click)="updateGroupList($event)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </header>
+
+            </section>
+
+            <ng-container *ngIf="!groupData.hasVoted; else mediaTableView">
+                <app-choosing-game />
+            </ng-container>
+
+            <ng-template #mediaTableView>
+                <app-media-table-view [mediaItems]="groupMedia" />
+            </ng-template>
+        </mat-card-content>
+    </mat-card>
+</main>
