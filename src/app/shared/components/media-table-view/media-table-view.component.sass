@@ -48,3 +48,48 @@
     .winner-icon
         color: gold
         font-size: 1.5rem
+
+.mobile-only
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    gap: 2rem
+
+    .mobile-container
+        background-color: #fff
+        color: black
+        border-radius: 8px
+        padding: 1rem
+        position: relative
+
+        .winner-icon
+            position: absolute
+            top: -15px
+            left: -20px
+            color: gold
+            font-size: 1.5rem
+            background-color: #fff
+            z-index: 999
+            padding: 8px
+            border-radius: 50px
+            border: 2px solid gold
+
+    .img-container
+        display: flex
+        flex-direction: column
+        justify-content: center
+        align-items: center
+        gap: 1rem
+        width: fit-content
+
+    img
+        width: 100%
+
+@media screen and (min-width: 768px)
+    .mobile-only
+        display: none
+
+@media screen and (max-width: 768px)
+    .desktop-only
+        display: none

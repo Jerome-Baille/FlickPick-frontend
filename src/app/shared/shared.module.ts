@@ -26,6 +26,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatChipsModule} from '@angular/material/chips';
 import { FavButtonComponent } from './components/fav-button/fav-button.component';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {MatBadgeModule} from '@angular/material/badge';
 
 @NgModule({
   declarations: [
@@ -59,7 +60,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatAutocompleteModule,
     MatFormFieldModule,
     MatChipsModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatBadgeModule
   ],
   exports: [
     FontAwesomeModule,
@@ -87,7 +89,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatFormFieldModule,
     MatChipsModule,
     FavButtonComponent,
-    MatExpansionModule
+    MatExpansionModule,
+    MatBadgeModule
   ]
 })
 export class SharedModule { }
