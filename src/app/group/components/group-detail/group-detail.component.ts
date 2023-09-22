@@ -36,6 +36,12 @@ export class GroupDetailComponent {
           this.groupMembers = response.group.Users;
           this.groupList = response.group.Lists;
           this.groupMedia = response.MediaItems;
+
+          if (response.group.isAdmin && response.group.isAdmin === true) {
+            this.groupMedia = this.groupMedia.map(media => {
+              return { ...media, isAdmin: true };
+            });
+          }
         },
         error: (error) => {
           console.log(error);
@@ -140,5 +146,24 @@ export class GroupDetailComponent {
 
   replaceSpacesWithUnderscores(event: any) {
     event.target.value = event.target.value.replace(/\s+/g, '_');
+  }
+
+  resetVotes() {
+    this.dataService.deleteVotesByGroup(this.groupData.id).subscribe({
+      next: (response: any) => {
+        console.log(response);
+        this.groupData.hasVoted = false;
+        this.groupMedia = this.groupMedia.map(media => {
+          return { ...media, votes: [] };
+        });
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    })
+  }
+
+  hasMediaWithVotes(): boolean {
+    return this.groupMedia.some(media => media.votes.length > 0);
   }
 }

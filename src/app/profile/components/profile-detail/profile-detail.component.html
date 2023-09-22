@@ -41,7 +41,7 @@
                 </mat-list-item>
                 <ng-container *ngIf="userProfile.Groups?.length; else noGroups">
                     <mat-list-item *ngFor="let group of userProfile.Groups">
-                        <button mat-icon-button color="warn" (click)="deleteGroup(group)">
+                        <button *ngIf="group.isAdmin" mat-icon-button color="warn" (click)="deleteGroup(group)">
                             <mat-icon>delete</mat-icon>
                         </button>
                         <span matLine routerLink="/group/detail/{{ group.id }}"

@@ -5,21 +5,24 @@
             <mat-card-title>
                 <div class="list-name-container">
                     <h1 *ngIf="!isEditing">{{ groupData.name }}</h1>
-                    <div *ngIf="!isEditing">
-                        <button mat-icon-button (click)="enterEditMode()">
-                            <mat-icon>edit</mat-icon>
-                        </button>
-                    </div>
-                    <div *ngIf="isEditing" class="list-card-editing">
-                        <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
-                            [ngModelOptions]="{ standalone: true }" (keyup)="replaceSpacesWithUnderscores($event)" />
-                        <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
-                            <mat-icon>done</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="isEditing = false">
-                            <mat-icon>clear</mat-icon>
-                        </button>
-                    </div>
+                    <ng-container *ngIf="groupData.isAdmin">
+                        <div *ngIf="!isEditing">
+                            <button mat-icon-button (click)="enterEditMode()">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </div>
+                        <div *ngIf="isEditing" class="list-card-editing">
+                            <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
+                                [ngModelOptions]="{ standalone: true }"
+                                (keyup)="replaceSpacesWithUnderscores($event)" />
+                            <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
+                                <mat-icon>done</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="isEditing = false">
+                                <mat-icon>clear</mat-icon>
+                            </button>
+                        </div>
+                    </ng-container>
                 </div>
             </mat-card-title>
         </mat-card-header>
@@ -30,7 +33,7 @@
                         <mat-panel-title>
                             <div class="members-container">
                                 <h2>Members ({{ groupMembers.length }})</h2>
-                                <button mat-icon-button color="primary" (click)="addMember()">
+                                <button *ngIf="groupData.isAdmin" mat-icon-button color="primary" (click)="addMember()">
                                     <fa-icon [icon]="faCirclePlus" />
                                 </button>
                             </div>
@@ -38,7 +41,7 @@
                     </mat-expansion-panel-header>
                     <mat-chip-listbox>
                         <mat-chip color="primary" *ngFor="let member of groupMembers">
-                            <button matChipRemove color="warn" (click)="deleteMember(member)">
+                            <button *ngIf="groupData.isAdmin" matChipRemove color="warn" (click)="deleteMember(member)">
                                 <mat-icon>cancel</mat-icon>
                             </button>
                             {{ member.username }}
@@ -53,11 +56,14 @@
                     <p routerLink="/profile/list/{{ groupList[0].id }}">
                         {{ groupList[0].name }}
                     </p>
-                    <button mat-icon-button color="primary" (click)="updateGroupList($event)">
+                    <button *ngIf="groupData.isAdmin" mat-icon-button color="primary" (click)="updateGroupList($event)">
                         <mat-icon>edit</mat-icon>
                     </button>
                 </header>
 
+                <button mat-raised-button *ngIf="groupData.isAdmin && hasMediaWithVotes()" color="primary" (click)="resetVotes()">
+                    Reset the votes
+                </button>
             </section>
 
             <ng-container *ngIf="!groupData.hasVoted; else mediaTableView">

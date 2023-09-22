@@ -1,16 +1,20 @@
 <ng-container *ngIf="mediaItems && mediaItems.length > 0">
     <!-- Mobile column -->
     <section class="mobile-only">
-        <div class="mobile-container" *ngFor="let mediaItem of mediaItems; let i = index" matBadge="{{ i + 1 }}" matBadgeSize="large" matBadgePosition="before"
-            matBadgeColor="primary" (click)="navigateToMedia(mediaItem)">
-            <fa-icon [icon]="faTrophy" *ngIf="i === 0" class="winner-icon" />
-            
+        <div class="mobile-container" *ngFor="let mediaItem of mediaItems; let i = index" matBadge="{{ i + 1 }}"
+            matBadgeSize="large" matBadgePosition="before" matBadgeColor="primary" (click)="navigateToMedia(mediaItem)">
+            <fa-icon [icon]="faTrophy" *ngIf="i === 0 && mediaItem.sumOfRatings" class="winner-icon" />
+
             <div class="img-container">
                 <img class="media-table-img" [src]="TMDB_IMAGE_BASE_URL_300 + mediaItem.posterPath"
                     alt="{{ mediaItem.title }} poster">
 
                 {{ mediaItem.title }} ({{ mediaItem.releaseDate | date: 'yyyy' }})
             </div>
+
+            <button mat-icon-button color="warn" *ngIf='mediaItem.isAdmin' (click)="deleteMediaItem(mediaItem); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+            </button>
         </div>
     </section>
 
@@ -21,7 +25,7 @@
                 <div class="rank-container">
                     {{ i + 1 }}
 
-                    <fa-icon [icon]="faTrophy" *ngIf="i === 0" class="winner-icon" />
+                    <fa-icon [icon]="faTrophy" *ngIf="i === 0 && mediaItem.sumOfRatings" class="winner-icon" />
                 </div>
 
                 <!-- <div *ngIf="mediaItem.rating && mediaItem.rating > 0" class="star-container">
@@ -76,7 +80,7 @@
         <!-- Delete column -->
         <ng-container matColumnDef="delete">
             <td mat-cell *matCellDef="let mediaItem">
-                <button mat-icon-button color="warn" (click)="deleteMediaItem(mediaItem)">
+                <button mat-icon-button color="warn" *ngIf='mediaItem.isAdmin' (click)="deleteMediaItem(mediaItem)">
                     <mat-icon>delete</mat-icon>
                 </button>
             </td>

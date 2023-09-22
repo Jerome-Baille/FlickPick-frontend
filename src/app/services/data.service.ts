@@ -129,4 +129,8 @@ export class DataService {
   getVotesByGroup(groupId: number) {
     return this.http.get(`${BACKEND_API_URL.vote}/group/${groupId}`);
   }
+
+  deleteVotesByGroup(groupId: number) {
+    return this.http.delete(`${BACKEND_API_URL.vote}/group/${groupId}`);
+  }
 }

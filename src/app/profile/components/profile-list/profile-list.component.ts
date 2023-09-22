@@ -29,6 +29,10 @@ export class ProfileListComponent {
           if (response.MediaItems?.length > 0) {
             this.movies = response.MediaItems.filter((item: any) => item.mediaType === 'movie');
             this.tvShows = response.MediaItems.filter((item: any) => item.mediaType === 'tv');
+            if (response.isAdmin) {
+              this.movies.forEach((movie: any) => movie.isAdmin = true);
+              this.tvShows.forEach((tvShow: any) => tvShow.isAdmin = true);
+            }
           }
         },
         error: (error) => {

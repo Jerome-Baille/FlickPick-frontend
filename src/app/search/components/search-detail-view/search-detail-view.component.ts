@@ -40,7 +40,6 @@ export class SearchDetailViewComponent {
     mediaObservable.subscribe({
       next: (media) => {
         this.media = media;
-        console.log(this.media);
         this.getCast();
         this.getSimilar(this.mediaType);
         this.dataService.setCastData(this.media.credits.cast);
