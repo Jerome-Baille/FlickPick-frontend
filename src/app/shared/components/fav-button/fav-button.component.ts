@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faHeartCircleMinus, faHeartCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { DataService } from 'src/app/services/data.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-fav-button',
@@ -15,7 +16,8 @@ export class FavButtonComponent implements OnInit {
   faHeartCircleMinus = faHeartCircleMinus;
 
   constructor(
-    private dataService: DataService
+    private dataService: DataService,
+    private snackbarService: SnackbarService
   ) {  }
 
   ngOnInit(): void {
@@ -38,22 +40,20 @@ export class FavButtonComponent implements OnInit {
 
     if (this.isFav) {
       this.dataService.removeFromFavorites(mediaPayload).subscribe({
-        next: (data: any) => {
-          console.log(data);
-          window.alert(data.message);
+        next: (response: any) => {
+          this.snackbarService.showSuccess(response.message);
         },
-        error: (error: any) => {
-          console.log(error);
+        error: (err: any) => {
+          this.snackbarService.showError(err);
         }
       });
     } else {
       this.dataService.addToFavorites(mediaPayload).subscribe({
-        next: (data: any) => {
-          console.log(data);
-          window.alert(data.message);
+        next: (response: any) => {
+          this.snackbarService.showSuccess(response.message);
         },
-        error: (error: any) => {
-          console.log(error);
+        error: (err: any) => {
+          this.snackbarService.showError(err);
         }
       });
     }

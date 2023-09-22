@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { DataService } from 'src/app/services/data.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 import { CreateGroupModalComponent } from 'src/app/shared/components/create-group-modal/create-group-modal.component';
 
 @Component({
@@ -25,6 +26,7 @@ export class GroupDetailComponent {
   constructor(
     private route: ActivatedRoute,
     private dataService: DataService,
+    private snackbarService: SnackbarService,
     public dialog: MatDialog
   ) {
     this.route.params.subscribe(params => {
@@ -43,8 +45,8 @@ export class GroupDetailComponent {
             });
           }
         },
-        error: (error) => {
-          console.log(error);
+        error: (err) => {
+          this.snackbarService.showError(err);
         }
       })
     });
@@ -64,10 +66,10 @@ export class GroupDetailComponent {
     }
     this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
       next: (response: any) => {
-        console.log(response);
+        this.snackbarService.showSuccess(response.message);
       },
-      error: (error) => {
-        console.log(error);
+      error: (err) => {
+        this.snackbarService.showError(err);
       }
     });
   }
@@ -87,11 +89,11 @@ export class GroupDetailComponent {
 
         this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
           next: (response: any) => {
-            console.log(response);
+            this.snackbarService.showSuccess(response.message);
             this.groupMembers = result.users;
           },
-          error: (error) => {
-            console.log(error);
+          error: (err) => {
+            this.snackbarService.showError(err);
           }
         });
       }
@@ -105,11 +107,11 @@ export class GroupDetailComponent {
       }
       this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
         next: (response: any) => {
-          console.log(response);
+          this.snackbarService.showSuccess(response.message);
           this.groupMembers = this.groupMembers.filter((m: any) => m.id !== member.id);
         },
-        error: (error) => {
-          console.log(error);
+        error: (err) => {
+          this.snackbarService.showError(err);
         }
       });
     } else {
@@ -136,8 +138,8 @@ export class GroupDetailComponent {
           next: (response: any) => {
             this.groupList = response.group.Lists;
           },
-          error: (error) => {
-            console.log(error);
+          error: (err) => {
+            this.snackbarService.showError(err);
           }
         });
       }
@@ -151,14 +153,14 @@ export class GroupDetailComponent {
   resetVotes() {
     this.dataService.deleteVotesByGroup(this.groupData.id).subscribe({
       next: (response: any) => {
-        console.log(response);
+        this.snackbarService.showSuccess(response.message);
         this.groupData.hasVoted = false;
         this.groupMedia = this.groupMedia.map(media => {
           return { ...media, votes: [] };
         });
       },
-      error: (error) => {
-        console.log(error);
+      error: (err) => {
+        this.snackbarService.showError(err);
       }
     })
   }

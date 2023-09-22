@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, map, startWith } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 interface DialogData {
   formType: string;
@@ -27,6 +28,7 @@ export class CreateGroupModalComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private dataService: DataService,
+    private snackbarService: SnackbarService,
     private dialogRef: MatDialogRef<CreateGroupModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {
@@ -66,8 +68,8 @@ export class CreateGroupModalComponent implements OnInit {
             );
           }
         },
-        error: (error) => {
-          console.log(error);
+        error: (err: any) => {
+          this.snackbarService.showError(err);
         }
       });
     }
@@ -89,8 +91,8 @@ export class CreateGroupModalComponent implements OnInit {
             );
           }
         },
-        error: (error) => {
-          console.log(error);
+        error: (err: any) => {
+          this.snackbarService.showError(err);
         }
       });
     }

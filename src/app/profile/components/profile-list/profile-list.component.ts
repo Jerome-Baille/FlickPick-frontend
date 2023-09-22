@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from 'src/app/services/data.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-profile-list',
@@ -17,7 +18,8 @@ export class ProfileListComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private dataService: DataService
+    private dataService: DataService,
+    private snackbarService: SnackbarService
   ) {
     this.route.params.subscribe(params => {
       const listId = params['listId'];
@@ -35,8 +37,8 @@ export class ProfileListComponent {
             }
           }
         },
-        error: (error) => {
-          console.log(error);
+        error: (err: any) => {
+          this.snackbarService.showError(err);
         }
       })
     });
@@ -56,10 +58,10 @@ export class ProfileListComponent {
     }
     this.dataService.updateList(this.listId, updatedList).subscribe({
       next: (response: any) => {
-        console.log(response);
+        this.snackbarService.showSuccess(response.message);
       },
-      error: (error) => {
-        console.log(error);
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     });
   }

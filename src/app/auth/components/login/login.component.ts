@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
-import { UserService } from 'src/app/services/user.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +16,8 @@ export class LoginComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private snackbarService: SnackbarService,
   ) {
     this.isUserLoggedIn = this.authService.isUserLoggedIn();
 
@@ -35,14 +36,12 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
-        console.log(response);
-      },
-      error: (error) => {
-        console.log(error);
-      },
-      complete: () => {
+        this.snackbarService.showSuccess(response.message);
         this.loginForm.reset();
         this.router.navigate(['/']);
+      },
+      error: () => {
+        this.snackbarService.showError('Invalid username or password');
       }
     })
   }

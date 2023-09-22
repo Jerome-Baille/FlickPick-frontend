@@ -6,6 +6,7 @@ import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActionModalComponent } from 'src/app/shared/components/action-modal/action-modal.component';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 interface Media {
   tmdbId: number;
@@ -34,8 +35,9 @@ export class SearchResultCardComponent implements OnInit {
     private router: Router,
     private dataService: DataService,
     private localStorageService: LocalStorageService,
+    private snackbarService: SnackbarService,
     public dialog: MatDialog
-  ) {  }
+  ) { }
 
   ngOnInit(): void {
     if (this.result) {
@@ -76,10 +78,10 @@ export class SearchResultCardComponent implements OnInit {
 
           this.dataService.addMediaItem(data).subscribe({
             next: (response: any) => {
-              console.log(response);
+              this.snackbarService.showSuccess(response.message);
             },
-            error: (error) => {
-              console.log(error);
+            error: (err: any) => {
+              this.snackbarService.showError(err);
             }
           });
         }
@@ -95,13 +97,13 @@ export class SearchResultCardComponent implements OnInit {
 
     this.dataService.deleteMediaItemFromList({ tmdbId, mediaType, listName: "My_Personal_List" }).subscribe({
       next: (response: any) => {
-        console.log(response);
+        this.snackbarService.showSuccess(response.message);
 
         // Trigger the item removed event
         this.localStorageService.triggerItemRemoved();
       },
-      error: (error) => {
-        console.log(error);
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     });
 

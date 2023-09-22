@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,8 @@ export class RegisterComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private snackbarService: SnackbarService
   ) {
     this.registerForm = this.formBuilder.group({
       username: ['', Validators.required],
@@ -29,14 +31,12 @@ export class RegisterComponent {
 
     this.authService.register(this.registerForm.value).subscribe({
       next: (response) => {
-        console.log(response);
-      },
-      error: (error) => {
-        console.log(error);
-      },
-      complete: () => {
+        this.snackbarService.showSuccess(response.message);
         this.registerForm.reset();
         this.router.navigate(['/']);
+      },
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     })
   }

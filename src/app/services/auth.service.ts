@@ -21,6 +21,7 @@ interface LoginResponse {
 }
 
 interface RegisterResponse {
+  message: string;
   id: number;
   username: string;
   password: string;
@@ -66,8 +67,6 @@ export class AuthService {
     this.cookieService.deleteCookie('FPrefreshToken');
 
     this.isLoggedIn$.next(false);
-
-    this.router.navigate(['/']);
   }
 
   // Method to handle token refresh

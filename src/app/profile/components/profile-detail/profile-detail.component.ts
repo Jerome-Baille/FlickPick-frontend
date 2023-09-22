@@ -4,6 +4,7 @@ import { UserService } from 'src/app/services/user.service';
 import { CreateGroupModalComponent } from 'src/app/shared/components/create-group-modal/create-group-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-profile-detail',
@@ -22,14 +23,15 @@ export class ProfileDetailComponent {
   constructor(
     private userService: UserService,
     private dataService: DataService,
+    private snackbarService: SnackbarService,
     public dialog: MatDialog
   ) {
     this.userService.getUserProfileById().subscribe({
       next: (response: any) => {
         this.userProfile = response;
       },
-      error: (error) => {
-        console.log(error);
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     });
   }
@@ -61,8 +63,8 @@ export class ProfileDetailComponent {
               this.userProfile.Lists.push(response.list);
             }
           },
-          error: (error) => {
-            console.log(error);
+          error: (err: any) => {
+            this.snackbarService.showError(err);
           }
         });
       }
@@ -84,11 +86,11 @@ export class ProfileDetailComponent {
 
         this.dataService.createList(listData).subscribe({
           next: (response: any) => {
-            console.log(response);
+            this.snackbarService.showSuccess(response.message);
             this.userProfile.Lists.push(response.list);
           },
-          error: (error) => {
-            console.log(error);
+          error: (err: any) => {
+            this.snackbarService.showError(err);
           }
         });
       }
@@ -101,8 +103,8 @@ export class ProfileDetailComponent {
         window.alert(response.message);
         this.userProfile.Lists = this.userProfile.Lists.filter((l: any) => l.id !== list.id);
       },
-      error: (error) => {
-        console.log(error);
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     })
   }
@@ -113,8 +115,8 @@ export class ProfileDetailComponent {
         window.alert(response.message);
         this.userProfile.Groups = this.userProfile.Groups.filter((g: any) => g.id !== group.id);
       },
-      error: (error) => {
-        console.log(error);
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     })
   }
@@ -125,8 +127,8 @@ export class ProfileDetailComponent {
         window.alert(response.message);
         this.userProfile.MediaItems = this.userProfile.MediaItems.filter((f: any) => f.id !== item.id);
       },
-      error: (error) => {
-        console.log(error);
+      error: (err: any) => {
+        this.snackbarService.showError(err);
       }
     })
   }

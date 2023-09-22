@@ -4,6 +4,7 @@ import { DataService } from 'src/app/services/data.service';
 import { TmdbService } from 'src/app/services/tmdb.service';
 import { forkJoin, Observable } from 'rxjs';
 import { TMDB_IMAGE_BASE_URL_300 } from 'config/tmdb-api';
+import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
   selector: 'app-choosing-game',
@@ -29,7 +30,8 @@ export class ChoosingGameComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private dataService: DataService,
-    private tmdbService: TmdbService
+    private tmdbService: TmdbService,
+    private snackbarService: SnackbarService
   ) { }
 
   ngOnInit() {
@@ -71,7 +73,7 @@ export class ChoosingGameComponent implements OnInit {
           });
         },
         error: (err: any) => {
-          console.log(err);
+          this.snackbarService.showError(err);
         }
       });
     });
@@ -104,7 +106,7 @@ export class ChoosingGameComponent implements OnInit {
 
       if (this.displayedItems.length === 0) {
         // No media items match the user's selection
-        console.log('No media items match the user\'s selection');
+        this.snackbarService.showError('No media items match the user\'s selection');
         return;
       }
 
@@ -124,11 +126,11 @@ export class ChoosingGameComponent implements OnInit {
           };
 
           this.dataService.createVote(data).subscribe({
-            next: (data: any) => {
-              console.log(data);
+            next: (response: any) => {
+              this.snackbarService.showSuccess(response.message);
             },
             error: (err: any) => {
-              console.log(err);
+              this.snackbarService.showError(err);
             }
           });
         });
@@ -171,11 +173,11 @@ export class ChoosingGameComponent implements OnInit {
           };
 
           this.dataService.createVote(data).subscribe({
-            next: (data: any) => {
-              console.log(data);
+            next: (response: any) => {
+              this.snackbarService.showSuccess(response.message);
             },
             error: (err: any) => {
-              console.log(err);
+              this.snackbarService.showError(err);
             }
           });
         });
@@ -198,11 +200,11 @@ export class ChoosingGameComponent implements OnInit {
           };
 
           this.dataService.createVote(data).subscribe({
-            next: (data: any) => {
-              console.log(data);
+            next: (response: any) => {
+              this.snackbarService.showSuccess(response.message);
             },
             error: (err: any) => {
-              console.log(err);
+              this.snackbarService.showError(err);
             }
           });
         });
