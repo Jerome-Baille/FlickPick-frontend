@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, catchError, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, switchMap, tap, throwError } from 'rxjs';
 import { BACKEND_API_URL } from 'config/backend-api';
 import { CookieService } from './cookie.service';
-import { Router } from '@angular/router';
 
 interface LoginForm {
   username: string;
@@ -31,18 +30,22 @@ interface RegisterResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  isLoggedIn$ = new Subject<boolean>();
+  private isLoggedIn$ = new BehaviorSubject<boolean>(false);
   private accessTokenSubject = new BehaviorSubject<string>('');
 
   constructor(
     private http: HttpClient,
     private cookieService: CookieService,
-    private router: Router
-  ) { }
+  ) {
+    // Initialize the authentication state from local storage
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    this.isLoggedIn$.next(isLoggedIn);
+  }
 
   isUserLoggedIn(): boolean {
-    const accessToken = this.cookieService.getCookie('FPaccessToken');
-    return !!accessToken;
+    // const accessToken = this.cookieService.getCookie('FPaccessToken');
+    // return !!accessToken;
+    return this.isLoggedIn$.getValue();
   }
 
   register(loginForm: LoginForm): Observable<RegisterResponse> {
@@ -55,6 +58,8 @@ export class AuthService {
         this.cookieService.setCookie('FPaccessToken', response.accessToken, response.accessTokenExpireDate);
         this.cookieService.setCookie('FPrefreshToken', response.refreshToken, response.refreshTokenExpireDate);
         this.isLoggedIn$.next(true);
+        // Store the authentication state in local storage
+        localStorage.setItem('isLoggedIn', 'true');
       }),
       catchError((error) => {
         return throwError(() => error);
@@ -67,6 +72,12 @@ export class AuthService {
     this.cookieService.deleteCookie('FPrefreshToken');
 
     this.isLoggedIn$.next(false);
+    // Remove the authentication state from local storage
+    localStorage.removeItem('isLoggedIn');
+  }
+
+  get authStatusChanged() {
+    return this.isLoggedIn$.asObservable();
   }
 
   // Method to handle token refresh

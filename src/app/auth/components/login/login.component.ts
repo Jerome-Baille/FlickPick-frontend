@@ -11,7 +11,7 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
 })
 export class LoginComponent {
   loginForm!: FormGroup;
-  isUserLoggedIn: boolean = false;
+  isLoggedIn = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -19,14 +19,19 @@ export class LoginComponent {
     private router: Router,
     private snackbarService: SnackbarService,
   ) {
-    this.isUserLoggedIn = this.authService.isUserLoggedIn();
+    this.isLoggedIn = this.authService.isUserLoggedIn();
+    this.authService.authStatusChanged.subscribe(
+      (isLoggedIn: boolean) => {
+        this.isLoggedIn = isLoggedIn;
 
-    if (!this.isUserLoggedIn) {
-      this.loginForm = this.formBuilder.group({
-        username: ['', Validators.required],
-        password: ['', Validators.required]
-      });
-    }
+        if (!this.isLoggedIn) {
+          this.loginForm = this.formBuilder.group({
+            username: ['', Validators.required],
+            password: ['', Validators.required]
+          });
+        }
+      }
+    );
   }
 
   onLogin() {

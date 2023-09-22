@@ -28,6 +28,7 @@ import { FavButtonComponent } from './components/fav-button/fav-button.component
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { BasicModalComponent } from './components/basic-modal/basic-modal.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     BackButtonComponent,
     ActionModalComponent,
     CreateGroupModalComponent,
-    FavButtonComponent
+    FavButtonComponent,
+    BasicModalComponent
   ],
   imports: [
     CommonModule,
