@@ -9,7 +9,7 @@
 
 Flick Pick is a collaborative movie and TV show selection platform that allows users to create groups, add media items (movies and TV shows), vote on what to watch, maintain personal lists, and keep favorite items.
 
-## Table of Contents
+## 📌 Table of Contents
 
 - [Technologies Used](#technologies-used)
 - [Features](#features)
@@ -37,7 +37,7 @@ Flick Pick is a collaborative movie and TV show selection platform that allows u
   - MySQL
   - Sequelize (ORM)
 
-## Features
+## 🗺️ Features
 
 - User Authentication:
   - Register, log in, and log out.
@@ -55,7 +55,7 @@ Flick Pick is a collaborative movie and TV show selection platform that allows u
 - Favorites:
   - Mark media items as favorites for personal use.
 
-## Installation
+## ⚙️ Set Up
 
 To run the Flick Pick app locally, follow these steps:
 
@@ -65,7 +65,7 @@ To run the Flick Pick app locally, follow these steps:
 4. Run the backend server using `npm start` in the backend directory.
 5. Run the frontend using `ng serve` in the frontend directory.
 
-## Usage
+## 🚀 Usage
 
 1. Register or log in to your account.
 2. Create groups and add members.
@@ -81,7 +81,7 @@ Flick Pick uses the TMDB API for fetching media data. You will need to obtain yo
 
 Contributions to Flick Pick are welcome. Please submit issues or pull requests.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License.
 
@@ -90,11 +90,11 @@ This project is licensed under the MIT License.
 - [Jerome BAILLE](https://github.com/Jerome-Baille) - Frontend Development
 - [Jerome BAILLE](https://github.com/Jerome-Baille) - Backend Development
 
-## Contact Information
+## 🤔 Contact Information
 
 For questions or support, please contact me through [my website](https://jerome-baille.fr).
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - Thanks to the Angular, Node.js, and Sequelize communities for their fantastic tools and libraries.
 - Special thanks to the TMDB API for providing media data.
