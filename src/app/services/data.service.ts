@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { BACKEND_API_URL } from 'config/backend-api';
 import { HttpClient } from '@angular/common/http';
-
-interface List {
-  name: string;
-  groupId: number;
-}
+import { environment } from 'src/environments/environment.prod';
 
 interface Media {
   tmdbId: number;
@@ -28,6 +23,12 @@ interface Group {
   providedIn: 'root'
 })
 export class DataService {
+  private userURL = environment.userURL;
+  private groupURL = environment.groupURL;
+  private listURL = environment.listURL;
+  private mediaURL = environment.mediaURL;
+  private voteURL = environment.voteURL;
+
   private castData = new BehaviorSubject<any>(null);
   private crewData = new BehaviorSubject<any>(null);
 
@@ -47,90 +48,90 @@ export class DataService {
   }
 
   getAllListsForUser() {
-    return this.http.get(BACKEND_API_URL.list);
+    return this.http.get(`${this.listURL}`);
   }
 
   createList(list: any) {
-    return this.http.post(BACKEND_API_URL.list, list);
+    return this.http.post(`${this.listURL}`, list);
   }
 
   addMediaItem(data: Media){
-    return this.http.post(BACKEND_API_URL.media, data);
+    return this.http.post(`${this.mediaURL}`, data);
   }
 
   deleteMediaItemFromList(data: Media) {
-    return this.http.delete(`${BACKEND_API_URL.media}/list`, { body: data });
+    return this.http.delete(`${this.mediaURL}/list`, { body: data });
   }
 
   getMediaItemsInList(listId: number) {
-    return this.http.get(`${BACKEND_API_URL.media}/list/${listId}`);
+    return this.http.get(`${this.mediaURL}/list/${listId}`);
   }
 
   getPersonnalList() {
-    return this.http.get(`${BACKEND_API_URL.media}/list/My_Personal_List`);
+    return this.http.get(`${this.mediaURL}/list/My_Personal_List`);
   }
 
   createGroup(groupData: Group) {
-    return this.http.post(BACKEND_API_URL.group, groupData); // needs name, userIds and listName.
+    return this.http.post(`${this.groupURL}`, groupData); // needs name, userIds and listName.
   }
 
   updateList(listId: number, updatedList: any) {
-    return this.http.patch(`${BACKEND_API_URL.list}/${listId}`, updatedList);
+    return this.http.patch(`${this.listURL}/${listId}`, updatedList);
   }
 
   getUsers(){
-    return this.http.get(BACKEND_API_URL.user);
+    return this.http.get(`${this.userURL}`);
   }
 
   getGroupById(groupId: number) {
-    return this.http.get(`${BACKEND_API_URL.group}/${groupId}`);
+    return this.http.get(`${this.groupURL}/${groupId}`);
   }
 
   updateGroup(groupId: number, updatedGroup: any) {
-    return this.http.patch(`${BACKEND_API_URL.group}/${groupId}`, updatedGroup);
+    return this.http.patch(`${this.groupURL}/${groupId}`, updatedGroup);
   }
 
   deleteList(listId: number) {
-    return this.http.delete(`${BACKEND_API_URL.list}/${listId}`);
+    return this.http.delete(`${this.listURL}/${listId}`);
   }
 
   deleteGroup(groupId: number) {
-    return this.http.delete(`${BACKEND_API_URL.group}/${groupId}`);
+    return this.http.delete(`${this.groupURL}/${groupId}`);
   }
 
   addToFavorites(data: Media) {
-    return this.http.post(`${BACKEND_API_URL.user}/favorite`, data);
+    return this.http.post(`${this.userURL}/favorite`, data);
   }
 
   removeFromFavorites(data: Media) {
-    return this.http.delete(`${BACKEND_API_URL.user}/favorite`, { body: data });
+    return this.http.delete(`${this.userURL}/favorite`, { body: data });
   }
 
   getUserFavorites() {
-    return this.http.get(`${BACKEND_API_URL.user}/favorite`);
+    return this.http.get(`${this.userURL}/favorite`);
   }
 
   createVote(data: Media) {
-    return this.http.post(`${BACKEND_API_URL.vote}`, data);
+    return this.http.post(`${this.voteURL}`, data);
   }
 
   getVotesByUserAndGroup(groupId: number) {
-    return this.http.get(`${BACKEND_API_URL.vote}/group-and-user/${groupId}`);
+    return this.http.get(`${this.voteURL}/group-and-user/${groupId}`);
   }
 
   deleteVote(data: Media) {
-    return this.http.delete(`${BACKEND_API_URL.vote}`, { body: data });
+    return this.http.delete(`${this.voteURL}`, { body: data });
   }
 
   getAllMediaItemsForUserInGroup(groupId: number) {
-    return this.http.get(`${BACKEND_API_URL.group}/media/${groupId}`);
+    return this.http.get(`${this.groupURL}/media/${groupId}`);
   }
 
   getVotesByGroup(groupId: number) {
-    return this.http.get(`${BACKEND_API_URL.vote}/group/${groupId}`);
+    return this.http.get(`${this.voteURL}/group/${groupId}`);
   }
 
   deleteVotesByGroup(groupId: number) {
-    return this.http.delete(`${BACKEND_API_URL.vote}/group/${groupId}`);
+    return this.http.delete(`${this.voteURL}/group/${groupId}`);
   }
 }

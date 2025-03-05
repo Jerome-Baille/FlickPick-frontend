@@ -3,8 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { DataService } from 'src/app/services/data.service';
 import { TmdbService } from 'src/app/services/tmdb.service';
 import { forkJoin, Observable } from 'rxjs';
-import { TMDB_IMAGE_BASE_URL_300 } from 'config/tmdb-api';
 import { SnackbarService } from 'src/app/services/snackbar.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-choosing-game',
@@ -12,7 +12,7 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
   styleUrls: ['./choosing-game.component.sass']
 })
 export class ChoosingGameComponent implements OnInit {
-  TMDB_IMAGE_BASE_URL_300 = TMDB_IMAGE_BASE_URL_300;
+  TMDB_IMAGE_BASE_URL_300 = environment.TMDB_IMAGE_BASE_URL_300;
   mediaItems!: any[];
   selectedChoice: string | null = null;
   choiceA: any = { title: 'Short', condition: 'mediaItem.runtime < 60' };

@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faFilm } from '@fortawesome/free-solid-svg-icons';
-import { TMDB_IMAGE_BASE_URL } from 'config/tmdb-api';
 import { DataService } from 'src/app/services/data.service';
 import { TmdbService } from 'src/app/services/tmdb.service';
 import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-search-detail-view',
@@ -14,7 +14,7 @@ import { VideoModalComponent } from 'src/app/shared/components/video-modal/video
 })
 export class SearchDetailViewComponent {
   media!: any;
-  TMDB_IMAGE_BASE_URL = TMDB_IMAGE_BASE_URL;
+  TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
   mediaType!: string;
   castArray!: any[];
   similarArray!: any[];

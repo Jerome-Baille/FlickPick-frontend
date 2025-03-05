@@ -1,12 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { faCircleCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { TMDB_IMAGE_BASE_URL } from 'config/tmdb-api';
 import { DataService } from 'src/app/services/data.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActionModalComponent } from 'src/app/shared/components/action-modal/action-modal.component';
 import { SnackbarService } from 'src/app/services/snackbar.service';
+import { environment } from 'src/environments/environment.prod';
 
 interface Media {
   tmdbId: number;
@@ -24,7 +24,7 @@ interface Media {
 })
 export class SearchResultCardComponent implements OnInit {
   @Input() result: any;
-  TMDB_IMAGE_BASE_URL = TMDB_IMAGE_BASE_URL;
+  TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
 
   mediaType!: string;
 

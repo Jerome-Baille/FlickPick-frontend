@@ -20,9 +20,11 @@ export class SearchComponent {
       this.loading = true;
       this.error = null;
 
-      this.tmdbService.searchMovies(this.searchQuery).subscribe({
-        next: (movies) => {
-          this.movies = movies.results;
+      this.tmdbService.searchMulti(this.searchQuery).subscribe({
+        next: (results) => {
+          console.log(results);
+          this.movies = results.results.filter((result: any) => result.media_type === 'movie');
+          this.tvShows = results.results.filter((result: any) => result.media_type === 'tv');
         },
         error: (error) => {
           this.error = error.status_message;
@@ -32,19 +34,7 @@ export class SearchComponent {
           this.loading = false;
         }
       });
-
-      this.tmdbService.searchTVShows(this.searchQuery).subscribe({
-        next: (tvShows) => {
-          this.tvShows = tvShows.results;
-        },
-        error: (error) => {
-          this.error = error.status_message;
-          console.error('Error:', error);
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
+      
     } else {
       // Clear the results when search query is empty
       this.movies = [];

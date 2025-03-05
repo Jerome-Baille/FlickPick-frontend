@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BACKEND_API_URL } from 'config/backend-api';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment.prod';
 
 interface UserProfile {
   id: number;
@@ -27,10 +27,15 @@ interface Group {
   providedIn: 'root'
 })
 export class UserService {
+  private userURL = environment.userURL;
 
   constructor(private http: HttpClient) { }
 
   getUserProfileById(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${BACKEND_API_URL.user}/profile`);
+    return this.http.get<UserProfile>(`${this.userURL}/profile`);
+  }
+
+  createUser(userId: string, username: string) {
+    return this.http.post(`${this.userURL}/create`, {userId, username}, {withCredentials: true});
   }
 }

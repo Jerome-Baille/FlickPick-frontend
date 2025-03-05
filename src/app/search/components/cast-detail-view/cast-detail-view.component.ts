@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { TMDB_IMAGE_BASE_URL } from 'config/tmdb-api';
 import { DataService } from 'src/app/services/data.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-cast-detail-view',
@@ -10,7 +10,7 @@ import { DataService } from 'src/app/services/data.service';
 export class CastDetailViewComponent {
   castData: any;
   crewData: any;
-  TMDB_IMAGE_BASE_URL = TMDB_IMAGE_BASE_URL;
+  TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
 
   constructor(private dataService: DataService) { }
 

@@ -1,9 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { faStar, faTrophy } from '@fortawesome/free-solid-svg-icons';
-import { TMDB_IMAGE_BASE_URL_300 } from 'config/tmdb-api';
 import { DataService } from 'src/app/services/data.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-media-table-view',
@@ -15,7 +15,7 @@ export class MediaTableViewComponent {
 
   faTrophy = faTrophy;
 
-  TMDB_IMAGE_BASE_URL_300 = TMDB_IMAGE_BASE_URL_300;
+  TMDB_IMAGE_BASE_URL_300 = environment.TMDB_IMAGE_BASE_URL_300;
 
   faStar = faStar;
 
