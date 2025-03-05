@@ -9,20 +9,18 @@
         </mat-card-header>
         <mat-card-content class="auth-card-content">
             <ng-container *ngIf="isLoggedIn">
-                <button mat-raised-button color="warn" (click)="onLogout()">Logout</button>
+                <button mat-raised-button color="warn" (click)="onLogout()" [disabled]="isLoading">
+                    <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+                    <span *ngIf="!isLoading">Logout</span>
+                </button>
             </ng-container>
 
             <section *ngIf="!isLoggedIn">
-                <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-card-form">
-                    <mat-form-field>
-                        <input matInput placeholder="Username" formControlName="username">
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput type="password" placeholder="Password" formControlName="password">
-                    </mat-form-field>
-                    <button mat-raised-button color="primary" [disabled]="!loginForm.valid">Login</button>
-                </form>
-                <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
+                <button mat-raised-button color="primary" (click)="onLogin()" [disabled]="isLoading">
+                    <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+                    <span *ngIf="!isLoading">Login with External Service</span>
+                </button>
+                <p>Don't have an account? <a routerLink="/auth/register" [class.disabled]="isLoading">Register</a></p>
             </section>
         </mat-card-content>
     </mat-card>

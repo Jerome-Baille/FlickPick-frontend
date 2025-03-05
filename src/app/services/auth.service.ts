@@ -1,64 +1,110 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
-import { Router } from '@angular/router';
+import { tap, map, filter, take } from 'rxjs/operators';
+import { Observable, combineLatest } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+
+interface VerifyResponse {
+  message: string;
+  status: string;
+  userId?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private authURL = environment.authURL;
-  private loggedIn$ = new BehaviorSubject<boolean>(this.getInitialLoginState());
+  private authFrontURL = environment.authFrontURL;
+
+  // Using signal instead of BehaviorSubject
+  private authState = signal<boolean>(false);
+  // Expose the signal as a readonly signal
+  readonly isAuthenticated = this.authState.asReadonly();
+  
+  // New signal to track if verification is complete
+  private verificationCompleted = signal<boolean>(false);
+
+  // Create observables from the signals
+  readonly authState$ = toObservable(this.isAuthenticated);
+  readonly verificationCompleted$ = toObservable(this.verificationCompleted.asReadonly());
 
   constructor(
     private http: HttpClient,
-    private router: Router
-  ) { }
-
-  private getInitialLoginState(): boolean {
-    return localStorage.getItem('loggedIn') === 'true';
+  ) {
+    this.verifyAuthState();
   }
 
-  get isLoggedIn() {
-    return this.loggedIn$.asObservable();
+  private verifyAuthState() {
+    this.http.get<VerifyResponse>(`${this.authURL}/verify`, { withCredentials: true })
+      .subscribe({
+        next: (response) => {
+          this.authState.set(response.status === 'success');
+          this.verificationCompleted.set(true);
+        },
+        error: () => {
+          this.authState.set(false);
+          this.verificationCompleted.set(true);
+        }
+      });
   }
 
-  private buildReturnUrl(): string {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/auth/after-login`;
+  // Wait until verification is complete then emit the authState value
+  waitForAuthState(): Observable<boolean> {
+    return combineLatest([this.authState$, this.verificationCompleted$]).pipe(
+      filter(([_, verified]) => verified),
+      map(([auth, _]) => auth),
+      take(1)
+    );
+  }
+  
+  // For backward compatibility with existing components
+  get isLoggedIn(): Observable<boolean> {
+    return this.waitForAuthState();
   }
 
-  login(username: string, password: string): void {
-    const returnUrl = this.buildReturnUrl();
-    const redirectUrl = `${this.authURL}/login?returnUrl=${encodeURIComponent(returnUrl)}`;
-    window.location.href = redirectUrl;
+  private buildReturnUrl(path: string): string {
+    const currentOrigin = window.location.origin;
+    return `${currentOrigin}${path}`;
   }
 
-  handleAuthCallback(token: string) {
-    return this.http.post(`${this.authURL}/verify-token`, { token }, { withCredentials: true }).pipe(
-      tap(() => {
-        this.loggedIn$.next(true);
-        localStorage.setItem('loggedIn', 'true');
+  login(): void {
+    const returnUrl = this.buildReturnUrl('/auth/after-login');
+    window.location.href = `${this.authFrontURL}/external-login?returnUrl=${encodeURIComponent(returnUrl)}`;
+  }
+
+  handlePostLogin() {
+    return this.http.get<VerifyResponse>(`${this.authURL}/verify`, { withCredentials: true }).pipe(
+      tap((response) => {
+        this.authState.set(response.status === 'success');
       }),
-      catchError((error) => {
-        this.loggedIn$.next(false);
-        localStorage.removeItem('loggedIn');
-        return throwError(() => error);
-      })
+      map(response => ({
+        auth: response.status === 'success',
+        message: response.message,
+        userId: response.userId
+      }))
     );
   }
 
-  logout() {
-    const returnUrl = this.buildReturnUrl();
-    const redirectUrl = `${this.authURL}/logout?returnUrl=${encodeURIComponent(returnUrl)}`;
-    window.location.href = redirectUrl;
+  logout(): void {
+    this.http.post(`${this.authURL}/logout`, {}, { withCredentials: true })
+      .subscribe({
+        next: () => {
+          this.authState.set(false);
+          window.location.reload();
+        },
+        error: () => {
+          // Even if the request fails, we'll clear the auth state locally
+          this.authState.set(false);
+          window.location.reload();
+        }
+      });
   }
 
-  register(username: string, email: string, password: string): void {
-    const returnUrl = this.buildReturnUrl();
-    const redirectUrl = `${this.authURL}/register?returnUrl=${encodeURIComponent(returnUrl)}`;
-    window.location.href = redirectUrl;
+  register(): void {
+    const returnUrl = this.buildReturnUrl('/auth/after-login');
+    window.location.href = `${this.authFrontURL}/external-register?returnUrl=${encodeURIComponent(returnUrl)}`;
   }
 
   refreshToken() {

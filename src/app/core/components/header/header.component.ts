@@ -20,7 +20,7 @@ export class HeaderComponent implements OnDestroy {
     private router: Router,
     public dialog: MatDialog
   ) {
-    this.authSubscription = this.authService.isLoggedIn.subscribe(
+    this.authSubscription = this.authService.waitForAuthState().subscribe(
       (isLoggedIn: boolean) => {
         this.isLoggedIn = isLoggedIn;
       }
@@ -41,7 +41,11 @@ export class HeaderComponent implements OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.authService.logout();
+        try {
+          this.authService.logout();
+        } catch (error) {
+          console.error('Failed to redirect for logout', error);
+        }
       }
     });
   }

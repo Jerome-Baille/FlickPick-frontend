@@ -1,9 +1,6 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
-import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -11,32 +8,37 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./login.component.sass']
 })
 export class LoginComponent {
-  loginForm: FormGroup;
   isLoggedIn = false;
+  isLoading = false;
 
   constructor(
-    private formBuilder: FormBuilder,
     private authService: AuthService,
-    private userService: UserService,
-    private router: Router,
     private snackbarService: SnackbarService
   ) {
-    this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required]
-    });
+    this.authService.waitForAuthState().subscribe(
+      (isLoggedIn: boolean) => {
+        this.isLoggedIn = isLoggedIn;
+      }
+    );
   }
 
   onLogin() {
-    if (this.loginForm.invalid) {
-      return;
+    this.isLoading = true;
+    try {
+      this.authService.login();
+    } catch (error) {
+      this.isLoading = false;
+      this.snackbarService.showError('Failed to redirect to authentication service');
     }
-
-    const { username, password } = this.loginForm.value;
-    this.authService.login(username, password);
   }
 
   onLogout() {
-    this.authService.logout();
+    this.isLoading = true;
+    try {
+      this.authService.logout();
+    } catch (error) {
+      this.isLoading = false;
+      this.snackbarService.showError('Failed to redirect to logout');
+    }
   }
 }

@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 
@@ -10,27 +8,20 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
   styleUrls: ['./register.component.sass']
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
+  isLoading = false;
 
   constructor(
-    private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router,
     private snackbarService: SnackbarService
-  ) {
-    this.registerForm = this.formBuilder.group({
-      username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
-  }
+  ) {}
 
   onRegister() {
-    if (this.registerForm.invalid) {
-      return;
+    this.isLoading = true;
+    try {
+      this.authService.register();
+    } catch (error) {
+      this.isLoading = false;
+      this.snackbarService.showError('Failed to redirect to registration service');
     }
-
-    const { username, email, password } = this.registerForm.value;
-    this.authService.register(username, email, password);
   }
 }

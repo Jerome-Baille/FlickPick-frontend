@@ -6,19 +6,11 @@
             </mat-card-title>
         </mat-card-header>
         <mat-card-content class="auth-card-content">
-            <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-card-form">
-                <mat-form-field>
-                    <input matInput placeholder="Username" formControlName="username">
-                </mat-form-field>
-                <mat-form-field>
-                    <input matInput placeholder="Email" formControlName="email">
-                </mat-form-field>
-                <mat-form-field>
-                    <input matInput type="password" placeholder="Password" formControlName="password">
-                </mat-form-field>
-                <button mat-raised-button color="primary" [disabled]="!registerForm.valid">Register</button>
-            </form>
-            <p>Already have an account? <a routerLink="/auth/login">Login</a></p>
+            <button mat-raised-button color="primary" (click)="onRegister()" [disabled]="isLoading">
+                <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+                <span *ngIf="!isLoading">Register with External Service</span>
+            </button>
+            <p>Already have an account? <a routerLink="/auth/login" [class.disabled]="isLoading">Login</a></p>
         </mat-card-content>
     </mat-card>
 </main>
