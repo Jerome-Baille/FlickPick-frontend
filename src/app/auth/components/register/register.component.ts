@@ -20,7 +20,7 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.formBuilder.group({
       username: ['', Validators.required],
-      email: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
@@ -31,15 +31,6 @@ export class RegisterComponent {
     }
 
     const { username, email, password } = this.registerForm.value;
-    this.authService.register(username, email, password).subscribe({
-      next: (response: any) => {
-        this.snackbarService.showSuccess(response.message);
-        this.registerForm.reset();
-        this.router.navigate(['/']);
-      },
-      error: (err: any) => {
-        this.snackbarService.showError(err);
-      }
-    })
+    this.authService.register(username, email, password);
   }
 }

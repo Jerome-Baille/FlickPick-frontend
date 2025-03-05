@@ -41,9 +41,7 @@ export class HeaderComponent implements OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.authService.logout().subscribe(() => {
-          this.router.navigate(['/auth']);
-        });
+        this.authService.logout();
       }
     });
   }

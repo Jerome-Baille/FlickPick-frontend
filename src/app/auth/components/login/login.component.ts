@@ -11,7 +11,7 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./login.component.sass']
 })
 export class LoginComponent {
-  loginForm!: FormGroup;
+  loginForm: FormGroup;
   isLoggedIn = false;
 
   constructor(
@@ -33,30 +33,7 @@ export class LoginComponent {
     }
 
     const { username, password } = this.loginForm.value;
-
-    this.authService.login(username, password).subscribe({
-      next: (response: any) => {
-        const { userId, username } = response;
-        this.snackbarService.showSuccess(response.message);
-        this.loginForm.reset();
-
-        this.handleUserCreation(userId, username);
-      },
-      error: () => {
-        this.snackbarService.showError('Invalid username or password');
-      }
-    });
-  }
-
-  handleUserCreation(userId: string, username: string) {
-    this.userService.createUser(userId, username).subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
-      error: () => {
-        this.snackbarService.showError('Error creating user in database');
-      }
-    });
+    this.authService.login(username, password);
   }
 
   onLogout() {
