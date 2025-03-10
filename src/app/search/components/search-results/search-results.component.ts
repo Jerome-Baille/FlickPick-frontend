@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 export class SearchResultsComponent implements OnDestroy {
   @Input() movies: any[] = [];
   @Input() tvShows: any[] = [];
+  @Input() loading = false;
   isLoggedIn = false;
   private authSubscription: Subscription;
 

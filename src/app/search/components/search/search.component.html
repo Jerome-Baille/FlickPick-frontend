@@ -1,13 +1,41 @@
+<!-- Main search section -->
 <section class="search-container">
     <div class="search-form-container">
         <form class="search-form" (ngSubmit)="search()">
-            <mat-form-field appearance="fill">
+            <mat-form-field appearance="outline">
                 <mat-label>Search for movies or TV shows</mat-label>
-                <input matInput type="text" [(ngModel)]="searchQuery" name="searchInput" autocomplete="off" />
+                <input matInput 
+                       type="text" 
+                       [(ngModel)]="searchQuery" 
+                       name="searchInput" 
+                       autocomplete="off"
+                       [disabled]="loading"
+                       placeholder="Enter a title..." />
+                <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
-            <button mat-raised-button color="primary" type="submit">Search</button>
+            <button mat-raised-button 
+                    color="primary" 
+                    type="submit"
+                    [disabled]="loading">
+                <mat-icon *ngIf="!loading">search</mat-icon>
+                <mat-spinner *ngIf="loading" 
+                            diameter="24"
+                            color="accent">
+                </mat-spinner>
+                <span *ngIf="!loading">Search</span>
+            </button>
         </form>
     </div>
 
-    <app-search-results [movies]="movies" [tvShows]="tvShows"></app-search-results>
+    <!-- Error message -->
+    <mat-error *ngIf="error" class="error-message">
+        {{ error }}
+    </mat-error>
+
+    <!-- Results -->
+    <app-search-results 
+        [movies]="movies" 
+        [tvShows]="tvShows"
+        [loading]="loading">
+    </app-search-results>
 </section>

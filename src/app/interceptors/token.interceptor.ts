@@ -1,51 +1,105 @@
-import { Injectable } from '@angular/core';
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from '@angular/common/http';
-import { Observable, Subject, EMPTY, throwError } from 'rxjs';
+import { inject, runInInjectionContext, EnvironmentInjector, signal } from '@angular/core';
 import { catchError, switchMap, finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { throwError, Observable, from } from 'rxjs';
+import { HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  private isRefreshing = false;
-  private refreshTokenSubject: Subject<void> = new Subject<void>();
+// Using signals instead of Subject for token refresh state
+let isRefreshing = false;
+const refreshTokenSignal = signal<boolean>(false);
 
-  constructor(private authService: AuthService, private router: Router) { }
+// A queue to store pending requests during refresh
+const pendingRequests: Array<{
+  resolve: (value: boolean) => void;
+}> = [];
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          if (this.router.url !== '/auth/login') {
-            this.router.navigate(['/auth/login']);
-          }
-          return EMPTY;
-        } else if (error.status === 403) {
-          if (!this.isRefreshing) {
-            this.isRefreshing = true;
-            return this.authService.refreshToken().pipe(
+// Function to notify waiting requests
+function notifyRefreshComplete() {
+  // Update signal to notify components
+  refreshTokenSignal.set(true);
+  
+  // Process any pending requests
+  pendingRequests.forEach(request => {
+    request.resolve(true);
+  });
+  
+  // Clear the queue
+  pendingRequests.length = 0;
+  
+  // Reset signal state after a short delay
+  setTimeout(() => {
+    refreshTokenSignal.set(false);
+  }, 100);
+}
+
+export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
+  // Bypass refresh token endpoints
+  if (req.url.includes('/refresh')) {
+    return next(req);
+  }
+
+  const injector = inject(EnvironmentInjector);
+  
+  // We'll use the injector inside the pipes where we need the services
+  const modifiedRequest = req.clone({
+    withCredentials: true
+  });
+
+  return next(modifiedRequest).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.error.shouldRefresh) {
+        if (!isRefreshing) {
+          isRefreshing = true;
+          
+          return runInInjectionContext(injector, () => {
+            const authService = inject(AuthService);
+            const router = inject(Router);
+            
+            return authService.refreshToken().pipe(
               switchMap(() => {
-                this.isRefreshing = false;
-                this.refreshTokenSubject.next();
-                return next.handle(req);
+                isRefreshing = false;
+                notifyRefreshComplete();
+                const retryRequest = req.clone({
+                  withCredentials: true
+                });
+                return next(retryRequest);
               }),
               catchError(refreshError => {
-                this.isRefreshing = false;
+                isRefreshing = false;
+                authService.logout(); // Log out the user
+                router.navigate(['/login']); // Redirect to login page
                 return throwError(() => refreshError);
               }),
               finalize(() => {
-                this.isRefreshing = false;
+                isRefreshing = false;
               })
             );
-          } else {
-            return this.refreshTokenSubject.pipe(
-              switchMap(() => next.handle(req))
-            );
-          }
+          });
         } else {
-          return throwError(() => error);
+          // Wait for the refresh to complete using a promise
+          return from(
+            new Promise<boolean>((resolve) => {
+              // Add this request to the pending queue
+              pendingRequests.push({ resolve });
+              
+              // Set up a timeout to avoid hanging forever
+              setTimeout(() => {
+                resolve(false);
+              }, 10000); // 10 second timeout
+            })
+          ).pipe(
+            switchMap(() => {
+              const retryRequest = req.clone({
+                withCredentials: true
+              });
+              return next(retryRequest);
+            })
+          );
         }
-      })
-    );
-  }
+      } else {
+        return throwError(() => error);
+      }
+    })
+  );
 }

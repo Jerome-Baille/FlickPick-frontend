@@ -13,7 +13,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { VideoModalComponent } from './components/video-modal/video-modal.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import { YouTubePlayerModule } from '@angular/youtube-player';
-import { LoaderComponent } from './components/loader/loader.component';
 import { MediaTableViewComponent } from './components/media-table-view/media-table-view.component';
 import { MatTableModule } from '@angular/material/table';
 import { BackButtonComponent } from './components/back-button/back-button.component';
@@ -33,7 +32,6 @@ import { BasicModalComponent } from './components/basic-modal/basic-modal.compon
 @NgModule({
   declarations: [
     VideoModalComponent,
-    LoaderComponent,
     MediaTableViewComponent,
     BackButtonComponent,
     ActionModalComponent,
@@ -83,7 +81,6 @@ import { BasicModalComponent } from './components/basic-modal/basic-modal.compon
     MatDialogModule,
     VideoModalComponent,
     YouTubePlayerModule,
-    LoaderComponent,
     MatTableModule,
     MediaTableViewComponent,
     BackButtonComponent,
