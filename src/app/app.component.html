@@ -1,4 +1,13 @@
 <app-header></app-header>
 <app-loader></app-loader>
 
-<router-outlet></router-outlet>
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="app-footer">
+  <div class="footer-content">
+    <p>© {{currentYear}} Flick Pick - Find your next movie night favorite</p>
+    <p>Powered by <a href="https://www.themoviedb.org/" target="_blank">TMDB</a></p>
+  </div>
+</footer>

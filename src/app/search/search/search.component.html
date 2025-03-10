@@ -1,0 +1,69 @@
+<mat-card class="search-container">
+    <div class="search-form-container">
+        <form class="search-form" (ngSubmit)="search()">
+            <mat-form-field appearance="fill">
+                <mat-label>Search for movies or TV shows</mat-label>
+                <input matInput type="text" [(ngModel)]="searchQuery" name="searchInput" autocomplete="off" />
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit">Search</button>
+        </form>
+    </div>
+
+    <div *ngIf="movies && movies.length > 0">
+        <h2>Movies</h2>
+        <div class="result-cards">
+            <mat-card *ngFor="let movie of movies" class="search-result-card" (click)="onNavigateToDetail(movie)">
+                <div class="search-result-card__poster-container">
+                    <img mat-card-image class="search-result-card__poster"
+                        [src]="movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : 'assets/images/poster-not-found.png'"
+                        alt="{{ movie.title }}" />
+                </div>
+                <mat-card-content>
+                    <p class="overview">
+                        {{ movie.title }}
+                        <span *ngIf="movie.release_date">({{ movie.release_date | date:'yyyy'}})</span>
+                    </p>
+                </mat-card-content>
+
+                <mat-card-actions class="result-card-action">
+                    <button mat-icon-button 
+                        (click)="isChecked(movie.id) ? removeMedia($event, movie) : addMedia($event, movie)">
+                        <fa-icon [icon]="isChecked(movie.id) ? faCircleCheck : faCirclePlus" />
+                    </button>
+                    <app-fav-button [media]="movie"/>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    </div>
+
+    <div *ngIf="tvShows && tvShows.length > 0">
+        <h2>TV Shows</h2>
+        <div class="result-cards">
+            <mat-card *ngFor="let tvShow of tvShows" class="search-result-card" (click)="onNavigateToDetail(tvShow)">
+                <div class="search-result-card__poster-container">
+                    <img mat-card-image class="search-result-card__poster"
+                        [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
+                        alt="{{ tvShow.name }}" />
+                </div>
+                <mat-card-content>
+                    <p class="overview">
+                        {{ tvShow.name }}
+                        <span *ngIf="tvShow.first_air_date">({{ tvShow.first_air_date | date:'yyyy'}})</span>
+                    </p>
+                </mat-card-content>
+
+                <mat-card-actions class="result-card-action">
+                    <button mat-icon-button 
+                        (click)="isChecked(tvShow.id) ? removeMedia($event, tvShow) : addMedia($event, tvShow)">
+                        <fa-icon [icon]="isChecked(tvShow.id) ? faCircleCheck : faCirclePlus" />
+                    </button>
+                    <app-fav-button [media]="tvShow"/>
+                </mat-card-actions>
+            </mat-card>
+        </div>
+    </div>
+
+    <div *ngIf="movies && movies.length === 0 && tvShows && tvShows.length === 0" class="result-cards-not-found">
+        No results found.
+    </div>
+</mat-card>

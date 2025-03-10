@@ -1,0 +1,40 @@
+<main>
+    <mat-card class="auth-card">
+        <mat-card-header class="auth-card-title">
+            <mat-card-title>
+                <h1>
+                    @if (isLoggedIn) {
+                        Welcome back!
+                    } @else {
+                        {{ isRegisterMode ? 'Register' : 'Login' }}
+                    }
+                </h1>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="auth-card-content">
+            @if (isLoggedIn) {
+                <button mat-raised-button color="warn" (click)="onLogout()" [disabled]="isLoading">
+                    @if (isLoading) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                        <span>Logout</span>
+                    }
+                </button>
+            } @else {
+                <button mat-raised-button color="primary" (click)="onAction()" [disabled]="isLoading">
+                    @if (isLoading) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                        <span>{{ isRegisterMode ? 'Register' : 'Login' }} with External Service</span>
+                    }
+                </button>
+                <p>
+                    {{ isRegisterMode ? 'Already have an account?' : "Don't have an account?" }}
+                    <a (click)="toggleMode()" [class.disabled]="isLoading">
+                        {{ isRegisterMode ? 'Login' : 'Register' }}
+                    </a>
+                </p>
+            }
+        </mat-card-content>
+    </mat-card>
+</main>

@@ -26,7 +26,7 @@ Flick Pick is a collaborative movie and TV show selection platform that allows u
 
 - Frontend:
   - Angular
-  - SASS (Indented)
+  - SCSS
   - Angular Material (Mat Angular)
 
 - Backend:

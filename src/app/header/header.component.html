@@ -1,0 +1,22 @@
+<mat-toolbar class="toolbar" color="primary">
+    <span class="toolbar__title" routerLink="/">Flick Pick</span>
+    <span class="spacer"></span>
+    <div class="toolbar__links">
+        <a mat-button routerLink="/media" routerLinkActive="active">Search</a>
+        <a mat-button *ngIf="isLoggedIn()" routerLink="/profile" routerLinkActive="active">Profile</a>
+        <a mat-button routerLink="/auth" *ngIf="!isLoggedIn()" routerLinkActive="active">Login</a>
+        <a mat-button (click)="onLogout()" *ngIf="isLoggedIn()">Logout</a>
+    </div>
+    <button mat-icon-button class="hamburger-button" [class.open]="isDrawerOpen" (click)="toggleDrawer()">
+        <mat-icon>menu</mat-icon>
+    </button>
+
+    <div class="drawer" [class.open]="isDrawerOpen">
+        <mat-list class="drawer__list">
+            <a mat-list-item routerLink="/media" routerLinkActive="active" (click)="toggleDrawer()">Search</a>
+            <a mat-list-item *ngIf="isLoggedIn()" routerLink="/profile" routerLinkActive="active" (click)="toggleDrawer()">Profile</a>
+            <a mat-list-item *ngIf="!isLoggedIn()" routerLink="/auth" routerLinkActive="active" (click)="toggleDrawer()">Login</a>
+            <a mat-list-item *ngIf="isLoggedIn()" (click)="onLogout(); toggleDrawer()">Logout</a>
+        </mat-list>
+    </div>
+</mat-toolbar>

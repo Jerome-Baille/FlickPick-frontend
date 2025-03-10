@@ -1,0 +1,32 @@
+.profile-card {
+    height: 100%;
+    overflow: hidden;
+    color: #fff;
+    background-color: #181d39;
+
+    &-title {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .list-element {
+        color: #fff;
+
+        &-link:hover {
+            color: lightgrey;
+            cursor: pointer;
+        }
+    }
+}
+
+.category-title {
+    color: #fff;
+}
+
+.category-container {
+    display: flex;
+    align-items: center;
+    column-gap: 1rem;
+}
