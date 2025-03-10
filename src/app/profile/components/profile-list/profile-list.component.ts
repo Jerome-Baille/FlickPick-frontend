@@ -4,9 +4,10 @@ import { DataService } from 'src/app/services/data.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
-  selector: 'app-profile-list',
-  templateUrl: './profile-list.component.html',
-  styleUrls: ['./profile-list.component.sass']
+    selector: 'app-profile-list',
+    templateUrl: './profile-list.component.html',
+    styleUrls: ['./profile-list.component.sass'],
+    standalone: false
 })
 export class ProfileListComponent {
   movies!: any[];

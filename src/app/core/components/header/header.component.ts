@@ -6,9 +6,10 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.sass']
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.sass'],
+    standalone: false
 })
 export class HeaderComponent implements OnDestroy {
   isLoggedIn = false;

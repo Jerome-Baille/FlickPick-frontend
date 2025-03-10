@@ -3,9 +3,10 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { DataService } from 'src/app/services/data.service';
 
 @Component({
-  selector: 'app-action-modal',
-  templateUrl: './action-modal.component.html',
-  styleUrls: ['./action-modal.component.sass']
+    selector: 'app-action-modal',
+    templateUrl: './action-modal.component.html',
+    styleUrls: ['./action-modal.component.sass'],
+    standalone: false
 })
 export class ActionModalComponent implements OnInit {
   lists: any;

@@ -4,9 +4,10 @@ import { DataService } from 'src/app/services/data.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
-  selector: 'app-fav-button',
-  templateUrl: './fav-button.component.html',
-  styleUrls: ['./fav-button.component.sass']
+    selector: 'app-fav-button',
+    templateUrl: './fav-button.component.html',
+    styleUrls: ['./fav-button.component.sass'],
+    standalone: false
 })
 export class FavButtonComponent implements OnInit {
   @Input() media: any;

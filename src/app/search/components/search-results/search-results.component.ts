@@ -5,9 +5,10 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-search-results',
-  templateUrl: './search-results.component.html',
-  styleUrls: ['./search-results.component.sass']
+    selector: 'app-search-results',
+    templateUrl: './search-results.component.html',
+    styleUrls: ['./search-results.component.sass'],
+    standalone: false
 })
 export class SearchResultsComponent implements OnDestroy {
   @Input() movies: any[] = [];

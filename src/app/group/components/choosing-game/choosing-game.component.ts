@@ -7,9 +7,10 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
 import { environment } from 'src/environments/environment.prod';
 
 @Component({
-  selector: 'app-choosing-game',
-  templateUrl: './choosing-game.component.html',
-  styleUrls: ['./choosing-game.component.sass']
+    selector: 'app-choosing-game',
+    templateUrl: './choosing-game.component.html',
+    styleUrls: ['./choosing-game.component.sass'],
+    standalone: false
 })
 export class ChoosingGameComponent implements OnInit {
   TMDB_IMAGE_BASE_URL_300 = environment.TMDB_IMAGE_BASE_URL_300;

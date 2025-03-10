@@ -7,9 +7,10 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'app-basic-modal',
-  templateUrl: './basic-modal.component.html',
-  styleUrls: ['./basic-modal.component.sass']
+    selector: 'app-basic-modal',
+    templateUrl: './basic-modal.component.html',
+    styleUrls: ['./basic-modal.component.sass'],
+    standalone: false
 })
 export class BasicModalComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: DialogData) {}

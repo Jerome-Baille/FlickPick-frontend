@@ -3,9 +3,10 @@ import { DataService } from 'src/app/services/data.service';
 import { environment } from 'src/environments/environment.prod';
 
 @Component({
-  selector: 'app-cast-detail-view',
-  templateUrl: './cast-detail-view.component.html',
-  styleUrls: ['./cast-detail-view.component.sass']
+    selector: 'app-cast-detail-view',
+    templateUrl: './cast-detail-view.component.html',
+    styleUrls: ['./cast-detail-view.component.sass'],
+    standalone: false
 })
 export class CastDetailViewComponent {
   castData: any;

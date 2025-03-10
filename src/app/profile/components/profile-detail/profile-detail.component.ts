@@ -7,9 +7,10 @@ import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
-  selector: 'app-profile-detail',
-  templateUrl: './profile-detail.component.html',
-  styleUrls: ['./profile-detail.component.sass']
+    selector: 'app-profile-detail',
+    templateUrl: './profile-detail.component.html',
+    styleUrls: ['./profile-detail.component.sass'],
+    standalone: false
 })
 export class ProfileDetailComponent {
   movies!: any[];

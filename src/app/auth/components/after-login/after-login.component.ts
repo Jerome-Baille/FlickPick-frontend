@@ -4,8 +4,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 
 @Component({
-  selector: 'app-after-login',
-  template: '<div>Processing authentication...</div>'
+    selector: 'app-after-login',
+    template: '<div>Processing authentication...</div>',
+    standalone: false
 })
 export class AfterLoginComponent implements OnInit {
   constructor(

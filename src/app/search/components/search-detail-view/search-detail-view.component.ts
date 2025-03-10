@@ -8,9 +8,10 @@ import { VideoModalComponent } from 'src/app/shared/components/video-modal/video
 import { environment } from 'src/environments/environment.prod';
 
 @Component({
-  selector: 'app-search-detail-view',
-  templateUrl: './search-detail-view.component.html',
-  styleUrls: ['./search-detail-view.component.sass']
+    selector: 'app-search-detail-view',
+    templateUrl: './search-detail-view.component.html',
+    styleUrls: ['./search-detail-view.component.sass'],
+    standalone: false
 })
 export class SearchDetailViewComponent {
   media!: any;

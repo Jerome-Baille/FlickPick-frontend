@@ -6,9 +6,10 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
 import { environment } from 'src/environments/environment.prod';
 
 @Component({
-  selector: 'app-media-table-view',
-  templateUrl: './media-table-view.component.html',
-  styleUrls: ['./media-table-view.component.sass']
+    selector: 'app-media-table-view',
+    templateUrl: './media-table-view.component.html',
+    styleUrls: ['./media-table-view.component.sass'],
+    standalone: false
 })
 export class MediaTableViewComponent {
   @Input() mediaItems: any[] = [];

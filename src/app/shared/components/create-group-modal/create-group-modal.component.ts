@@ -10,9 +10,10 @@ interface DialogData {
 }
 
 @Component({
-  selector: 'app-create-group-modal',
-  templateUrl: './create-group-modal.component.html',
-  styleUrls: ['./create-group-modal.component.sass']
+    selector: 'app-create-group-modal',
+    templateUrl: './create-group-modal.component.html',
+    styleUrls: ['./create-group-modal.component.sass'],
+    standalone: false
 })
 export class CreateGroupModalComponent implements OnInit {
   @ViewChild('userInput') userInput!: ElementRef<HTMLInputElement>;

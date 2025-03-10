@@ -18,9 +18,10 @@ interface Media {
 }
 
 @Component({
-  selector: 'app-search-result-card',
-  templateUrl: './search-result-card.component.html',
-  styleUrls: ['./search-result-card.component.sass']
+    selector: 'app-search-result-card',
+    templateUrl: './search-result-card.component.html',
+    styleUrls: ['./search-result-card.component.sass'],
+    standalone: false
 })
 export class SearchResultCardComponent implements OnInit {
   @Input() result: any;

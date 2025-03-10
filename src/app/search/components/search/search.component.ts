@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { TmdbService } from 'src/app/services/tmdb.service';
 
 @Component({
-  selector: 'app-search',
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.sass']
+    selector: 'app-search',
+    templateUrl: './search.component.html',
+    styleUrls: ['./search.component.sass'],
+    standalone: false
 })
 export class SearchComponent {
   searchQuery: string = '';

@@ -7,9 +7,10 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
 import { CreateGroupModalComponent } from 'src/app/shared/components/create-group-modal/create-group-modal.component';
 
 @Component({
-  selector: 'app-group-detail',
-  templateUrl: './group-detail.component.html',
-  styleUrls: ['./group-detail.component.sass']
+    selector: 'app-group-detail',
+    templateUrl: './group-detail.component.html',
+    styleUrls: ['./group-detail.component.sass'],
+    standalone: false
 })
 export class GroupDetailComponent {
   isEditing: boolean = false;
