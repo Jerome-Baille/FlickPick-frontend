@@ -2,13 +2,57 @@
     <mat-card class="profile-card" *ngIf="userProfile">
         <mat-card-header class="profile-card-title">
             <mat-card-title>
-                <h1>
-                    Hello
-                    <span *ngIf="userProfile.username">{{ userProfile.username }}</span>
-                </h1>
+                <div class="profile-header">
+                    <h1>Profile</h1>
+                    <button *ngIf="!isEditing" mat-icon-button (click)="enterEditMode()">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </div>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
+            <section class="profile-details">
+                <ng-container *ngIf="!isEditing">
+                    <div class="detail-row">
+                        <h2>Username:</h2>
+                        <p>{{ userProfile.username }}</p>
+                    </div>
+                    <div class="detail-row" *ngIf="userProfile.email">
+                        <h2>Email:</h2>
+                        <p>{{ userProfile.email }}</p>
+                    </div>
+                    <div class="detail-row" *ngIf="userProfile.bio">
+                        <h2>Bio:</h2>
+                        <p>{{ userProfile.bio }}</p>
+                    </div>
+                    <div class="detail-row">
+                        <h2>Member since:</h2>
+                        <p>{{ userProfile.createdAt | date }}</p>
+                    </div>
+                </ng-container>
+
+                <div *ngIf="isEditing" class="edit-form">
+                    <mat-form-field>
+                        <mat-label>Username</mat-label>
+                        <input matInput [(ngModel)]="editedProfile.username" name="username" required>
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <mat-label>Email</mat-label>
+                        <input matInput [(ngModel)]="editedProfile.email" name="email" type="email">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <mat-label>Bio</mat-label>
+                        <textarea matInput [(ngModel)]="editedProfile.bio" name="bio" rows="3"></textarea>
+                    </mat-form-field>
+
+                    <div class="edit-actions">
+                        <button mat-raised-button color="primary" (click)="updateProfile()">Save</button>
+                        <button mat-button (click)="cancelEdit()">Cancel</button>
+                    </div>
+                </div>
+            </section>
 
             <mat-list>
                 <mat-list-item>

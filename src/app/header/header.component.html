@@ -2,6 +2,7 @@
     <span class="toolbar__title" routerLink="/">Flick Pick</span>
     <span class="spacer"></span>
     <div class="toolbar__links">
+        <a mat-button routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
         <a mat-button routerLink="/media" routerLinkActive="active">Search</a>
         <a mat-button *ngIf="isLoggedIn()" routerLink="/profile" routerLinkActive="active">Profile</a>
         <a mat-button routerLink="/auth" *ngIf="!isLoggedIn()" routerLinkActive="active">Login</a>
@@ -13,6 +14,7 @@
 
     <div class="drawer" [class.open]="isDrawerOpen">
         <mat-list class="drawer__list">
+            <a mat-list-item routerLink="/dashboard" routerLinkActive="active" (click)="toggleDrawer()">Dashboard</a>
             <a mat-list-item routerLink="/media" routerLinkActive="active" (click)="toggleDrawer()">Search</a>
             <a mat-list-item *ngIf="isLoggedIn()" routerLink="/profile" routerLinkActive="active" (click)="toggleDrawer()">Profile</a>
             <a mat-list-item *ngIf="!isLoggedIn()" routerLink="/auth" routerLinkActive="active" (click)="toggleDrawer()">Login</a>

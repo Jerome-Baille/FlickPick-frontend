@@ -8,8 +8,13 @@ import { ProfileListComponent } from './profile/profile-list/profile-list.compon
 import { GroupOverviewComponent } from './group/group-overview/group-overview.component';
 import { GroupDetailComponent } from './group/group-detail/group-detail.component';
 import { AuthComponent } from './auth/auth/auth.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 export const routes: Routes = [
+  {
+    path: 'dashboard',
+    component: DashboardComponent
+  },
   {
     path: 'auth',
     children: [
@@ -47,6 +52,6 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'media'
+    redirectTo: 'dashboard'
   }
 ];
