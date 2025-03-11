@@ -134,4 +134,8 @@ export class DataService {
   deleteVotesByGroup(groupId: number) {
     return this.http.delete(`${this.voteURL}/group/${groupId}`);
   }
+
+  getAllGroupsForUser() {
+    return this.http.get(`${this.groupURL}`, { withCredentials: true });
+  }
 }

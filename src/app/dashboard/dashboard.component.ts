@@ -36,14 +36,16 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private snackbarService: SnackbarService
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Get user's groups
-    this.dataService.getUsers().subscribe({
+    this.dataService.getAllGroupsForUser().subscribe({
       next: (response: any) => {
-        if (response.Groups) {
-          this.recentGroups = response.Groups.slice(0, 3); // Get last 3 groups
+        if (response && Array.isArray(response) && response.length > 0) {
+          this.recentGroups = response.slice(0, 3); // Get last 3 groups
+        } else {
+          this.recentGroups = [];
         }
       },
       error: (err) => this.snackbarService.showError(err)
@@ -52,7 +54,11 @@ export class DashboardComponent implements OnInit {
     // Get favorite media items
     this.dataService.getUserFavorites().subscribe({
       next: (response: any) => {
-        this.favoriteMedia = response.slice(0, 3); // Get last 3 favorites
+        if (response && Array.isArray(response) && response.length > 0) {
+          this.favoriteMedia = response.slice(0, 3); // Get last 3 favorites
+        } else {
+          this.favoriteMedia = [];
+        }
       },
       error: (err) => this.snackbarService.showError(err)
     });

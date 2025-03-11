@@ -43,7 +43,7 @@ export class FavButtonComponent implements OnInit {
     const mediaType = this.media.title ? 'movie' : 'tv';
 
     const mediaPayload = {
-      tmdbId: this.media.tmdbId,
+      tmdbId: this.media.id,
       mediaType: mediaType,
     };
 
