@@ -1,129 +1,123 @@
 <main>
-    <mat-card class="profile-card" *ngIf="userProfile">
-        <mat-card-header class="profile-card-title">
-            <mat-card-title>
-                <div class="profile-header">
-                    <h1>Profile</h1>
-                    <button *ngIf="!isEditing" mat-icon-button (click)="enterEditMode()">
-                        <mat-icon>edit</mat-icon>
+    <div class="bento-grid" *ngIf="userProfile">
+        <mat-card class="profile-card">
+            <div class="profile-card-header">
+                <h1>
+                    <fa-icon [icon]="faUser"></fa-icon>
+                    {{ userProfile.username }}
+                </h1>
+                <div class="actions">
+                    <button mat-raised-button color="warn" (click)="logout()">
+                        <fa-icon [icon]="faSignOut"></fa-icon>
+                        Logout
                     </button>
                 </div>
-            </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <section class="profile-details">
-                <ng-container *ngIf="!isEditing">
-                    <div class="detail-row">
-                        <h2>Username:</h2>
-                        <p>{{ userProfile.username }}</p>
-                    </div>
-                    <div class="detail-row" *ngIf="userProfile.email">
-                        <h2>Email:</h2>
-                        <p>{{ userProfile.email }}</p>
-                    </div>
-                    <div class="detail-row" *ngIf="userProfile.bio">
-                        <h2>Bio:</h2>
-                        <p>{{ userProfile.bio }}</p>
-                    </div>
-                    <div class="detail-row">
-                        <h2>Member since:</h2>
-                        <p>{{ userProfile.createdAt | date }}</p>
-                    </div>
-                </ng-container>
+            </div>
+        </mat-card>
 
-                <div *ngIf="isEditing" class="edit-form">
-                    <mat-form-field>
-                        <mat-label>Username</mat-label>
-                        <input matInput [(ngModel)]="editedProfile.username" name="username" required>
-                    </mat-form-field>
-
-                    <mat-form-field>
-                        <mat-label>Email</mat-label>
-                        <input matInput [(ngModel)]="editedProfile.email" name="email" type="email">
-                    </mat-form-field>
-
-                    <mat-form-field>
-                        <mat-label>Bio</mat-label>
-                        <textarea matInput [(ngModel)]="editedProfile.bio" name="bio" rows="3"></textarea>
-                    </mat-form-field>
-
-                    <div class="edit-actions">
-                        <button mat-raised-button color="primary" (click)="updateProfile()">Save</button>
-                        <button mat-button (click)="cancelEdit()">Cancel</button>
-                    </div>
+        <mat-card class="section-card favorites-card">
+            <mat-card-header>
+                <div class="header-content">
+                    <mat-card-title>
+                        <fa-icon [icon]="faHeart"></fa-icon>
+                        Favorites
+                    </mat-card-title>
                 </div>
-            </section>
-
-            <mat-list>
-                <mat-list-item>
-                    <h2 class="category-title">Favorites</h2>
-                </mat-list-item>
-                <ng-container *ngIf="userProfile.MediaItems?.length; else noFavs">
-                    <mat-list-item *ngFor="let fav of userProfile.MediaItems">
-                        <button mat-icon-button color="warn" (click)="removeFromFavorites(fav)">
+            </mat-card-header>
+            <mat-card-content>
+                <ng-container *ngIf="userProfile.Favorites?.length; else noFavs">
+                    <div *ngFor="let favorite of userProfile.Favorites" class="list-item">
+                        <div class="item-content" [routerLink]="['/media/detail', favorite.MediaItem.mediaType, favorite.MediaItem.tmdbId]">
+                            <fa-icon [icon]="favorite.MediaItem.mediaType === 'movie' ? faFilm : faTv"></fa-icon>
+                            <span class="item-title">{{ favorite.MediaItem.title }}</span>
+                            <span class="media-type-badge">{{ favorite.MediaItem.mediaType }}</span>
+                        </div>
+                        <button mat-icon-button color="warn" (click)="removeFromFavorites(favorite)">
                             <mat-icon>delete</mat-icon>
                         </button>
-                        <span matLine [routerLink]="['/media/detail', fav.mediaType, fav.tmdbId]"
-                            class="list-element list-element-link">{{ fav.title }}</span>
-                    </mat-list-item>
+                    </div>
                 </ng-container>
                 <ng-template #noFavs>
-                    <mat-list-item>
-                        <span class="list-element">No favorites</span>
-                    </mat-list-item>
+                    <div class="empty-state">
+                        <p>No favorites yet. Start exploring movies and TV shows!</p>
+                    </div>
                 </ng-template>
-            </mat-list>
+            </mat-card-content>
+        </mat-card>
 
-            <mat-list>
-                <mat-list-item>
-                    <div class="category-container">
-                        <h2 class="category-title">Group(s)</h2>
-                        <button mat-icon-button color="primary" (click)="createGroup()">
-                            <fa-icon [icon]="faCirclePlus" />
+        <mat-card class="section-card groups-card">
+            <mat-card-header>
+                <div class="header-content">
+                    <mat-card-title>
+                        <fa-icon [icon]="faUsers"></fa-icon>
+                        Groups
+                    </mat-card-title>
+                    <div>
+                        <button mat-icon-button color="primary" (click)="joinGroup()" matTooltip="Join a group">
+                            <fa-icon [icon]="faUsers"></fa-icon>
+                        </button>
+                        <button mat-icon-button color="primary" (click)="createGroup()" matTooltip="Create a group">
+                            <fa-icon [icon]="faCirclePlus"></fa-icon>
                         </button>
                     </div>
-                </mat-list-item>
+                </div>
+            </mat-card-header>
+            <mat-card-content>
                 <ng-container *ngIf="userProfile.Groups?.length; else noGroups">
-                    <mat-list-item *ngFor="let group of userProfile.Groups">
+                    <div *ngFor="let group of userProfile.Groups" class="list-item">
+                        <div class="item-content" routerLink="/group/detail/{{ group.id }}">
+                            <fa-icon [icon]="faUsers"></fa-icon>
+                            <div class="item-info">
+                                <span class="item-title">{{ group.name }}</span>
+                                <span class="group-code" (click)="copyGroupCode($event, group.code)" matTooltip="Click to copy">
+                                    Code: {{ group.code }}
+                                </span>
+                            </div>
+                            <span *ngIf="group.isAdmin" class="media-type-badge">Admin</span>
+                        </div>
                         <button *ngIf="group.isAdmin" mat-icon-button color="warn" (click)="deleteGroup(group)">
                             <mat-icon>delete</mat-icon>
                         </button>
-                        <span matLine routerLink="/group/detail/{{ group.id }}"
-                            class="list-element list-element-link">{{ group.name }}</span>
-                    </mat-list-item>
+                    </div>
                 </ng-container>
                 <ng-template #noGroups>
-                    <mat-list-item>
-                        <span class="list-element">No groups</span>
-                    </mat-list-item>
-                </ng-template>
-            </mat-list>
-
-            <mat-list>
-                <mat-list-item>
-                    <div class="category-container">
-                        <h2 class="category-title">List(s)</h2>
-                        <button mat-icon-button color="primary" (click)="createList()">
-                            <fa-icon [icon]="faCirclePlus" />
-                        </button>
+                    <div class="empty-state">
+                        <p>No groups yet. Create one to start watching together!</p>
                     </div>
-                </mat-list-item>
+                </ng-template>
+            </mat-card-content>
+        </mat-card>
 
+        <mat-card class="section-card lists-card">
+            <mat-card-header>
+                <div class="header-content">
+                    <mat-card-title>
+                        <fa-icon [icon]="faList"></fa-icon>
+                        Lists
+                    </mat-card-title>
+                    <button mat-icon-button color="primary" (click)="createList()">
+                        <fa-icon [icon]="faCirclePlus"></fa-icon>
+                    </button>
+                </div>
+            </mat-card-header>
+            <mat-card-content>
                 <ng-container *ngIf="userProfile.Lists?.length; else noLists">
-                    <mat-list-item *ngFor="let list of userProfile.Lists">
+                    <div *ngFor="let list of userProfile.Lists" class="list-item">
+                        <div class="item-content" routerLink="/profile/list/{{ list.id }}">
+                            <fa-icon [icon]="faList"></fa-icon>
+                            <span class="item-title">{{ list.name }}</span>
+                        </div>
                         <button mat-icon-button color="warn" (click)="deleteList(list)">
                             <mat-icon>delete</mat-icon>
                         </button>
-                        <span matLine routerLink="/profile/list/{{ list.id }}" class="list-element list-element-link">{{
-                            list.name }}</span>
-                    </mat-list-item>
+                    </div>
                 </ng-container>
                 <ng-template #noLists>
-                    <mat-list-item>
-                        <span class="list-element">No lists</span>
-                    </mat-list-item>
+                    <div class="empty-state">
+                        <p>No lists yet. Create one to organize your media!</p>
+                    </div>
                 </ng-template>
-            </mat-list>
-        </mat-card-content>
-    </mat-card>
+            </mat-card-content>
+        </mat-card>
+    </div>
 </main>

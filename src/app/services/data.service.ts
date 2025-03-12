@@ -71,8 +71,12 @@ export class DataService {
     return this.http.get(`${this.mediaURL}/list/My_Personal_List`);
   }
 
-  createGroup(groupData: Group) {
-    return this.http.post(`${this.groupURL}`, groupData); // needs name, userIds and listName.
+  createGroup(groupData: { name: string, listName: string }) {
+    return this.http.post(`${this.groupURL}`, groupData);
+  }
+
+  joinGroup(code: string) {
+    return this.http.post(`${this.groupURL}/join`, { code });
   }
 
   updateList(listId: number, updatedList: any) {

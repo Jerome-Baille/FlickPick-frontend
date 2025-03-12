@@ -1,9 +1,7 @@
 <main class="dashboard-container">
     <section class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
         <mat-card>
-            <mat-card-header>
-                <mat-card-title>Quick Actions</mat-card-title>
-            </mat-card-header>
             <mat-card-content class="quick-actions-grid">
                 <button mat-raised-button color="primary" routerLink="/group/overview">
                     <fa-icon [icon]="faUsers"></fa-icon>
@@ -30,11 +28,14 @@
                 <ng-container *ngIf="recentGroups.length > 0; else noGroups">
                     <div *ngFor="let group of recentGroups" class="activity-item" [routerLink]="['/group/detail', group.id]">
                         <fa-icon [icon]="faUsers"></fa-icon>
-                        <span>{{ group.name }}</span>
+                        <span class="item-title">{{ group.name }}</span>
+                        <span *ngIf="group.isAdmin" class="media-type-badge">Admin</span>
                     </div>
                 </ng-container>
                 <ng-template #noGroups>
-                    <p class="empty-state">No groups yet. Create one to get started!</p>
+                    <div class="empty-state">
+                        <p>No groups yet. Create one to get started!</p>
+                    </div>
                 </ng-template>
             </mat-card-content>
         </mat-card>
@@ -46,12 +47,15 @@
             <mat-card-content>
                 <ng-container *ngIf="favoriteMedia.length > 0; else noFavorites">
                     <div *ngFor="let media of favoriteMedia" class="activity-item" [routerLink]="['/media/detail', media.mediaType, media.tmdbId]">
-                        <fa-icon [icon]="faFilm"></fa-icon>
-                        <span>{{ media.title }}</span>
+                        <fa-icon [icon]="media.mediaType === 'movie' ? faFilm : faTv"></fa-icon>
+                        <span class="item-title">{{ media.title }}</span>
+                        <span class="media-type-badge">{{ media.mediaType }}</span>
                     </div>
                 </ng-container>
                 <ng-template #noFavorites>
-                    <p class="empty-state">No favorites yet. Start exploring movies!</p>
+                    <div class="empty-state">
+                        <p>No favorites yet. Start exploring movies!</p>
+                    </div>
                 </ng-template>
             </mat-card-content>
         </mat-card>

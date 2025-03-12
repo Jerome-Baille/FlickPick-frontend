@@ -87,7 +87,13 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  logout(skipRequest: boolean = false): void {
+    if (skipRequest) {
+      this.authState.set(false);
+      window.location.reload();
+      return;
+    }
+
     this.http.post(`${this.authURL}/logout`, {}, { withCredentials: true })
       .subscribe({
         next: () => {

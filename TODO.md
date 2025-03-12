@@ -1,0 +1,1 @@
+- Improve creation list : search for movie/tv show to add to the list while creating.

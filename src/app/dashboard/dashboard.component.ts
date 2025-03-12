@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faFilm, faUsers, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faFilm, faUsers, faHeart, faTv } from '@fortawesome/free-solid-svg-icons';
 import { DataService } from '../services/data.service';
 import { SnackbarService } from '../services/snackbar.service';
 
@@ -32,6 +32,7 @@ export class DashboardComponent implements OnInit {
   faFilm = faFilm;
   faUsers = faUsers;
   faHeart = faHeart;
+  faTv = faTv;
 
   constructor(
     private dataService: DataService,

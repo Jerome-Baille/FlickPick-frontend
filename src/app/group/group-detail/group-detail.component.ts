@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { DataService } from 'src/app/services/data.service';
 import { SnackbarService } from 'src/app/services/snackbar.service';
-import { CreateGroupModalComponent } from 'src/app/shared/create-group-modal/create-group-modal.component';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { BackButtonComponent } from 'src/app/shared/back-button/back-button.component';
@@ -15,6 +14,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ChoosingGameComponent } from '../choosing-game/choosing-game.component';
 import { MediaTableViewComponent } from 'src/app/shared/media-table-view/media-table-view.component';
+import { CreateCollectionModalComponent } from 'src/app/shared/create-collection-modal/create-collection-modal.component';
 
 @Component({
     selector: 'app-group-detail',
@@ -100,10 +100,11 @@ export class GroupDetailComponent {
   }
 
   addMember() {
-    const dialogRef = this.dialog.open(CreateGroupModalComponent, {
+    const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
       data: {
         formType: 'userIds'
-      }
+      },
+      panelClass: 'modal-container'
     })
 
     dialogRef.afterClosed().subscribe(result => {
@@ -147,10 +148,11 @@ export class GroupDetailComponent {
   updateGroupList(event: any) {
     event.stopPropagation();
 
-    const dialogRef = this.dialog.open(CreateGroupModalComponent, {
+    const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
       data: {
         formType: 'listName'
-      }
+      },
+      panelClass: 'modal-container'
     })
 
     dialogRef.afterClosed().subscribe(result => {

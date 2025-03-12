@@ -343,3 +343,18 @@ main {
   gap: 24px;
   padding: 16px 0;
 }
+
+.modal-container {
+  .mat-mdc-dialog-container {
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #121933;
+    color: #fff;
+  }
+
+  .mat-mdc-dialog-content {
+    margin: 0;
+    padding: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, map, startWith } from 'rxjs';
 import { DataService } from 'src/app/services/data.service';
@@ -10,13 +10,10 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-
-interface DialogData {
-  formType: string;
-}
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-    selector: 'app-create-group-modal',
+    selector: 'app-create-collection-modal',
     imports: [
       CommonModule,
       MatDialogModule,
@@ -25,38 +22,31 @@ interface DialogData {
       MatAutocompleteModule,
       MatChipsModule,
       MatInputModule,
+      MatIconModule,
       FormsModule,
       ReactiveFormsModule
     ],
-    templateUrl: './create-group-modal.component.html',
-    styleUrls: ['./create-group-modal.component.scss'],
+    templateUrl: './create-collection-modal.component.html',
+    styleUrls: ['./create-collection-modal.component.scss'],
     standalone: true
 })
-export class CreateGroupModalComponent implements OnInit {
-  @ViewChild('userInput') userInput!: ElementRef<HTMLInputElement>;
+export class CreateCollectionModalComponent implements OnInit {
   groupForm: FormGroup;
   isNewListName = false;
-  users: any[] = [];
   listNames: string[] = [];
   dialogResult: any;
   filteredListNames!: Observable<string[]>;
-  filteredUsers!: Observable<any[]>;
-  selectedUsers: any[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private dataService: DataService,
     private snackbarService: SnackbarService,
-    private dialogRef: MatDialogRef<CreateGroupModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    private dialogRef: MatDialogRef<CreateCollectionModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { formType: 'name' | 'listName' | 'all' }
   ) {
     if (data.formType === 'listName') {
       this.groupForm = this.formBuilder.group({
         listName: ['', Validators.required]
-      });
-    } else if (data.formType === 'userIds') {
-      this.groupForm = this.formBuilder.group({
-        userIds: [[], [Validators.required, Validators.minLength(2)]]
       });
     } else if (data.formType === 'name') {
       this.groupForm = this.formBuilder.group({
@@ -65,8 +55,7 @@ export class CreateGroupModalComponent implements OnInit {
     } else {
       this.groupForm = this.formBuilder.group({
         name: ['', Validators.required],
-        listName: ['', Validators.required],
-        userIds: [[], [Validators.required, Validators.minLength(2)]]
+        listName: ['', Validators.required]
       });
     }
   }
@@ -91,28 +80,29 @@ export class CreateGroupModalComponent implements OnInit {
         }
       });
     }
-    if (this.groupForm.contains('userIds')) {
-      this.dataService.getUsers().subscribe({
-        next: (response: any) => {
-          if (response.length > 0) {
-            this.users = response.map((user: any) => {
-              return { id: user.id, username: user.username };
-            });
-            this.filteredUsers = this.groupForm.get('userIds')!.valueChanges.pipe(
-              startWith(''),
-              map(value => {
-                const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-                return this.users.filter(user => user.username.toLowerCase().includes(filterValue)).map(user => {
-                  return { id: user.id, username: user.username };
-                });
-              })
-            );
-          }
-        },
-        error: (err: any) => {
-          this.snackbarService.showError(err);
-        }
-      });
+  }
+
+  getDialogTitle(): string {
+    switch (this.data.formType) {
+      case 'name':
+        return 'Create New List';
+      case 'listName':
+        return 'Choose List';
+      case 'all':
+        return 'Create New Group';
+      default:
+        return 'Create';
+    }
+  }
+
+  getNameLabel(): string {
+    switch (this.data.formType) {
+      case 'name':
+        return 'List Name';
+      case 'all':
+        return 'Group Name';
+      default:
+        return 'Name';
     }
   }
 
@@ -120,22 +110,8 @@ export class CreateGroupModalComponent implements OnInit {
     return listName ? listName : '';
   }
 
-  displayUser(user: any): string {
-    return user ? user.username : '';
-  }
-
   replaceSpacesWithUnderscores(event: any) {
     event.target.value = event.target.value.replace(/\s+/g, '_');
-  }
-
-  toggleUserSelection(user: any) {
-    const index = this.selectedUsers.findIndex(u => u.id === user.id);
-    if (index === -1) {
-      this.selectedUsers.push(user);
-    } else {
-      this.selectedUsers.splice(index, 1);
-    }
-    this.groupForm.get('userIds')!.setValue(this.selectedUsers.map(u => u.id));
   }
 
   onSubmit() {
@@ -148,12 +124,6 @@ export class CreateGroupModalComponent implements OnInit {
       result = {
         listName: this.groupForm.value.listName
       };
-    } else if (this.data.formType === 'userIds') {
-      result = {
-        users: this.selectedUsers.map(u => {
-          return { id: u.id, username: u.username };
-        })
-      };
     } else if (this.data.formType === 'name') {
       result = {
         name: this.groupForm.value.name
@@ -161,10 +131,7 @@ export class CreateGroupModalComponent implements OnInit {
     } else {
       result = {
         name: this.groupForm.value.name,
-        listName: this.isNewListName ? this.groupForm.value.newListName : this.groupForm.value.listName,
-        users: this.selectedUsers.map(u => {
-          return { id: u.id, username: u.username };
-        })
+        listName: this.isNewListName ? this.groupForm.value.newListName : this.groupForm.value.listName
       };
     }
 

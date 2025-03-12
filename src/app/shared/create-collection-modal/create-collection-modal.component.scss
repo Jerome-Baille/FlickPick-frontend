@@ -22,6 +22,7 @@
     margin-bottom: 1rem;
 }
 
+
 .form-actions {
     width: 100%;
     display: flex;
@@ -30,10 +31,20 @@
     margin-top: 0.5rem;
 }
 
-p {
-    color: #fff;
-    margin: 0;
-    font-size: 1rem;
+.chip-container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    
+    .mat-mdc-chip {
+        background-color: #181d39;
+        color: #fff;
+        
+        &:hover {
+            background-color: #242c57;
+        }
+    }
 }
 
 ::ng-deep {
@@ -49,6 +60,7 @@ p {
     .mat-mdc-form-field {
         width: 100%;
         
+        
         .mat-mdc-text-field-wrapper {
             background-color: transparent;
         }
@@ -59,6 +71,24 @@ p {
         
         .mat-mdc-form-field-label {
             color: rgba(255, 255, 255, 0.7);
+        }
+    }
+
+    .mat-mdc-autocomplete-panel {
+        background-color: #181d39;
+        border-radius: 8px;
+        margin-top: 4px;
+        
+        .mat-mdc-option {
+            color: #fff;
+            
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            &.mat-mdc-option-active {
+                background-color: rgba(255, 255, 255, 0.15);
+            }
         }
     }
 }

@@ -1,16 +1,24 @@
-import { List } from './List';
-import { Group } from './Group';
-import { MediaItem } from './Media-item';
-
 export interface User {
     id?: number;
     username: string;
+    uuid?: string;
     email?: string;
-    password?: string;
     bio?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-    Groups?: Group[];
-    Lists?: List[];
-    MediaItems?: MediaItem[];
+    createdAt?: string;
+    updatedAt?: string;
+    Lists?: any[];
+    Groups?: any[];
+    Favorites?: {
+        id: number;
+        mediaItemId: number;
+        uuid: number;
+        createdAt: string;
+        updatedAt: string;
+        MediaItem: {
+            id: number;
+            title: string;
+            mediaType: string;
+            tmdbId: number;
+        };
+    }[];
 }
