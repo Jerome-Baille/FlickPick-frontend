@@ -15,8 +15,15 @@ interface Media {
 
 interface Group {
   name: string;
-  userIds: number[];
+  userIds?: number[];
   listName: string;
+  selectedMedia?: Array<{
+    tmdbId: number;
+    mediaType: string;
+    title?: string;
+    releaseDate?: string;
+  }>;
+
 }
 
 @Injectable({
@@ -51,8 +58,19 @@ export class DataService {
     return this.http.get(`${this.listURL}`);
   }
 
-  createList(list: any) {
-    return this.http.post(`${this.listURL}`, list);
+  createList(listData: { 
+    name: string, 
+    groupId?: number,
+    selectedMedia?: Array<{
+      tmdbId: number,
+      mediaType: 'movie' | 'tv',
+      title?: string,
+      releaseDate?: string,
+      posterPath?: string,
+      overview?: string
+    }> 
+  }) {
+    return this.http.post(`${this.listURL}`, listData);
   }
 
   addMediaItem(data: Media){

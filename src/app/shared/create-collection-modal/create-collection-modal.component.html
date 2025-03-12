@@ -1,30 +1,55 @@
-<h2 mat-dialog-title>{{ getDialogTitle() }}</h2>
+<h2 mat-dialog-title>Create New Group</h2>
 <mat-dialog-content>
     <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="form">
-        <ng-container *ngIf="groupForm.contains('name')">
-            <mat-form-field appearance="fill">
-                <mat-label>{{ getNameLabel() }}</mat-label>
-                <input matInput [placeholder]="getNameLabel()" formControlName="name"
-                    (keyup)="replaceSpacesWithUnderscores($event)">
-            </mat-form-field>
-        </ng-container>
-        <ng-container *ngIf="groupForm.contains('listName')">
-            <mat-form-field appearance="fill">
-                <mat-label>Choose a list</mat-label>
-                <input type="text" matInput placeholder="List Name" formControlName="listName"
-                    [matAutocomplete]="autoList" (keyup)="replaceSpacesWithUnderscores($event)">
-                <mat-autocomplete #autoList="matAutocomplete" [displayWith]="displayListName">
-                    <mat-option *ngFor="let listName of filteredListNames | async" [value]="listName">
-                        {{listName}}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
-        </ng-container>
+        <mat-form-field appearance="fill">
+            <mat-label>Group Name</mat-label>
+            <input matInput formControlName="name" (input)="onGroupNameInput($event)" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Search for movies or TV shows</mat-label>
+            <input type="text" matInput [formControl]="searchCtrl" [matAutocomplete]="auto" />
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onOptionSelected($event)">
+                <mat-option *ngFor="let media of filteredMedia | async" [value]="media" class="media-option">
+                    <div class="media-option-content">
+                        <img [src]="media.poster_path ? TMDB_IMAGE_BASE_URL + media.poster_path : 'assets/images/poster-not-found.png'"
+                             [alt]="media.title || media.name"
+                             class="media-thumbnail" />
+                        <div class="media-info">
+                            <div class="media-title">{{ media.title || media.name }}</div>
+                            <div class="media-details">
+                                <span class="media-type">{{ media.media_type | titlecase }}</span>
+                                <span class="media-year" *ngIf="media.release_date || media.first_air_date">
+                                    {{ media.release_date || media.first_air_date | date:'yyyy' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-chip-listbox aria-label="Selected media">
+            <mat-chip *ngFor="let media of selectedMedia" (removed)="removeMedia(media)" class="media-chip">
+                <div class="chip-content">
+                    <span class="chip-title">{{ media.title || media.name }}</span>
+                    <span class="chip-details">
+                        {{ media.media_type | titlecase }}
+                        <ng-container *ngIf="media.release_date || media.first_air_date">
+                            • {{ media.release_date || media.first_air_date | date:'yyyy' }}
+                        </ng-container>
+                    </span>
+                </div>
+                <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </mat-chip>
+        </mat-chip-listbox>
+
         <mat-dialog-actions class="form-actions">
             <button mat-button mat-dialog-close>Cancel</button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="!groupForm.valid"
-                [mat-dialog-close]="dialogResult">
-                Create
+            <button mat-raised-button color="primary" type="submit" [disabled]="!groupForm.valid || selectedMedia.length === 0">
+                Create Group
             </button>
         </mat-dialog-actions>
     </form>

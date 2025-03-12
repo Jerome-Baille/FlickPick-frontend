@@ -231,10 +231,10 @@ main {
   .mat-mdc-floating-label {
     font-weight: 400;
   }
-  
+
   &.mat-focused {
     .mat-mdc-floating-label {
-      color: #a6b1ff;
+      color: #ffffff99 !important;
     }
   }
 }

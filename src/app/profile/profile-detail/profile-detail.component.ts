@@ -93,6 +93,7 @@ export class ProfileDetailComponent {
 
     createGroup() {
         const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
+            width: '800px',
             data: {
                 formType: 'all'
             }
@@ -100,23 +101,37 @@ export class ProfileDetailComponent {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                const groupData = {
-                    name: result.name,
-                    listName: result.listName
-                }
+                // First create the list with media items
+                const listData = {
+                    name: result.listName,
+                    selectedMedia: result.selectedMedia.map((media: any) => ({
+                        tmdbId: media.tmdbId,
+                        mediaType: media.mediaType,
+                        title: media.title,
+                        releaseDate: media.releaseDate,
+                        posterPath: media.posterPath,
+                        overview: media.overview
+                    }))
+                };
 
-                this.dataService.createGroup(groupData).subscribe({
-                    next: (response: any) => {
-                        this.userProfile.Groups!.push(response.group);
-                        this.snackbarService.showSuccess(`Group created successfully. Share this code with others to join: ${response.code}`);
+                this.dataService.createList(listData).subscribe({
+                    next: (listResponse: any) => {
+                        // After list is created, create the group
+                        const groupData = {
+                            name: result.name,
+                            listName: result.listName
+                        };
 
-                        // check if the list already exists in the list of lists
-                        const listExists = this.userProfile.Lists!.some((list: any) => list.name === result.listName);
-
-                        // if it doesn't push the new list to the list of lists
-                        if (!listExists && response.list) {
-                            this.userProfile.Lists!.push(response.list);
-                        }
+                        this.dataService.createGroup(groupData).subscribe({
+                            next: (groupResponse: any) => {
+                                this.userProfile.Groups!.push(groupResponse.group);
+                                this.userProfile.Lists!.push(listResponse.list);
+                                this.snackbarService.showSuccess(`Group created successfully. Share this code with others to join: ${groupResponse.code}`);
+                            },
+                            error: (err: any) => {
+                                this.snackbarService.showError(err);
+                            }
+                        });
                     },
                     error: (err: any) => {
                         this.snackbarService.showError(err);
