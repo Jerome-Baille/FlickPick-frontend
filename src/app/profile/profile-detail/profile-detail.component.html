@@ -45,49 +45,6 @@
             </mat-card-content>
         </mat-card>
 
-        <mat-card class="section-card groups-card">
-            <mat-card-header>
-                <div class="header-content">
-                    <mat-card-title>
-                        <fa-icon [icon]="faUsers"></fa-icon>
-                        Groups
-                    </mat-card-title>
-                    <div>
-                        <button mat-icon-button color="primary" (click)="joinGroup()" matTooltip="Join a group">
-                            <fa-icon [icon]="faUsers"></fa-icon>
-                        </button>
-                        <button mat-icon-button color="primary" (click)="createGroup()" matTooltip="Create a group">
-                            <fa-icon [icon]="faCirclePlus"></fa-icon>
-                        </button>
-                    </div>
-                </div>
-            </mat-card-header>
-            <mat-card-content>
-                <ng-container *ngIf="userProfile.Groups?.length; else noGroups">
-                    <div *ngFor="let group of userProfile.Groups" class="list-item">
-                        <div class="item-content" routerLink="/group/detail/{{ group.id }}">
-                            <fa-icon [icon]="faUsers"></fa-icon>
-                            <div class="item-info">
-                                <span class="item-title">{{ group.name }}</span>
-                                <span class="group-code" (click)="copyGroupCode($event, group.code)" matTooltip="Click to copy">
-                                    Code: {{ group.code }}
-                                </span>
-                            </div>
-                            <span *ngIf="group.isAdmin" class="media-type-badge">Admin</span>
-                        </div>
-                        <button *ngIf="group.isAdmin" mat-icon-button color="warn" (click)="deleteGroup(group)">
-                            <mat-icon>delete</mat-icon>
-                        </button>
-                    </div>
-                </ng-container>
-                <ng-template #noGroups>
-                    <div class="empty-state">
-                        <p>No groups yet. Create one to start watching together!</p>
-                    </div>
-                </ng-template>
-            </mat-card-content>
-        </mat-card>
-
         <mat-card class="section-card lists-card">
             <mat-card-header>
                 <div class="header-content">

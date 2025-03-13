@@ -3,7 +3,7 @@ import { DataService } from 'src/app/services/data.service';
 import { UserService } from 'src/app/services/user.service';
 import { CreateCollectionModalComponent } from 'src/app/shared/create-collection-modal/create-collection-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { faCirclePlus, faUsers, faHeart, faList, faFilm, faTv, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faHeart, faList, faFilm, faTv, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
@@ -40,18 +40,14 @@ import { BasicModalComponent } from 'src/app/shared/basic-modal/basic-modal.comp
     standalone: true
 })
 export class ProfileDetailComponent {
-    // Properties
     userProfile: User = {
         username: '',
-        Groups: [],
         Lists: [],
         Favorites: []
     };
-    listName: string = '';
 
     // Icons
     faCirclePlus = faCirclePlus;
-    faUsers = faUsers;
     faHeart = faHeart;
     faList = faList;
     faFilm = faFilm;
@@ -70,101 +66,12 @@ export class ProfileDetailComponent {
             next: (response: User) => {
                 this.userProfile = {
                     ...response,
-                    Groups: response.Groups || [],
                     Lists: response.Lists || [], 
                     Favorites: response.Favorites || []
                 };
             },
             error: (err: any) => {
                 this.snackbarService.showError(err);
-            }
-        });
-    }
-
-    copyGroupCode(event: Event, code: string) {
-        event.stopPropagation(); // Prevent navigation when clicking the code
-        navigator.clipboard.writeText(code).then(() => {
-            this.snackbarService.showSuccess('Group code copied to clipboard!');
-        }).catch(err => {
-            this.snackbarService.showError('Failed to copy code');
-            console.error('Failed to copy code', err);
-        });
-    }
-
-    createGroup() {
-        const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
-            width: '800px',
-            data: {
-                formType: 'all'
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                // First create the list with media items
-                const listData = {
-                    name: result.listName,
-                    selectedMedia: result.selectedMedia.map((media: any) => ({
-                        tmdbId: media.tmdbId,
-                        mediaType: media.mediaType,
-                        title: media.title,
-                        releaseDate: media.releaseDate,
-                        posterPath: media.posterPath,
-                        overview: media.overview
-                    }))
-                };
-
-                this.dataService.createList(listData).subscribe({
-                    next: (listResponse: any) => {
-                        // After list is created, create the group
-                        const groupData = {
-                            name: result.name,
-                            listName: result.listName
-                        };
-
-                        this.dataService.createGroup(groupData).subscribe({
-                            next: (groupResponse: any) => {
-                                this.userProfile.Groups!.push(groupResponse.group);
-                                this.userProfile.Lists!.push(listResponse.list);
-                                this.snackbarService.showSuccess(`Group created successfully. Share this code with others to join: ${groupResponse.code}`);
-                            },
-                            error: (err: any) => {
-                                this.snackbarService.showError(err);
-                            }
-                        });
-                    },
-                    error: (err: any) => {
-                        this.snackbarService.showError(err);
-                    }
-                });
-            }
-        });
-    }
-
-    joinGroup() {
-        const dialogRef = this.dialog.open(BasicModalComponent, {
-            data: {
-                title: 'Join Group',
-                message: 'Enter the group code:',
-                showInput: true,
-                placeholder: 'Group Code',
-                confirmText: 'Join'
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(code => {
-            if (code) {
-                this.dataService.joinGroup(code).subscribe({
-                    next: (response: any) => {
-                        this.snackbarService.showSuccess(response.message);
-                        if (response.group) {
-                            this.userProfile.Groups!.push(response.group);
-                        }
-                    },
-                    error: (err: any) => {
-                        this.snackbarService.showError(err);
-                    }
-                });
             }
         });
     }
@@ -200,18 +107,6 @@ export class ProfileDetailComponent {
             next: (response: any) => {
                 this.snackbarService.showSuccess(response.message);
                 this.userProfile.Lists = this.userProfile.Lists!.filter((l: any) => l.id !== list.id);
-            },
-            error: (err: any) => {
-                this.snackbarService.showError(err);
-            }
-        })
-    }
-
-    deleteGroup(group: any) {
-        this.dataService.deleteGroup(group.id).subscribe({
-            next: (response: any) => {
-                this.snackbarService.showSuccess(response.message);
-                this.userProfile.Groups = this.userProfile.Groups!.filter((g: any) => g.id !== group.id);
             },
             error: (err: any) => {
                 this.snackbarService.showError(err);

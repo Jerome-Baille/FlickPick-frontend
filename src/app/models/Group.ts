@@ -1,13 +1,21 @@
+import { User } from './User';
+import { List } from './List';
+
+export interface GroupUser {
+    uuid: number;
+    GroupId: number;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Group {
-    id?: number;
+    id: number;
     name: string;
-    isAdmin?: boolean;
-    description?: string;
-    userIds?: number[];
-    listName?: string;
-    Users?: any[];
-    Lists?: any[];
-    MediaItems?: any[];
-    createdAt?: Date;
-    updatedAt?: Date;
+    code: string;
+    adminIds: number[];
+    isAdmin?: boolean;  // Optional boolean to indicate if current user is admin
+    Users: User[];
+    Lists: List[];
+    createdAt: string;
+    updatedAt: string;
 }

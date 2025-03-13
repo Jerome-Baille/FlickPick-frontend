@@ -15,7 +15,6 @@ main {
     grid-template-areas:
         "profile"
         "favorites"
-        "groups"
         "lists";
 
     @media (min-width: 768px) {
@@ -24,7 +23,7 @@ main {
         grid-template-areas:
             "profile profile"
             "favorites favorites"
-            "groups lists";
+            "lists lists";
     }
 }
 
@@ -76,10 +75,6 @@ main {
 
     &.favorites-card {
         grid-area: favorites;
-    }
-
-    &.groups-card {
-        grid-area: groups;
     }
 
     &.lists-card {

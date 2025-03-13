@@ -172,4 +172,8 @@ export class DataService {
   deleteUserVotesInGroup(groupId: number) {
     return this.http.delete(`${this.voteURL}/group-and-user/${groupId}`, { withCredentials: true });
   }
+
+  getUserGroups() {
+    return this.http.get(`${this.groupURL}`, { withCredentials: true });
+  }
 }
