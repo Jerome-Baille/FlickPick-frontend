@@ -1,8 +1,8 @@
 {
   "name": "Flick Pick",
   "short_name": "Flick Pick",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "theme_color": "#060818",
+  "background_color": "#060818",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
