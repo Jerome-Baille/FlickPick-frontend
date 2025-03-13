@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -20,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
     standalone: true
 })
 export class HeaderComponent {
-  isLoggedIn = this.authService.isAuthenticated;
+  readonly isLoggedIn = computed(() => this.authService.isAuthenticated());
 
   constructor(
     private authService: AuthService,

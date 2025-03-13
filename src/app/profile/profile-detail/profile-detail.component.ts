@@ -3,7 +3,7 @@ import { DataService } from 'src/app/services/data.service';
 import { UserService } from 'src/app/services/user.service';
 import { CreateCollectionModalComponent } from 'src/app/shared/create-collection-modal/create-collection-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-import { faCirclePlus, faHeart, faList, faFilm, faTv, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faList, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarService } from 'src/app/services/snackbar.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
@@ -48,10 +48,7 @@ export class ProfileDetailComponent {
 
     // Icons
     faCirclePlus = faCirclePlus;
-    faHeart = faHeart;
     faList = faList;
-    faFilm = faFilm;
-    faTv = faTv;
     faUser = faUser;
     faSignOut = faSignOut;
 
@@ -66,8 +63,7 @@ export class ProfileDetailComponent {
             next: (response: User) => {
                 this.userProfile = {
                     ...response,
-                    Lists: response.Lists || [], 
-                    Favorites: response.Favorites || []
+                    Lists: response.Lists || []
                 };
             },
             error: (err: any) => {
@@ -112,19 +108,6 @@ export class ProfileDetailComponent {
                 this.snackbarService.showError(err);
             }
         })
-    }
-
-    removeFromFavorites(favorite: any) {
-        const mediaItem = favorite.MediaItem;
-        this.dataService.removeFromFavorites({ tmdbId: mediaItem.tmdbId, mediaType: mediaItem.mediaType }).subscribe({
-            next: (response: any) => {
-                this.snackbarService.showSuccess(response.message);
-                this.userProfile.Favorites = this.userProfile.Favorites!.filter((f: any) => f.id !== favorite.id);
-            },
-            error: (err: any) => {
-                this.snackbarService.showError(err);
-            }
-        });
     }
 
     logout() {

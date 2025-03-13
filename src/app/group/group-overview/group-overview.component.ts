@@ -139,13 +139,25 @@ export class GroupOverviewComponent {
     }
 
     deleteGroup(group: Group) {
-        this.dataService.deleteGroup(group.id).subscribe({
-            next: (response: any) => {
-                this.snackbarService.showSuccess(response.message);
-                this.groups = this.groups.filter(g => g.id !== group.id);
-            },
-            error: (err: any) => {
-                this.snackbarService.showError(err);
+        const dialogRef = this.dialog.open(BasicModalComponent, {
+            data: {
+                title: 'Delete Group',
+                message: `Are you sure you want to delete the group "${group.name}"? This action cannot be undone.`,
+                confirmText: 'Delete'
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.dataService.deleteGroup(group.id).subscribe({
+                    next: (response: any) => {
+                        this.snackbarService.showSuccess(response.message);
+                        this.groups = this.groups.filter(g => g.id !== group.id);
+                    },
+                    error: (err: any) => {
+                        this.snackbarService.showError(err);
+                    }
+                });
             }
         });
     }

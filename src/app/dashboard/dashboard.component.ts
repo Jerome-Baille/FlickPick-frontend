@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit {
           this.recentGroups = [];
         }
       },
-      error: (err) => this.snackbarService.showError(err)
+      error: (err) => this.snackbarService.showError(err.message)
     });
 
     // Get favorite media items
@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
           this.favoriteMedia = [];
         }
       },
-      error: (err) => this.snackbarService.showError(err)
+      error: (err) => this.snackbarService.showError(err.message)
     });
   }
 }

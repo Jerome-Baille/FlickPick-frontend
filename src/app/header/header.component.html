@@ -2,21 +2,25 @@
     <span class="toolbar__title desktop-only" routerLink="/">Flick Pick</span>
     <span class="spacer desktop-only"></span>
     <nav class="desktop-nav">
-        <a mat-button routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a mat-button routerLink="/media" routerLinkActive="active">Search</a>
-        <a mat-button *ngIf="isLoggedIn()" routerLink="/profile" routerLinkActive="active">Profile</a>
+        <ng-container *ngIf="isLoggedIn()">
+            <a mat-button routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+            <a mat-button routerLink="/media" routerLinkActive="active">Search</a>
+            <a mat-button routerLink="/profile" routerLinkActive="active">Profile</a>
+        </ng-container>
         <a mat-button routerLink="/auth" *ngIf="!isLoggedIn()" routerLinkActive="active">Login</a>
     </nav>
     <nav class="mobile-nav">
-        <a mat-icon-button routerLink="/dashboard" routerLinkActive="active">
-            <mat-icon>dashboard</mat-icon>
-        </a>
-        <a mat-icon-button routerLink="/media" routerLinkActive="active">
-            <mat-icon>search</mat-icon>
-        </a>
-        <a mat-icon-button *ngIf="isLoggedIn()" routerLink="/profile" routerLinkActive="active">
-            <mat-icon>person</mat-icon>
-        </a>
+        <ng-container *ngIf="isLoggedIn()">
+            <a mat-icon-button routerLink="/dashboard" routerLinkActive="active">
+                <mat-icon>dashboard</mat-icon>
+            </a>
+            <a mat-icon-button routerLink="/media" routerLinkActive="active">
+                <mat-icon>search</mat-icon>
+            </a>
+            <a mat-icon-button routerLink="/profile" routerLinkActive="active">
+                <mat-icon>person</mat-icon>
+            </a>
+        </ng-container>
         <a mat-icon-button routerLink="/auth" *ngIf="!isLoggedIn()" routerLinkActive="active">
             <mat-icon>login</mat-icon>
         </a>

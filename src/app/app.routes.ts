@@ -9,11 +9,14 @@ import { GroupOverviewComponent } from './group/group-overview/group-overview.co
 import { GroupDetailComponent } from './group/group-detail/group-detail.component';
 import { AuthComponent } from './auth/auth/auth.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { FavoriteComponent } from './favorite/favorite.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'dashboard',
-    component: DashboardComponent
+    component: DashboardComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'auth',
@@ -24,6 +27,7 @@ export const routes: Routes = [
   },
   {
     path: 'media',
+    canActivate: [authGuard],
     children: [
       { path: 'search', component: SearchComponent },
       { path: 'detail/movie/:id', component: SearchDetailViewComponent },
@@ -35,6 +39,7 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
+    canActivate: [authGuard],
     children: [
       { path: 'own', component: ProfileDetailComponent },
       { path: 'list/:listId', component: ProfileListComponent },
@@ -43,11 +48,17 @@ export const routes: Routes = [
   },
   {
     path: 'group',
+    canActivate: [authGuard],
     children: [
       { path: 'overview', component: GroupOverviewComponent },
       { path: 'detail/:groupId', component: GroupDetailComponent },
       { path: '', pathMatch: 'full', redirectTo: 'overview' }
     ]
+  },
+  {
+    path: 'favorite',
+    component: FavoriteComponent,
+    canActivate: [authGuard]
   },
   {
     path: '',

@@ -14,7 +14,6 @@ main {
     gap: 1rem;
     grid-template-areas:
         "profile"
-        "favorites"
         "lists";
 
     @media (min-width: 768px) {
@@ -22,7 +21,6 @@ main {
         grid-template-columns: repeat(2, 1fr);
         grid-template-areas:
             "profile profile"
-            "favorites favorites"
             "lists lists";
     }
 }
@@ -72,10 +70,6 @@ main {
     background-color: #181d39;
     color: #fff;
     height: 100%;
-
-    &.favorites-card {
-        grid-area: favorites;
-    }
 
     &.lists-card {
         grid-area: lists;
