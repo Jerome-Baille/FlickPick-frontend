@@ -9,11 +9,13 @@ import { SnackbarService } from 'src/app/services/snackbar.service';
 import { environment } from 'src/environments/environment.prod';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
     selector: 'app-media-table-view',
     imports: [
       CommonModule,
+      MatButtonModule,
       MatIconModule,
       MatBadgeModule,
       MatTableModule,
@@ -25,6 +27,7 @@ import { MatTableModule } from '@angular/material/table';
 })
 export class MediaTableViewComponent {
   @Input() mediaItems: any[] = [];
+  @Input() showPoints: boolean = true; // Added property to control points display
 
   faTrophy = faTrophy;
 

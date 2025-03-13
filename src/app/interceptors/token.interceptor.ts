@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 // Using signals instead of Subject for token refresh state
 let isRefreshing = false;
 const refreshTokenSignal = signal<boolean>(false);
+let refreshAttempts = 0; // Add counter for refresh attempts
 
 // A queue to store pending requests during refresh
 const pendingRequests: Array<{
@@ -48,7 +49,8 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn):
 
   return next(modifiedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.error.shouldRefresh) {
+      if (error.error.shouldRefresh && refreshAttempts < 2) {
+        refreshAttempts++; // Increment attempts
         if (!isRefreshing) {
           isRefreshing = true;
           
@@ -59,6 +61,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn):
             return authService.refreshToken().pipe(
               switchMap(() => {
                 isRefreshing = false;
+                refreshAttempts = 0; // Reset attempts on success
                 notifyRefreshComplete();
                 const retryRequest = req.clone({
                   withCredentials: true
@@ -67,8 +70,11 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn):
               }),
               catchError(refreshError => {
                 isRefreshing = false;
-                authService.logout(true); // Skip HTTP request when logging out from interceptor
-                router.navigate(['/auth']); // Redirect to login page
+                if (refreshAttempts >= 2) {
+                  refreshAttempts = 0; // Reset attempts before logout
+                  authService.logout(true);
+                  router.navigate(['/auth']);
+                }
                 return throwError(() => refreshError);
               }),
               finalize(() => {

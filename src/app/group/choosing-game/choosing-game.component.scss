@@ -1,81 +1,389 @@
+// Game container
 .choosing-game {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 2rem;
     margin-bottom: 2rem;
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 1rem;
+}
 
-    ul {
-        list-style-type: none;
+// Game header styling
+.game-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    
+    .round-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .round-badge {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #ff4081;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 4px 8px rgba(255, 64, 129, 0.3);
+    }
+    
+    .round-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+    
+    .round-description {
+        font-size: 1.2rem;
+        color: #e0e0e0;
+        margin-bottom: 1rem;
     }
 }
 
-.mat-header {
-    margin: auto;
+// Progress indicator
+.progress-container {
+    width: 80%;
+    max-width: 600px;
+    margin: 0.5rem auto;
+    
+    .progress-text {
+        text-align: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #bdbdbd;
+    }
 }
 
+// Card container for choices
 .mat-card-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 2rem;
+    position: relative;
+    margin: 1rem auto;
+    width: 100%;
+    max-width: 900px;
+
+    // "VS" badge
+    .versus-badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #651fff;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
 }
 
-.mat-card {
-    transition: background-color 0.2s;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    background-color: #181D39;
-    border-radius: 8px;
-    overflow: hidden;
-    margin: auto;
+// Move the VS badge out of the card container to fix its positioning
+.versus-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #651fff;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
 
+// Card styling
+.mat-card {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    background-color: #181D39;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
     .mat-card-content {
         padding: 16px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     p {
-        font-size: 16px;
+        font-size: 1.2rem;
         text-align: center;
+        margin: 0.5rem 0;
+    }
+
+    &.mat-header {
+        margin: auto;
+        text-align: center;
+    }
+}
+
+// Media type icon styling for Round 1
+.mat-card-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem 0;
+    
+    .media-type-icon {
+        font-size: 3rem;
+        height: 3rem;
+        width: 3rem;
+        color: #ff4081;
+        transition: all 0.3s ease;
+        
+        .mat-card-button:hover & {
+            transform: scale(1.2);
+        }
+    }
+}
+
+.mat-card-subtext {
+    font-size: 0.9rem;
+    color: #bdbdbd;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+// Card button interactions
+.mat-card-button {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+        background-color: #202650;
+    }
+    
+    &.selected {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(255, 64, 129, 0.5);
+        border: 2px solid #ff4081;
+    }
+    
+    // Add special hover effects for the first round
+    &:hover .media-type-icon {
+        color: #ff80ab; // Lighter pink on hover
+        filter: drop-shadow(0 0 8px rgba(255, 64, 129, 0.6));
     }
 }
 
 .mat-card-text {
     margin: 1rem !important;
+    font-weight: 500;
 }
 
-.mat-card-button {
-    &:hover {
-        cursor: pointer;
-        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
+// Poster image styling
+.mat-card-poster-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    
+    .mat-card-poster {
+        width: 100%;
+        height: auto;
+        transition: transform 0.3s ease;
+        
+        .mat-card-button:hover & {
+            transform: scale(1.05);
+        }
     }
 }
 
-.checkbox-text {
-    color: white;
+// Genre selection styling
+.genre-selection-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .checkbox-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-}
-
-.mat-card-poster {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
-}
-
-.mat-card-poster-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    gap: 2rem;
 }
 
 .genre-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 2rem;
+    gap: 1rem;
     width: 100%;
     padding: 0;
+    list-style-type: none;
+}
+
+.genre-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 100%;
+    padding: 0.75rem 0.5rem;
+    
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        background-color: rgba(63, 81, 181, 0.5);
+    }
+    
+    &.selected {
+        background-color: #3f51b5;
+        border: 1px solid #7986cb;
+    }
+    
+    mat-checkbox {
+        width: 100%;
+        display: block;
+        pointer-events: none; // Make the entire card clickable, not just the checkbox
+        
+        ::ng-deep .mat-checkbox-layout {
+            width: 100%;
+            display: block;
+        }
+        
+        ::ng-deep .mat-checkbox-inner-container {
+            margin-left: 0;
+            margin-right: 8px;
+        }
+    }
+}
+
+.checkbox-text {
+    color: white;
+    font-size: 0.9rem;
+}
+
+.submit-button {
+    min-width: 200px;
+    margin: 1rem 0;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+// Results and game completion styling
+.results-container {
+    text-align: center;
+    
+    .winner-announcement {
+        margin-bottom: 2rem;
+        
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ff4081;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+        }
+    }
+    
+    .results-card {
+        margin-bottom: 2rem;
+    }
+    
+    .game-summary {
+        margin-top: 2rem;
+        
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #bdbdbd;
+        }
+    }
+}
+
+// Empty state styling
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+    
+    .empty-icon {
+        font-size: 4rem;
+        height: 4rem;
+        width: 4rem;
+        color: #bdbdbd;
+        margin-bottom: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    p {
+        font-size: 1.1rem;
+        color: #bdbdbd;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .mat-card-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        
+        .versus-badge {
+            display: none;
+        }
+    }
+    
+    .genre-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .round-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .round-title {
+        font-size: 1.5rem;
+    }
+    
+    .mat-card-icon-container {
+        .media-type-icon {
+            font-size: 2.5rem;
+            height: 2.5rem;
+            width: 2.5rem;
+        }
+    }
 }

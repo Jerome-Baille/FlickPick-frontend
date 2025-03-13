@@ -1,14 +1,56 @@
 <ng-container *ngIf="displayedItems.length !== 0; else noItems">
-    <div class="choosing-game">
-        <mat-card *ngIf="!isGameOver" class="mat-card mat-header">
-            <mat-card-content class="mat-card-content">
-                <p>Round {{ currentRound }}</p>
-            </mat-card-content>
-        </mat-card>
+    <div class="choosing-game" [@fadeAnimation]>
+        <!-- Game Header with Description -->
+        <div *ngIf="!isGameOver" class="game-header">
+            <div class="round-indicator">
+                <h2 class="round-title">{{ getRoundDescription() }}</h2>
+            </div>
+            
+            <!-- Progress bar to show game advancement -->
+            <div class="progress-container" *ngIf="currentRound > 2">
+                <div class="progress-text">{{ filteredMediaItems.length + winningItems.length }} titles left</div>
+                <mat-progress-bar mode="determinate" [value]="getGameProgress()"></mat-progress-bar>
+            </div>
+        </div>
 
-        <section *ngIf="!isGameOver && (currentRound < 2 || currentRound > 2)" class="mat-card-container">
-            <mat-card (click)="makeChoice('A')" class="mat-card mat-card-button">
-                <div *ngIf="choiceA.mediaItem && currentRound > 2" class="mat-card-poster-container">
+        <!-- Media Type Selection (Round 1) -->
+        <section *ngIf="!isGameOver && currentRound === 1" class="mat-card-container" [@cardAnimation]="selectedChoice">
+            <mat-card (click)="makeChoice('A')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'A'">
+                <div class="mat-card-icon-container">
+                    <mat-icon class="media-type-icon">movie</mat-icon>
+                </div>
+                <mat-card-content class="mat-card-content">
+                    <p class="mat-card-text">
+                        Movies
+                    </p>
+                    <p class="mat-card-subtext">
+                        Choose from film selections
+                    </p>
+                </mat-card-content>
+            </mat-card>
+            
+            <!-- VS badge positioned between cards -->
+            <div class="versus-badge">VS</div>
+            
+            <mat-card (click)="makeChoice('B')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'B'">
+                <div class="mat-card-icon-container">
+                    <mat-icon class="media-type-icon">tv</mat-icon>
+                </div>
+                <mat-card-content class="mat-card-content">
+                    <p class="mat-card-text">
+                        TV Shows
+                    </p>
+                    <p class="mat-card-subtext">
+                        Choose from series selections
+                    </p>
+                </mat-card-content>
+            </mat-card>
+        </section>
+
+        <!-- Title Selection (Round 3+) -->
+        <section *ngIf="!isGameOver && currentRound > 2" class="mat-card-container" [@cardAnimation]="selectedChoice">
+            <mat-card (click)="makeChoice('A')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'A'">
+                <div *ngIf="choiceA.mediaItem" class="mat-card-poster-container">
                     <img mat-card-image class="mat-card-poster"
                         [src]="choiceA.mediaItem.posterPath ? TMDB_IMAGE_BASE_URL_300 + choiceA.mediaItem.posterPath : 'assets/images/poster-not-found.png'"
                         alt="{{ choiceA.title }}" />
@@ -16,13 +58,17 @@
                 <mat-card-content class="mat-card-content">
                     <p class="mat-card-text">
                         {{ choiceA.title }}
-                        <span *ngIf="choiceA.mediaItem.releaseDate && currentRound > 2">({{ choiceA.mediaItem.releaseDate | date:'yyyy'}})
+                        <span *ngIf="choiceA.mediaItem && choiceA.mediaItem.releaseDate">({{ choiceA.mediaItem.releaseDate | date:'yyyy'}})
                         </span>
                     </p>
                 </mat-card-content>
             </mat-card>
-            <mat-card (click)="makeChoice('B')" class="mat-card mat-card-button">
-                <div *ngIf="choiceB.mediaItem && currentRound > 2" class="mat-card-poster-container">
+            
+            <!-- VS badge positioned between cards -->
+            <div class="versus-badge">VS</div>
+            
+            <mat-card (click)="makeChoice('B')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'B'">
+                <div *ngIf="choiceB.mediaItem" class="mat-card-poster-container">
                     <img mat-card-image class="mat-card-poster"
                     [src]="choiceB.mediaItem.posterPath ? TMDB_IMAGE_BASE_URL_300 + choiceB.mediaItem.posterPath : 'assets/images/poster-not-found.png'"
                         alt="{{ choiceB.title }}" />
@@ -30,41 +76,57 @@
                 <mat-card-content class="mat-card-content">
                     <p class="mat-card-text">
                         {{ choiceB.title }}
-                        <span *ngIf="choiceB.mediaItem.releaseDate && currentRound > 2">({{ choiceB.mediaItem.releaseDate | date:'yyyy'}})
+                        <span *ngIf="choiceB.mediaItem && choiceB.mediaItem.releaseDate">({{ choiceB.mediaItem.releaseDate | date:'yyyy'}})
                         </span>
                     </p>
                 </mat-card-content>
             </mat-card>
         </section>
 
-        <mat-card *ngIf="!isGameOver && currentRound === 2" class="mat-card mat-header">
-            <mat-card-content class="mat-card-content">
-                <p>Pick one or multiple genres:</p>
-            </mat-card-content>
-        </mat-card>
-        <div *ngIf="!isGameOver && currentRound === 2" class="checkbox-container">
-            <ul class="genre-list">
-                <li *ngFor="let genre of genresSet">
-                    <mat-checkbox color="primary" class="white-checkbox" (change)="onGenreSelect(genre)" [checked]="userSelectedGenres.has(genre)">
-                        <span class="checkbox-text">{{ genre }}</span>
-                    </mat-checkbox>
-                </li>
-            </ul>
+        <!-- Genre Selection (Round 2) -->
+        <div *ngIf="!isGameOver && currentRound === 2" class="genre-selection-container" [@fadeAnimation]>
+            <div class="checkbox-container">
+                <ul class="genre-list">
+                    <li *ngFor="let genre of genresSet" [@genreAnimation]>
+                        <mat-card class="genre-card" [class.selected]="userSelectedGenres.has(genre)" (click)="onGenreSelect(genre)">
+                            <mat-card-content>
+                                <mat-checkbox color="primary" [checked]="userSelectedGenres.has(genre)" (change)="onGenreSelect(genre)">
+                                    <span class="checkbox-text">{{ genre }}</span>
+                                </mat-checkbox>
+                            </mat-card-content>
+                        </mat-card>
+                    </li>
+                </ul>
 
-            <button mat-raised-button color="primary" (click)="submitGenreSelection()">Submit</button>
+                <button mat-raised-button color="primary" class="submit-button" (click)="submitGenreSelection()" [disabled]="userSelectedGenres.size === 0">
+                    Continue with {{ userSelectedGenres.size }} genre{{ userSelectedGenres.size !== 1 ? 's' : '' }}
+                </button>
+            </div>
         </div>
-        <mat-card *ngIf="isGameOver" class="mat-card">
-            <mat-card-content class="mat-card-content">
-                <app-media-table-view [mediaItems]="rankings"/>
-            </mat-card-content>
-        </mat-card>
+
+        <!-- Game Results -->
+        <div *ngIf="isGameOver" class="results-container" [@celebrateAnimation]>
+            <div class="winner-announcement">
+                <h2>Results Ready!</h2>
+                <p>We've found your perfect picks:</p>
+            </div>
+            <mat-card class="mat-card results-card">
+                <mat-card-content class="mat-card-content">
+                    <app-media-table-view [mediaItems]="rankings"/>
+                </mat-card-content>
+            </mat-card>
+            <div class="game-summary">
+                <p>You compared {{ mediaItems.length }} titles across {{ getRoundDescription() }}</p>
+                <button mat-raised-button color="primary" (click)="restartGame()">Play Again</button>
+            </div>
+        </div>
     </div>
 </ng-container>
 
 <ng-template #noItems>
-    <mat-card class="mat-card mat-header">
-        <mat-card-content class="mat-card-content">
-            <p>There are no items to choose from.</p>
-        </mat-card-content>
-    </mat-card>
+    <div class="empty-state">
+        <mat-icon class="empty-icon">movie_filter</mat-icon>
+        <h2>No Media Available</h2>
+        <p>There are no items to choose from in your collection.</p>
+    </div>
 </ng-template>

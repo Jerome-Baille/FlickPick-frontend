@@ -153,11 +153,23 @@ export class DataService {
     return this.http.get(`${this.voteURL}/group/${groupId}`);
   }
 
+  getVotesByUserInGroup(groupId: number) {
+    return this.http.get(`${this.voteURL}/group-and-user/${groupId}`)
+  }
+
   deleteVotesByGroup(groupId: number) {
     return this.http.delete(`${this.voteURL}/group/${groupId}`);
   }
 
+  deleteVotesInGroup(groupId: number) {
+    return this.http.delete(`${this.voteURL}/user-in-group/${groupId}`);
+  }
+
   getAllGroupsForUser() {
     return this.http.get(`${this.groupURL}`, { withCredentials: true });
+  }
+
+  deleteUserVotesInGroup(groupId: number) {
+    return this.http.delete(`${this.voteURL}/group-and-user/${groupId}`, { withCredentials: true });
   }
 }

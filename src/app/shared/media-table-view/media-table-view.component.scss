@@ -1,121 +1,319 @@
-.table-img-container {
-    display: flex;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-}
+// Media table component styles
+// Variables
+$primary-color: #ff4081;
+$secondary-color: #3f51b5;
+$dark-bg: #181D39;
+$darker-bg: #101325;
+$light-text: #e0e0e0;
+$gold: #ffc107;
+$movie-color: #ff4081;
+$tv-color: #651fff;
 
-.media-table-img {
-    width: 150px;
-}
-
-.table-view-container {
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.star-container {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    align-items: center;
-
-    .star-icon {
-        color: gray;
-        cursor: pointer;
-        transition: color 0.2s ease-in-out;
-        font-size: 1.2rem;
-
-        &:hover {
-            color: gold;
-        }
-
-        &:hover ~ .star-icon {
-            color: gold;
-        }
-    }
-
-    &:not(:hover) {
-        .star-icon.active {
-            color: gold;
-        }
-
-        .star-icon.active ~ .star-icon {
-            color: gold;
-        }
-    }
-}
-
-.td-link:hover {
+// Desktop table styles
+.media-table {
+  width: 100%;
+  background-color: transparent;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  
+  .media-row {
+    transition: background-color 0.2s ease;
     cursor: pointer;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      vertical-align: middle;
+    }
+  }
 }
 
+// Rank column styles
 .rank-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-
-    .winner-icon {
-        color: gold;
-        font-size: 1.5rem;
-    }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  position: relative;
+  min-width: 60px;
+  
+  .rank-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  &.top-rank .rank-number {
+    color: $gold;
+    font-size: 2rem;
+  }
+  
+  .winner-icon {
+    color: $gold;
+    font-size: 1.2rem;
+    margin-top: 0.25rem;
+  }
+  
+  .points-badge {
+    background-color: $primary-color;
+    color: white;
+    border-radius: 12px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
 }
 
+// Poster column styles
+.poster-cell {
+  width: 120px;
+  padding: 0.5rem !important;
+}
+
+.poster-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  height: 180px;
+  width: 120px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    
+    .media-row:hover & {
+      transform: scale(1.05);
+    }
+  }
+  
+  .media-type-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-bottom-left-radius: 8px;
+    
+    &.movie {
+      background-color: $movie-color;
+    }
+    
+    &.tv {
+      background-color: $tv-color;
+    }
+  }
+}
+
+// Info cell styles
+.info-cell {
+  padding: 0.75rem 1rem;
+  max-width: 50vw;
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  
+  .media-title {
+    font-size: 1.2rem;
+    margin: 0;
+    color: white;
+  }
+  
+  .release-date {
+    font-size: 0.9rem;
+    color: $light-text;
+    margin: 0;
+  }
+  
+  .overview-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0.5rem 0 0;
+    line-height: 1.4;
+  }
+}
+
+// Actions column styles
+.actions-cell {
+  width: 100px;
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+// Mobile card layout styles
 .mobile-only {
+  padding: 1rem 0;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+.media-card {
+  position: relative;
+  display: flex;
+  background-color: $dark-bg;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.top-pick {
+    border: 2px solid $gold;
+  }
+  
+  .rank-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    z-index: 5;
+    
+    &.top-rank {
+      background-color: $gold;
+      color: black;
+    }
+  }
+  
+  .winner-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: $gold;
+    font-size: 1.2rem;
+    z-index: 5;
+  }
+  
+  .media-image {
+    flex: 0 0 100px;
+    
+    img {
+      width: 100px;
+      height: 150px;
+      object-fit: cover;
+    }
+  }
+  
+  .media-info {
+    flex: 1;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-
-    .mobile-container {
-        background-color: #fff;
-        color: black;
-        border-radius: 8px;
-        padding: 1rem;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-end;
-
-        .winner-icon {
-            position: absolute;
-            top: -15px;
-            left: -20px;
-            color: gold;
-            font-size: 1.5rem;
-            background-color: #fff;
-            z-index: 999;
-            padding: 8px;
-            border-radius: 50px;
-            border: 2px solid gold;
-        }
+    
+    h3 {
+      margin: 0 0 0.25rem;
+      font-size: 1rem;
     }
-
-    .img-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 1rem;
-        width: fit-content;
+    
+    .release-year {
+      color: $light-text;
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
     }
-
-    img {
-        width: 100%;
+    
+    .media-type-badge {
+      align-self: flex-start;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      
+      &.movie {
+        background-color: $movie-color;
+      }
+      
+      &.tv {
+        background-color: $tv-color;
+      }
     }
+    
+    .points {
+      margin: 0.5rem 0 0;
+      color: $primary-color;
+      font-weight: 500;
+    }
+  }
+  
+  .delete-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+  }
 }
 
+// Empty state styles
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  
+  .empty-icon {
+    font-size: 3rem;
+    height: 3rem;
+    width: 3rem;
+    color: $light-text;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: $light-text;
+  }
+}
+
+// Responsive adjustments
 @media screen and (min-width: 768px) {
-    .mobile-only {
-        display: none;
-    }
+  .mobile-only {
+    display: none;
+  }
 }
 
-@media screen and (max-width: 768px) {
-    .desktop-only {
-        display: none;
-    }
+@media screen and (max-width: 767px) {
+  .desktop-only {
+    display: none;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
 }

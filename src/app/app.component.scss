@@ -7,6 +7,7 @@
 .app-main {
   flex: 1;
   padding: 24px;
+  padding-top: 88px; // Account for fixed header
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -48,10 +49,16 @@
 @media (max-width: 767px) {
   .app-main {
     padding: 16px;
+    padding-top: 24px; // Reset top padding since header is at bottom
+    padding-bottom: 80px; // Add padding for bottom navigation
   }
   
-  .app-footer .footer-content {
-    flex-direction: column;
-    text-align: center;
+  .app-footer {
+    margin-bottom: 56px; // Add margin for bottom navigation
+    
+    .footer-content {
+      flex-direction: column;
+      text-align: center;
+    }
   }
 }
