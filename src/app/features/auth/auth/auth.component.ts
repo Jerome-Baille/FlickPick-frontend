@@ -3,9 +3,11 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-auth',
@@ -17,6 +19,7 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
     MatCardModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatIconModule,
     RouterModule
   ]
 })
@@ -27,6 +30,9 @@ export class AuthComponent {
   isLoggedIn = false;
   isLoading = false;
   isRegisterMode = false;
+  
+  // Expose to template
+  isDevelopment = !environment.production;
 
   constructor() {
     this.authService.waitForAuthState().subscribe(

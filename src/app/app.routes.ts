@@ -11,6 +11,21 @@ import { ProfileListComponent } from './features/profile/profile-list/profile-li
 import { GroupOverviewComponent } from './features/group/group-overview/group-overview.component';
 import { GroupDetailComponent } from './features/group/group-detail/group-detail.component';
 import { FavoriteComponent } from './features/favorite/favorite.component';
+import { environment } from 'src/environments/environment';
+
+// Build auth children routes conditionally
+const authChildren = [
+  { path: '', component: AuthComponent },
+  { path: 'after-login', component: AfterLoginComponent },
+];
+
+// Only add dev auth route in development - this ensures it's tree-shaken in production
+if (!environment.production) {
+  authChildren.push({
+    path: 'dev',
+    loadComponent: () => import('./features/auth/dev-auth/dev-auth.component').then(m => m.DevAuthComponent)
+  } as any);
+}
 
 export const routes: Routes = [
   {
@@ -20,10 +35,7 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    children: [
-      { path: '', component: AuthComponent },
-      { path: 'after-login', component: AfterLoginComponent }
-    ]
+    children: authChildren
   },
   {
     path: 'media',

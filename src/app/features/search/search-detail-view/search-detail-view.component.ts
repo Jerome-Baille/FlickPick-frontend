@@ -10,7 +10,7 @@ import { DataService } from 'src/app/core/services/data.service';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { BackButtonComponent } from 'src/app/shared/components/back-button/back-button.component';
 import { VideoModalComponent } from 'src/app/shared/components/video-modal/video-modal.component';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 interface CastMember {
   id: number;

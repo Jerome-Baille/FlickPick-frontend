@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 

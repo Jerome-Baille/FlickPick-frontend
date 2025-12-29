@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -35,10 +35,6 @@ interface SearchResult {
 interface FavoriteItem {
   tmdbId: number;
   mediaType: string;
-}
-
-interface ApiResponse {
-  message: string;
 }
 
 @Component({

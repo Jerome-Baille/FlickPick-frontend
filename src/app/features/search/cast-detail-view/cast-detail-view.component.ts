@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { DataService } from 'src/app/core/services/data.service';
 import { BackButtonComponent } from 'src/app/shared/components/back-button/back-button.component';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 
 interface CastMember {
   id: number;

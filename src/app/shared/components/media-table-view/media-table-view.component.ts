@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faStar, faTrophy } from '@fortawesome/free-solid-svg-icons';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';

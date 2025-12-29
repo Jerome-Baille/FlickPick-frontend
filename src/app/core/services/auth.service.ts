@@ -1,9 +1,10 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment';
 import { tap, map, filter, take } from 'rxjs/operators';
 import { Observable, combineLatest } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 
 interface VerifyResponse {
   message: string;
@@ -16,9 +17,13 @@ interface VerifyResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private router = inject(Router);
 
   private authURL = environment.authURL;
   private authFrontURL = environment.authFrontURL;
+  
+  // Check if we're in development mode
+  readonly isDevelopment = !environment.production;
 
   // Using signal instead of BehaviorSubject
   private authState = signal<boolean>(false);
@@ -70,6 +75,12 @@ export class AuthService {
   }
 
   login(): void {
+    // In development mode, redirect to dev auth selector
+    if (this.isDevelopment) {
+      this.router.navigate(['/auth/dev']);
+      return;
+    }
+    
     const returnUrl = this.buildReturnUrl('/auth/after-login');
     window.location.href = `${this.authFrontURL}/external-login?returnUrl=${encodeURIComponent(returnUrl)}`;
   }
@@ -78,6 +89,7 @@ export class AuthService {
     return this.http.get<VerifyResponse>(`${this.authURL}/verify`, { withCredentials: true }).pipe(
       tap((response) => {
         this.authState.set(response.status === 'success');
+        this.verificationCompleted.set(true);
       }),
       map(response => ({
         auth: response.status === 'success',
@@ -90,6 +102,7 @@ export class AuthService {
   logout(skipRequest = false): void {
     if (skipRequest) {
       this.authState.set(false);
+      this.verificationCompleted.set(true);
       window.location.reload();
       return;
     }
@@ -98,17 +111,25 @@ export class AuthService {
       .subscribe({
         next: () => {
           this.authState.set(false);
+          this.verificationCompleted.set(true);
           window.location.reload();
         },
         error: () => {
           // Even if the request fails, we'll clear the auth state locally
           this.authState.set(false);
+          this.verificationCompleted.set(true);
           window.location.reload();
         }
       });
   }
 
   register(): void {
+    // In development mode, redirect to dev auth selector (registration is same as login)
+    if (this.isDevelopment) {
+      this.router.navigate(['/auth/dev']);
+      return;
+    }
+    
     const returnUrl = this.buildReturnUrl('/auth/after-login');
     window.location.href = `${this.authFrontURL}/external-register?returnUrl=${encodeURIComponent(returnUrl)}`;
   }

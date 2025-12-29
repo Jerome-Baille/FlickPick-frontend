@@ -1,4 +1,15 @@
 <main>
+    <!-- Dev mode banner -->
+    @if (isDevelopment) {
+        <div class="dev-banner">
+            <mat-icon>developer_mode</mat-icon>
+            <span>Development Mode</span>
+            <a routerLink="/auth/dev" class="dev-link">
+                Use Test Users →
+            </a>
+        </div>
+    }
+
     <mat-card class="auth-card">
         <mat-card-header class="auth-card-title">
             <mat-card-title>

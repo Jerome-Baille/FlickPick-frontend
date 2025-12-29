@@ -16,14 +16,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    font-src 'self' data: https://fonts.gstatic.com;
-    connect-src 'self' https://auth.jerome-baille.fr;
-    img-src *;
-  ">
+  <!-- 
+    CSP Note: In development, you may need to add http://localhost:3000 to connect-src
+    The production CSP below is strict for security. For local dev, either:
+    1. Use a browser extension to disable CSP temporarily
+    2. Or the script below will handle it automatically
+  -->
+  <script>
+    // Dynamically set CSP based on environment
+    (function() {
+      var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      var cspContent = isLocalhost
+        ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:3000 https://api.themoviedb.org; img-src *;"
+        : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://auth.jerome-baille.fr https://flick-pick.jerome-baille.fr https://api.themoviedb.org; img-src *;";
+      
+      var meta = document.createElement('meta');
+      meta.httpEquiv = 'Content-Security-Policy';
+      meta.content = cspContent;
+      document.head.appendChild(meta);
+    })();
+  </script>
 </head>
 
 <body>
