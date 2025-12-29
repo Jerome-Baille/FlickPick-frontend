@@ -1,8 +1,11 @@
 <button mat-icon-button (click)="onClick($event)">
-    <span *ngIf="!isFav">
-        <fa-icon [icon]="faHeartCirclePlus" />
-    </span>
-    <span *ngIf="isFav">
-        <fa-icon [icon]="faHeartCircleMinus" />
-    </span>
+    @if (!isFav) {
+        <span>
+            <fa-icon [icon]="faHeartCirclePlus" />
+        </span>
+    } @else {
+        <span>
+            <fa-icon [icon]="faHeartCircleMinus" />
+        </span>
+    }
 </button>

@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
 import { tap, map, filter, take } from 'rxjs/operators';
@@ -15,6 +15,8 @@ interface VerifyResponse {
   providedIn: 'root'
 })
 export class AuthService {
+  private http = inject(HttpClient);
+
   private authURL = environment.authURL;
   private authFrontURL = environment.authFrontURL;
 
@@ -30,9 +32,7 @@ export class AuthService {
   readonly authState$ = toObservable(this.isAuthenticated);
   readonly verificationCompleted$ = toObservable(this.verificationCompleted.asReadonly());
 
-  constructor(
-    private http: HttpClient,
-  ) {
+  constructor() {
     this.verifyAuthState();
   }
 
@@ -53,8 +53,8 @@ export class AuthService {
   // Wait until verification is complete then emit the authState value
   waitForAuthState(): Observable<boolean> {
     return combineLatest([this.authState$, this.verificationCompleted$]).pipe(
-      filter(([_, verified]) => verified),
-      map(([auth, _]) => auth),
+      filter(([, verified]) => verified),
+      map(([auth]) => auth),
       take(1)
     );
   }
@@ -87,7 +87,7 @@ export class AuthService {
     );
   }
 
-  logout(skipRequest: boolean = false): void {
+  logout(skipRequest = false): void {
     if (skipRequest) {
       this.authState.set(false);
       window.location.reload();

@@ -1,84 +1,95 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
 
-interface Media {
+export interface Media {
   tmdbId: number;
   mediaType: string; // movie or tv
   listName?: string;
+  listId?: number;
   title?: string;
-  releaseDate?: Date;
+  releaseDate?: string;
   posterPath?: string;
   overview?: string;
+  groupId?: number;
+  rating?: number;
 }
 
-interface Group {
+export interface CastMember {
+  id: number;
   name: string;
-  userIds?: number[];
-  listName: string;
-  selectedMedia?: Array<{
-    tmdbId: number;
-    mediaType: string;
-    title?: string;
-    releaseDate?: string;
-  }>;
+  character: string;
+  profile_path?: string;
+}
 
+export interface CrewMember {
+  id: number;
+  name: string;
+  job: string;
+  profile_path?: string;
+}
+
+export interface ApiMessageResponse {
+  message: string;
+}
+
+export interface ListItem {
+  id: number;
+  name: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
+  private http = inject(HttpClient);
+
   private userURL = environment.userURL;
   private groupURL = environment.groupURL;
   private listURL = environment.listURL;
   private mediaURL = environment.mediaURL;
   private voteURL = environment.voteURL;
 
-  private castData = new BehaviorSubject<any>(null);
-  private crewData = new BehaviorSubject<any>(null);
+  private castData = new BehaviorSubject<CastMember[] | null>(null);
+  private crewData = new BehaviorSubject<CrewMember[] | null>(null);
 
   castData$ = this.castData.asObservable();
   crewData$ = this.crewData.asObservable();
 
-  constructor(
-    private http: HttpClient
-  ) { }
-
-  setCastData(data: any) {
+  setCastData(data: CastMember[]) {
     this.castData.next(data);
   }
 
-  setCrewData(data: any) {
+  setCrewData(data: CrewMember[]) {
     this.crewData.next(data);
   }
 
-  getAllListsForUser() {
-    return this.http.get(`${this.listURL}`);
+  getAllListsForUser(): Observable<ListItem[]> {
+    return this.http.get<ListItem[]>(`${this.listURL}`);
   }
 
   createList(listData: { 
     name: string, 
     groupId?: number,
-    selectedMedia?: Array<{
+    selectedMedia?: {
       tmdbId: number,
       mediaType: 'movie' | 'tv',
       title?: string,
       releaseDate?: string,
       posterPath?: string,
       overview?: string
-    }> 
-  }) {
-    return this.http.post(`${this.listURL}`, listData);
+    }[] 
+  }): Observable<ApiMessageResponse> {
+    return this.http.post<ApiMessageResponse>(`${this.listURL}`, listData);
   }
 
-  addMediaItem(data: Media){
-    return this.http.post(`${this.mediaURL}`, data);
+  addMediaItem(data: Media): Observable<ApiMessageResponse> {
+    return this.http.post<ApiMessageResponse>(`${this.mediaURL}`, data);
   }
 
-  deleteMediaItemFromList(data: Media) {
-    return this.http.delete(`${this.mediaURL}/list`, { body: data });
+  deleteMediaItemFromList(data: Media): Observable<ApiMessageResponse> {
+    return this.http.delete<ApiMessageResponse>(`${this.mediaURL}/list`, { body: data });
   }
 
   getMediaItemsInList(listId: number) {
@@ -97,7 +108,7 @@ export class DataService {
     return this.http.post(`${this.groupURL}/join`, { code });
   }
 
-  updateList(listId: number, updatedList: any) {
+  updateList(listId: number, updatedList: { name?: string }) {
     return this.http.patch(`${this.listURL}/${listId}`, updatedList);
   }
 
@@ -109,7 +120,7 @@ export class DataService {
     return this.http.get(`${this.groupURL}/${groupId}`);
   }
 
-  updateGroup(groupId: number, updatedGroup: any) {
+  updateGroup(groupId: number, updatedGroup: { name?: string; listName?: string }) {
     return this.http.patch(`${this.groupURL}/${groupId}`, updatedGroup);
   }
 
@@ -121,28 +132,28 @@ export class DataService {
     return this.http.delete(`${this.groupURL}/${groupId}`);
   }
 
-  addToFavorites(data: Media) {
-    return this.http.post(`${this.userURL}/favorite`, data);
+  addToFavorites(data: Media): Observable<ApiMessageResponse> {
+    return this.http.post<ApiMessageResponse>(`${this.userURL}/favorite`, data);
   }
 
-  removeFromFavorites(data: Media) {
-    return this.http.delete(`${this.userURL}/favorite`, { body: data });
+  removeFromFavorites(data: Media): Observable<ApiMessageResponse> {
+    return this.http.delete<ApiMessageResponse>(`${this.userURL}/favorite`, { body: data });
   }
 
   getUserFavorites() {
     return this.http.get(`${this.userURL}/favorite`);
   }
 
-  createVote(data: Media) {
-    return this.http.post(`${this.voteURL}`, data);
+  createVote(data: Media): Observable<ApiMessageResponse> {
+    return this.http.post<ApiMessageResponse>(`${this.voteURL}`, data);
   }
 
   getVotesByUserAndGroup(groupId: number) {
     return this.http.get(`${this.voteURL}/group-and-user/${groupId}`);
   }
 
-  deleteVote(data: Media) {
-    return this.http.delete(`${this.voteURL}`, { body: data });
+  deleteVote(data: Media): Observable<ApiMessageResponse> {
+    return this.http.delete<ApiMessageResponse>(`${this.voteURL}`, { body: data });
   }
 
   getAllMediaItemsForUserInGroup(groupId: number) {

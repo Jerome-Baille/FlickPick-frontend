@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable, debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,7 +43,11 @@ interface MediaResult {
     styleUrls: ['./create-collection-modal.component.scss'],
     standalone: true
 })
-export class CreateCollectionModalComponent implements OnInit {
+export class CreateCollectionModalComponent {
+  private formBuilder = inject(FormBuilder);
+  private tmdbService = inject(TmdbService);
+  private dialogRef = inject<MatDialogRef<CreateCollectionModalComponent>>(MatDialogRef);
+
   @ViewChild(MatAutocompleteTrigger) autocompleteTrigger!: MatAutocompleteTrigger;
   TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
   groupForm: FormGroup;
@@ -52,11 +56,7 @@ export class CreateCollectionModalComponent implements OnInit {
   selectedMedia: MediaResult[] = [];
   separatorKeysCodes: number[] = [ENTER, COMMA];
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private tmdbService: TmdbService,
-    private dialogRef: MatDialogRef<CreateCollectionModalComponent>
-  ) {
+  constructor() {
     this.groupForm = this.formBuilder.group({
       name: ['', Validators.required]
     });
@@ -77,8 +77,6 @@ export class CreateCollectionModalComponent implements OnInit {
     );
   }
 
-  ngOnInit() {}
-
   displayFn = (media: MediaResult): string => {
     if (!media) return '';
     const title = media.title || media.name || '';
@@ -86,7 +84,7 @@ export class CreateCollectionModalComponent implements OnInit {
     return `${title}${year ? ` (${year})` : ''}`;
   }
 
-  onOptionSelected(event: any): void {
+  onOptionSelected(event: MatAutocompleteSelectedEvent): void {
     const media = event.option.value as MediaResult;
     if (!this.selectedMedia.find(m => m.id === media.id)) {
       this.selectedMedia.push(media);
@@ -109,7 +107,7 @@ export class CreateCollectionModalComponent implements OnInit {
     }
   }
 
-  onGroupNameInput(event: any): void {
+  onGroupNameInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/\s+/g, '_');
     this.groupForm.get('name')?.setValue(input.value);

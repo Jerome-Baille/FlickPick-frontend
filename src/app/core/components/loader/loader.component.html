@@ -1,5 +1,7 @@
-<div class="loader-container" *ngIf="loaderService.isLoading$ | async">
+@if (loaderService.isLoading$ | async) {
+<div class="loader-container">
     <span class="loader">
         Loading...
     </span>
 </div>
+}

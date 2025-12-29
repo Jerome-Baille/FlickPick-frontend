@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { MatCardModule } from '@angular/material/card';
@@ -19,6 +19,46 @@ import { MediaTableViewComponent } from 'src/app/shared/components/media-table-v
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { CreateCollectionModalComponent } from 'src/app/shared/components/create-collection-modal/create-collection-modal.component';
+
+interface GroupMember {
+  id: number;
+  username: string;
+}
+
+interface GroupMediaItem {
+  tmdbId: number;
+  mediaType: string;
+  title: string;
+  posterPath?: string;
+  releaseDate?: string;
+  overview?: string;
+  points?: number;
+  sumOfRatings?: number;
+  isAdmin?: boolean;
+  votes: unknown[];
+}
+
+interface GroupData {
+  id: number;
+  name: string;
+  code: string;
+  isAdmin?: boolean;
+  hasVoted?: boolean;
+  Users?: GroupMember[];
+  Lists?: unknown[];
+}
+
+interface GroupResponse {
+  group: GroupData;
+  MediaItems: GroupMediaItem[];
+}
+
+interface ApiResponse {
+  message: string;
+  group?: {
+    Lists: unknown[];
+  };
+}
 
 @Component({
     selector: 'app-group-detail',
@@ -43,41 +83,42 @@ import { CreateCollectionModalComponent } from 'src/app/shared/components/create
     standalone: true
 })
 export class GroupDetailComponent {
-    isEditing: boolean = false;
-    editedGroupName: string = '';
+    private route = inject(ActivatedRoute);
+    private dataService = inject(DataService);
+    private snackbarService = inject(SnackbarService);
+    dialog = inject(MatDialog);
 
-    groupData: any = {};
-    groupMembers: any[] = [];
-    groupList: any[] = [];
-    groupMedia: any[] = [];
+    isEditing = false;
+    editedGroupName = '';
+
+    groupData: GroupData = { id: 0, name: '', code: '' };
+    groupMembers: GroupMember[] = [];
+    groupList: unknown[] = [];
+    groupMedia: GroupMediaItem[] = [];
 
 
     faCirclePlus = faCirclePlus;
     faUsers = faUsers;
 
-    constructor(
-        private route: ActivatedRoute,
-        private dataService: DataService,
-        private snackbarService: SnackbarService,
-        public dialog: MatDialog
-    ) {
+    constructor() {
         this.route.params.subscribe(params => {
             const groupId = params['groupId'];
 
             this.dataService.getGroupById(groupId).subscribe({
-                next: (response: any) => {
-                    this.groupData = response.group;
-                    this.groupMembers = response.group.Users;
-                    this.groupMedia = response.MediaItems;
+                next: (response: unknown) => {
+                    const res = response as GroupResponse;
+                    this.groupData = res.group;
+                    this.groupMembers = res.group.Users || [];
+                    this.groupMedia = res.MediaItems;
 
-                    if (response.group.isAdmin && response.group.isAdmin === true) {
+                    if (res.group.isAdmin && res.group.isAdmin === true) {
                         this.groupMedia = this.groupMedia.map(media => {
                             return { ...media, isAdmin: true };
                         });
                     }
                 },
-                error: (err) => {
-                    this.snackbarService.showError(err);
+                error: (err: Error) => {
+                    this.snackbarService.showError(err.message);
                 }
             })
         });
@@ -96,11 +137,12 @@ export class GroupDetailComponent {
             name: this.groupData.name
         }
         this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
-            next: (response: any) => {
-                this.snackbarService.showSuccess(response.message);
+            next: (response: unknown) => {
+                const res = response as ApiResponse;
+                this.snackbarService.showSuccess(res.message);
             },
-            error: (err) => {
-                this.snackbarService.showError(err);
+            error: (err: Error) => {
+                this.snackbarService.showError(err.message);
             }
         });
     }
@@ -115,7 +157,7 @@ export class GroupDetailComponent {
         });
     }
 
-    updateGroupList(event: any) {
+    updateGroupList(event: Event) {
         event.stopPropagation();
 
         const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
@@ -132,32 +174,35 @@ export class GroupDetailComponent {
                 }
 
                 this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
-                    next: (response: any) => {
-                        this.groupList = response.group.Lists;
+                    next: (response: unknown) => {
+                        const res = response as ApiResponse;
+                        this.groupList = res.group?.Lists || [];
                     },
-                    error: (err) => {
-                        this.snackbarService.showError(err);
+                    error: (err: Error) => {
+                        this.snackbarService.showError(err.message);
                     }
                 });
             }
         })
     }
 
-    replaceSpacesWithUnderscores(event: any) {
-        event.target.value = event.target.value.replace(/\s+/g, '_');
+    replaceSpacesWithUnderscores(event: Event) {
+        const input = event.target as HTMLInputElement;
+        input.value = input.value.replace(/\s+/g, '_');
     }
 
     resetVotes() {
         this.dataService.deleteVotesByGroup(this.groupData.id).subscribe({
-            next: (response: any) => {
-                this.snackbarService.showSuccess(response.message);
+            next: (response: unknown) => {
+                const res = response as ApiResponse;
+                this.snackbarService.showSuccess(res.message);
                 this.groupData.hasVoted = false;
                 this.groupMedia = this.groupMedia.map(media => {
                     return { ...media, votes: [] };
                 });
             },
-            error: (err) => {
-                this.snackbarService.showError(err);
+            error: (err: Error) => {
+                this.snackbarService.showError(err.message);
             }
         })
     }

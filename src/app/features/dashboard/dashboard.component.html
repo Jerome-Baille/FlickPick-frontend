@@ -25,18 +25,21 @@
                 <mat-card-title>Recent Groups</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-                <ng-container *ngIf="recentGroups.length > 0; else noGroups">
-                    <div *ngFor="let group of recentGroups" class="activity-item" [routerLink]="['/group/detail', group.id]">
-                        <fa-icon [icon]="faUsers"></fa-icon>
-                        <span class="item-title">{{ group.name }}</span>
-                        <span *ngIf="group.isAdmin" class="media-type-badge">Admin</span>
-                    </div>
-                </ng-container>
-                <ng-template #noGroups>
+                @if (recentGroups.length > 0) {
+                    @for (group of recentGroups; track group.id) {
+                        <div class="activity-item" [routerLink]="['/group/detail', group.id]">
+                            <fa-icon [icon]="faUsers"></fa-icon>
+                            <span class="item-title">{{ group.name }}</span>
+                            @if (group.isAdmin) {
+                                <span class="media-type-badge">Admin</span>
+                            }
+                        </div>
+                    }
+                } @else {
                     <div class="empty-state">
                         <p>No groups yet. Create one to get started!</p>
                     </div>
-                </ng-template>
+                }
             </mat-card-content>
         </mat-card>
 
@@ -45,18 +48,19 @@
                 <mat-card-title>Recent Favorites</mat-card-title>
             </mat-card-header>
             <mat-card-content>
-                <ng-container *ngIf="favoriteMedia.length > 0; else noFavorites">
-                    <div *ngFor="let media of favoriteMedia" class="activity-item" [routerLink]="['/media/detail', media.mediaType, media.tmdbId]">
-                        <fa-icon [icon]="media.mediaType === 'movie' ? faFilm : faTv"></fa-icon>
-                        <span class="item-title">{{ media.title }}</span>
-                        <span class="media-type-badge">{{ media.mediaType }}</span>
-                    </div>
-                </ng-container>
-                <ng-template #noFavorites>
+                @if (favoriteMedia.length > 0) {
+                    @for (media of favoriteMedia; track media.id) {
+                        <div class="activity-item" [routerLink]="['/media/detail', media.mediaType, media.tmdbId]">
+                            <fa-icon [icon]="media.mediaType === 'movie' ? faFilm : faTv"></fa-icon>
+                            <span class="item-title">{{ media.title }}</span>
+                            <span class="media-type-badge">{{ media.mediaType }}</span>
+                        </div>
+                    }
+                } @else {
                     <div class="empty-state">
                         <p>No favorites yet. Start exploring movies!</p>
                     </div>
-                </ng-template>
+                }
             </mat-card-content>
         </mat-card>
     </section>

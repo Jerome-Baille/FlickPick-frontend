@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,25 @@ import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { BackButtonComponent } from 'src/app/shared/components/back-button/back-button.component';
 import { MediaTableViewComponent } from 'src/app/shared/components/media-table-view/media-table-view.component';
+
+interface MediaItem {
+  id: number;
+  title: string;
+  mediaType: 'movie' | 'tv';
+  tmdbId: number;
+  isAdmin?: boolean;
+}
+
+interface ListResponse {
+  id: number;
+  name: string;
+  isAdmin?: boolean;
+  MediaItems?: MediaItem[];
+}
+
+interface ApiResponse {
+  message: string;
+}
 
 @Component({
     selector: 'app-profile-list',
@@ -25,36 +44,37 @@ import { MediaTableViewComponent } from 'src/app/shared/components/media-table-v
     standalone: true
 })
 export class ProfileListComponent {
-  movies!: any[];
-  tvShows!: any[];
-  listName: string = '';
-  listId!: number;
-  isEditing: boolean = false;
-  editedListName: string = "";
+  private route = inject(ActivatedRoute);
+  private dataService = inject(DataService);
+  private snackbarService = inject(SnackbarService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private dataService: DataService,
-    private snackbarService: SnackbarService
-  ) {
+  movies!: MediaItem[];
+  tvShows!: MediaItem[];
+  listName = '';
+  listId!: number;
+  isEditing = false;
+  editedListName = "";
+
+  constructor() {
     this.route.params.subscribe(params => {
       const listId = params['listId'];
       this.dataService.getMediaItemsInList(listId).subscribe({
-        next: (response: any) => {
-          this.listName = response.name;
-          this.listId = response.id;
+        next: (response: unknown) => {
+          const res = response as ListResponse;
+          this.listName = res.name;
+          this.listId = res.id;
 
-          if (response.MediaItems?.length > 0) {
-            this.movies = response.MediaItems.filter((item: any) => item.mediaType === 'movie');
-            this.tvShows = response.MediaItems.filter((item: any) => item.mediaType === 'tv');
-            if (response.isAdmin) {
-              this.movies.forEach((movie: any) => movie.isAdmin = true);
-              this.tvShows.forEach((tvShow: any) => tvShow.isAdmin = true);
+          if (res.MediaItems && res.MediaItems.length > 0) {
+            this.movies = res.MediaItems.filter((item: MediaItem) => item.mediaType === 'movie');
+            this.tvShows = res.MediaItems.filter((item: MediaItem) => item.mediaType === 'tv');
+            if (res.isAdmin) {
+              this.movies.forEach((movie: MediaItem) => movie.isAdmin = true);
+              this.tvShows.forEach((tvShow: MediaItem) => tvShow.isAdmin = true);
             }
           }
         },
-        error: (err: any) => {
-          this.snackbarService.showError(err);
+        error: (err: Error) => {
+          this.snackbarService.showError(err.message);
         }
       })
     });
@@ -73,16 +93,18 @@ export class ProfileListComponent {
       name: this.listName
     }
     this.dataService.updateList(this.listId, updatedList).subscribe({
-      next: (response: any) => {
-        this.snackbarService.showSuccess(response.message);
+      next: (response: unknown) => {
+        const res = response as ApiResponse;
+        this.snackbarService.showSuccess(res.message);
       },
-      error: (err: any) => {
-        this.snackbarService.showError(err);
+      error: (err: Error) => {
+        this.snackbarService.showError(err.message);
       }
     });
   }
 
-  replaceSpacesWithUnderscores(event: any) {
-    event.target.value = event.target.value.replace(/\s+/g, '_');
+  replaceSpacesWithUnderscores(event: Event) {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/\s+/g, '_');
   }
 }

@@ -1,40 +1,50 @@
 <main>
     <mat-card class="list-card">
         <app-back-button></app-back-button>
-        <mat-card-header *ngIf="listName">
-            <mat-card-title>
-                <div class="list-name-container">
-                    <h1 *ngIf="!isEditing">{{ listName }}</h1>
-                    <div *ngIf="!isEditing">
-                        <button mat-icon-button (click)="enterEditMode()">
-                            <mat-icon>edit</mat-icon>
-                        </button>
+        @if (listName) {
+            <mat-card-header>
+                <mat-card-title>
+                    <div class="list-name-container">
+                        @if (!isEditing) {
+                            <h1>{{ listName }}</h1>
+                        }
+                        @if (!isEditing) {
+                            <div>
+                                <button mat-icon-button (click)="enterEditMode()">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </div>
+                        }
+                        @if (isEditing) {
+                            <div class="list-card-editing">
+                                <input matInput type="text" [(ngModel)]="editedListName" #listNameInput
+                                    [ngModelOptions]="{ standalone: true }" (keyup)="replaceSpacesWithUnderscores($event)"/>
+                                <button mat-icon-button color="primary" (click)="updateListName(editedListName)">
+                                    <mat-icon>done</mat-icon>
+                                </button>
+                                <button mat-icon-button (click)="isEditing = false">
+                                    <mat-icon>clear</mat-icon>
+                                </button>
+                            </div>
+                        }
                     </div>
-                    <div *ngIf="isEditing" class="list-card-editing">
-                        <input matInput type="text" [(ngModel)]="editedListName" #listNameInput
-                            [ngModelOptions]="{ standalone: true }" (keyup)="replaceSpacesWithUnderscores($event)"/>
-                        <button mat-icon-button color="primary" (click)="updateListName(editedListName)">
-                            <mat-icon>done</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="isEditing = false">
-                            <mat-icon>clear</mat-icon>
-                        </button>
-                    </div>
-                </div>
-            </mat-card-title>
-        </mat-card-header>
-        <ng-container *ngIf="!movies && !tvShows">
+                </mat-card-title>
+            </mat-card-header>
+        }
+        @if (!movies && !tvShows) {
             <p class="empty">This list is empty.</p>
-        </ng-container>
-        <mat-card-content *ngIf="movies || tvShows">
-            <ng-container *ngIf="movies.length > 0">
-                <h2>Movies</h2>
-                <app-media-table-view [mediaItems]="movies"></app-media-table-view>
-            </ng-container>
-            <ng-container *ngIf="tvShows.length > 0">
-                <h2>TvShows</h2>
-                <app-media-table-view [mediaItems]="tvShows"></app-media-table-view>
-            </ng-container>
-        </mat-card-content>
+        }
+        @if (movies || tvShows) {
+            <mat-card-content>
+                @if (movies.length > 0) {
+                    <h2>Movies</h2>
+                    <app-media-table-view [mediaItems]="movies"></app-media-table-view>
+                }
+                @if (tvShows.length > 0) {
+                    <h2>TvShows</h2>
+                    <app-media-table-view [mediaItems]="tvShows"></app-media-table-view>
+                }
+            </mat-card-content>
+        }
     </mat-card>
 </main>

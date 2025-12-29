@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
@@ -13,6 +13,40 @@ import { MediaTableViewComponent } from 'src/app/shared/components/media-table-v
 import { DataService } from 'src/app/core/services/data.service';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
+
+interface Genre {
+  id: number;
+  name: string;
+}
+
+interface MediaItem {
+  tmdbId: number;
+  mediaType: 'movie' | 'tv';
+  title: string;
+  releaseDate?: string;
+  posterPath?: string;
+  overview?: string;
+  runtime?: number;
+  genres?: Genre[];
+  points: number;
+  sumOfRatings?: number;
+}
+
+interface Choice {
+  title: string;
+  condition: string;
+  mediaItem?: MediaItem;
+}
+
+interface GroupMediaResponse {
+  mediaItems: {
+    MediaItems: MediaItem[];
+  };
+}
+
+interface VoteResponse {
+  message: string;
+}
 
 @Component({
     selector: 'app-choosing-game',
@@ -75,28 +109,26 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
     standalone: true
 })
 export class ChoosingGameComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private dataService = inject(DataService);
+  private tmdbService = inject(TmdbService);
+  private snackbarService = inject(SnackbarService);
+
   TMDB_IMAGE_BASE_URL_300 = environment.TMDB_IMAGE_BASE_URL_300;
-  mediaItems!: any[];
+  mediaItems!: MediaItem[];
   selectedChoice: string | null = null;
-  choiceA: any = { title: 'Movies', condition: 'mediaItem.mediaType === "movie"' };
-  choiceB: any = { title: 'TV Shows', condition: 'mediaItem.mediaType === "tv"' };
+  choiceA: Choice = { title: 'Movies', condition: 'mediaItem.mediaType === "movie"' };
+  choiceB: Choice = { title: 'TV Shows', condition: 'mediaItem.mediaType === "tv"' };
   isGameOver = false;
   currentRound = 1;
-  displayedItems: any[] = [];
-  winningItems: any[] = [];
-  genresSet: Set<string> = new Set();
-  userSelectedGenres: Set<string> = new Set();
-  rankings: any[] = [];
-  filteredMediaItems: any[] = [];
+  displayedItems: MediaItem[] = [];
+  winningItems: MediaItem[] = [];
+  genresSet = new Set<string>();
+  userSelectedGenres = new Set<string>();
+  rankings: MediaItem[] = [];
+  filteredMediaItems: MediaItem[] = [];
   groupId!: number;
-  initialMediaItemCount: number = 0;
-
-  constructor(
-    private route: ActivatedRoute,
-    private dataService: DataService,
-    private tmdbService: TmdbService,
-    private snackbarService: SnackbarService
-  ) { }
+  initialMediaItemCount = 0;
 
   // Get the step description without round number
   getRoundDescription(): string {
@@ -114,32 +146,34 @@ export class ChoosingGameComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.groupId = params['groupId'];
       this.dataService.getAllMediaItemsForUserInGroup(this.groupId).subscribe({
-        next: (data: any) => {
-          let mediaItems = data.mediaItems.MediaItems;
+        next: (data: unknown) => {
+          const response = data as GroupMediaResponse;
+          const mediaItems = response.mediaItems.MediaItems;
           this.initialMediaItemCount = mediaItems.length;
 
           // Create an array of observables to fetch runtime and genres for each media item
-          const fetchObservables: Observable<any>[] = mediaItems.map((mediaItem: any) => {
+          const fetchObservables: Observable<unknown>[] = mediaItems.map((mediaItem: MediaItem) => {
             if (mediaItem.mediaType === 'movie') {
               return this.tmdbService.getMovieDetails(mediaItem.tmdbId);
             } else if (mediaItem.mediaType === 'tv') {
               return this.tmdbService.getTVShowDetails(mediaItem.tmdbId);
             }
-            return null;
+            return new Observable<null>();
           });
 
           // Use forkJoin to wait for all fetchObservables to complete
-          forkJoin(fetchObservables).subscribe((movieDetails: any[]) => {
+          forkJoin(fetchObservables).subscribe((movieDetails: unknown[]) => {
             // Assign runtime and genres to media items
-            mediaItems.forEach((mediaItem: any, index: number) => {
+            mediaItems.forEach((mediaItem: MediaItem, index: number) => {
+              const details = movieDetails[index] as { runtime?: number; episode_run_time?: number[]; genres?: Genre[] };
               if (mediaItem.mediaType === 'movie') {
-                mediaItem.runtime = movieDetails[index].runtime;
-                mediaItem.genres = movieDetails[index].genres;
-                this.updateGenresSet(mediaItem.genres);
+                mediaItem.runtime = details.runtime;
+                mediaItem.genres = details.genres;
+                this.updateGenresSet(mediaItem.genres || []);
               } else if (mediaItem.mediaType === 'tv') {
-                mediaItem.runtime = movieDetails[index].episode_run_time[0];
-                mediaItem.genres = movieDetails[index].genres;
-                this.updateGenresSet(mediaItem.genres);
+                mediaItem.runtime = details.episode_run_time?.[0];
+                mediaItem.genres = details.genres;
+                this.updateGenresSet(mediaItem.genres || []);
               }
             });
 
@@ -149,8 +183,8 @@ export class ChoosingGameComponent implements OnInit {
             this.initializeGame();
           });
         },
-        error: (err: any) => {
-          this.snackbarService.showError(err);
+        error: (err: Error) => {
+          this.snackbarService.showError(err.message);
         }
       });
     });
@@ -188,7 +222,7 @@ export class ChoosingGameComponent implements OnInit {
       this.choiceB = { title: 'TV Shows', condition: 'mediaItem.mediaType === "tv"' };
     } else if (this.currentRound === 2) {
       // Second round, filter by user-selected media type (movie or TV show)
-      this.displayedItems = this.mediaItems.filter((mediaItem: any) => {
+      this.displayedItems = this.mediaItems.filter((mediaItem: MediaItem) => {
         if (this.selectedChoice === 'A' && mediaItem.mediaType === 'movie') {
           return true;
         } else if (this.selectedChoice === 'B' && mediaItem.mediaType === 'tv') {
@@ -205,9 +239,11 @@ export class ChoosingGameComponent implements OnInit {
 
       if (this.displayedItems.length === 1) {
         // give one point to the winning media item
-        this.displayedItems[0].points += 1;
+        if (this.displayedItems[0]) {
+          this.displayedItems[0].points += 1;
+        }
         this.isGameOver = true;
-        this.rankings = [...this.mediaItems].sort((a, b) => b.points - a.points);
+        this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
 
         // Save the rankings to the database
         this.saveVotes();
@@ -238,7 +274,7 @@ export class ChoosingGameComponent implements OnInit {
 
       if (this.winningItems.length === 1) {
         this.isGameOver = true;
-        this.rankings = [...this.mediaItems].sort((a, b) => b.points - a.points);
+        this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
 
         // Save the rankings to the database
         this.saveVotes();
@@ -247,9 +283,11 @@ export class ChoosingGameComponent implements OnInit {
       }
 
       if (this.displayedItems.length === 1 && this.winningItems.length === 0) {
-        this.displayedItems[0].points += 1;
+        if (this.displayedItems[0]) {
+          this.displayedItems[0].points += 1;
+        }
         this.isGameOver = true;
-        this.rankings = [...this.mediaItems].sort((a, b) => b.points - a.points);
+        this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
 
         // Save the rankings to the database
         this.saveVotes();
@@ -263,8 +301,8 @@ export class ChoosingGameComponent implements OnInit {
     this.choiceB.mediaItem = choice2;
 
     if (this.currentRound > 2) {
-      this.choiceA.title = choice1.title;
-      this.choiceB.title = choice2.title;
+      this.choiceA.title = choice1.title ?? '';
+      this.choiceB.title = choice2.title ?? '';
     }
 
     // Reset user choice and genres for the new round
@@ -272,7 +310,7 @@ export class ChoosingGameComponent implements OnInit {
     this.userSelectedGenres.clear();
   }
 
-  selectRandomMediaItems(mediaItems: any[]): [any, any] {
+  selectRandomMediaItems(mediaItems: MediaItem[]): [MediaItem, MediaItem] {
     // Implement logic to select two random media items for the round
     const index1 = Math.floor(Math.random() * mediaItems.length);
     let index2;
@@ -310,12 +348,12 @@ export class ChoosingGameComponent implements OnInit {
 
     if (this.currentRound > 2) {
       const winningMediaItem = choice === 'A' ? this.choiceA.mediaItem : this.choiceB.mediaItem;
-      winningMediaItem.points += 1;
-
-      this.winningItems.push(winningMediaItem);
-
-      // Remove the winning media item from filteredMediaItems
-      this.filteredMediaItems = this.filteredMediaItems.filter(item => item !== winningMediaItem);
+      if (winningMediaItem) {
+        winningMediaItem.points = (winningMediaItem.points ?? 0) + 1;
+        this.winningItems.push(winningMediaItem);
+        // Remove the winning media item from filteredMediaItems
+        this.filteredMediaItems = this.filteredMediaItems.filter(item => item !== winningMediaItem);
+      }
 
       // Check if there's only one media item left
       if (this.filteredMediaItems.length <= 1) {
@@ -336,7 +374,7 @@ export class ChoosingGameComponent implements OnInit {
 
   updateRankings() {
     // Sort media items by points in descending order
-    this.rankings = [...this.mediaItems].sort((a, b) => b.points - a.points);
+    this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
   }
 
   checkGameOver() {
@@ -349,7 +387,7 @@ export class ChoosingGameComponent implements OnInit {
     }
   }
 
-  updateGenresSet(genres: any[]) {
+  updateGenresSet(genres: Genre[]): void {
     // Update the genres set with unique genre names
     for (const genre of genres) {
       this.genresSet.add(genre.name);
@@ -368,7 +406,7 @@ export class ChoosingGameComponent implements OnInit {
 
   submitGenreSelection() {
     // Filter media items by selected genres and media type
-    this.filteredMediaItems = this.mediaItems.filter((mediaItem: any) => {
+    this.filteredMediaItems = this.mediaItems.filter((mediaItem: MediaItem) => {
       // First filter by media type based on choice in round 1
       if (this.selectedChoice === 'A' && mediaItem.mediaType !== 'movie') {
         return false;
@@ -378,7 +416,7 @@ export class ChoosingGameComponent implements OnInit {
       }
       
       // Then filter by selected genres
-      for (const genre of mediaItem.genres) {
+      for (const genre of mediaItem.genres || []) {
         if (this.userSelectedGenres.has(genre.name)) {
           return true;
         }
@@ -407,20 +445,21 @@ export class ChoosingGameComponent implements OnInit {
   // Save votes to backend
   saveVotes() {
     // Save the rankings to the database
-    this.rankings.forEach((mediaItem: any) => {
+    this.rankings.forEach((mediaItem: MediaItem) => {
       const data = {
         groupId: this.groupId,
         tmdbId: mediaItem.tmdbId,
         mediaType: mediaItem.mediaType,
-        rating: mediaItem.points
+        rating: mediaItem.points || 0
       };
 
       this.dataService.createVote(data).subscribe({
-        next: (response: any) => {
-          this.snackbarService.showSuccess(response.message);
+        next: (response: unknown) => {
+          const res = response as VoteResponse;
+          this.snackbarService.showSuccess(res.message);
         },
-        error: (err: any) => {
-          this.snackbarService.showError(err);
+        error: (err: Error) => {
+          this.snackbarService.showError(err.message);
         }
       });
     });
@@ -446,7 +485,7 @@ export class ChoosingGameComponent implements OnInit {
         // Start from beginning
         this.initializeGame();
       },
-      error: (err: any) => {
+      error: (err: Error) => {
         this.snackbarService.showError('Failed to reset previous votes: ' + err.message);
         // Continue with restarting the game even if deleting votes failed
         this.isGameOver = false;

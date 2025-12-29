@@ -1,9 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { DataService } from 'src/app/core/services/data.service';
 import { BackButtonComponent } from 'src/app/shared/components/back-button/back-button.component';
 import { environment } from 'src/environments/environment.prod';
+
+interface CastMember {
+  id: number;
+  name: string;
+  character: string;
+  profile_path?: string;
+}
+
+interface CrewMember {
+  id: number;
+  name: string;
+  job: string;
+  profile_path?: string;
+}
 
 @Component({
     selector: 'app-cast-detail-view',
@@ -12,12 +26,12 @@ import { environment } from 'src/environments/environment.prod';
     styleUrls: ['./cast-detail-view.component.scss'],
     standalone: true
 })
-export class CastDetailViewComponent {
-  castData: any;
-  crewData: any;
-  TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
+export class CastDetailViewComponent implements OnInit, OnDestroy {
+  private dataService = inject(DataService);
 
-  constructor(private dataService: DataService) { }
+  castData: CastMember[] = [];
+  crewData: CrewMember[] = [];
+  TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
 
   ngOnInit(): void {
     // Retrieve data from local storage if available
@@ -28,7 +42,7 @@ export class CastDetailViewComponent {
     } else {
       // Subscribe to data changes
       this.dataService.castData$.subscribe(data => {
-        this.castData = data;
+        this.castData = data ?? [];
         // Store data in local storage
         localStorage.setItem('castData', JSON.stringify(data));
       });
@@ -38,7 +52,7 @@ export class CastDetailViewComponent {
       this.crewData = JSON.parse(crewData);
     } else {
       this.dataService.crewData$.subscribe(data => {
-        this.crewData = data;
+        this.crewData = data ?? [];
         // Store data in local storage
         localStorage.setItem('crewData', JSON.stringify(data));
       });

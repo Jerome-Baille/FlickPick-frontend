@@ -1,68 +1,79 @@
 <main>
     <mat-card class="list-card">
-        <div class="list-card-header" *ngIf="groupData.name">
-            <div class="list-name-container">
-                <h1 *ngIf="!isEditing">
-                    <fa-icon [icon]="faUsers"></fa-icon>
-                    {{ groupData.name }}
-                </h1>
-                <ng-container *ngIf="groupData.isAdmin">
-                    <div *ngIf="!isEditing">
-                        <button mat-icon-button (click)="enterEditMode()">
-                            <mat-icon>edit</mat-icon>
-                        </button>
-                    </div>
-                    <div *ngIf="isEditing" class="list-card-editing">
-                        <mat-form-field appearance="outline">
-                            <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
-                                [ngModelOptions]="{ standalone: true }"
-                                (keyup)="replaceSpacesWithUnderscores($event)" />
-                        </mat-form-field>
-                        <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
-                            <mat-icon>done</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="isEditing = false">
-                            <mat-icon>clear</mat-icon>
-                        </button>
-                    </div>
-                </ng-container>
+        @if (groupData.name) {
+            <div class="list-card-header">
+                <div class="list-name-container">
+                    @if (!isEditing) {
+                        <h1>
+                            <fa-icon [icon]="faUsers"></fa-icon>
+                            {{ groupData.name }}
+                        </h1>
+                    }
+                    @if (groupData.isAdmin) {
+                        @if (!isEditing) {
+                            <div>
+                                <button mat-icon-button (click)="enterEditMode()">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            </div>
+                        }
+                        @if (isEditing) {
+                            <div class="list-card-editing">
+                                <mat-form-field appearance="outline">
+                                    <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (keyup)="replaceSpacesWithUnderscores($event)" />
+                                </mat-form-field>
+                                <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
+                                    <mat-icon>done</mat-icon>
+                                </button>
+                                <button mat-icon-button (click)="isEditing = false">
+                                    <mat-icon>clear</mat-icon>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+                <button class="group-code" (click)="copyGroupCode($event, groupData.code)" (keydown.enter)="copyGroupCode($event, groupData.code)" tabindex="0" matTooltip="Click to copy">
+                    Code: {{ groupData.code }}
+                </button>
             </div>
-            <span class="group-code" (click)="copyGroupCode($event, groupData.code)" matTooltip="Click to copy">
-                Code: {{ groupData.code }}
-            </span>
-        </div>
+        }
 
         <mat-card-content class="group-content">
-            <mat-expansion-panel class="members-panel" *ngIf="groupMembers && groupMembers.length > 0">
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        <div class="members-container">
-                            <h2>Members ({{ groupMembers.length }})</h2>
-                        </div>
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-chip-listbox>
-                    <mat-chip color="primary" *ngFor="let member of groupMembers">
-                        {{ member.username }}
-                    </mat-chip>
-                </mat-chip-listbox>
-            </mat-expansion-panel>
+            @if (groupMembers && groupMembers.length > 0) {
+                <mat-expansion-panel class="members-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <div class="members-container">
+                                <h2>Members ({{ groupMembers.length }})</h2>
+                            </div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <mat-chip-listbox>
+                        @for (member of groupMembers; track member.id) {
+                            <mat-chip color="primary">
+                                {{ member.username }}
+                            </mat-chip>
+                        }
+                    </mat-chip-listbox>
+                </mat-expansion-panel>
+            }
 
-            <button mat-raised-button 
-                *ngIf="groupData.isAdmin && hasMediaWithVotes()" 
-                color="primary" 
-                (click)="resetVotes()"
-                class="reset-votes-button">
-                Reset the votes
-            </button>
+            @if (groupData.isAdmin && hasMediaWithVotes()) {
+                <button mat-raised-button 
+                    color="primary" 
+                    (click)="resetVotes()"
+                    class="reset-votes-button">
+                    Reset the votes
+                </button>
+            }
 
-            <ng-container *ngIf="!groupData.hasVoted; else mediaTableView">
+            @if (!groupData.hasVoted) {
                 <app-choosing-game />
-            </ng-container>
-
-            <ng-template #mediaTableView>
+            } @else {
                 <app-media-table-view [mediaItems]="groupMedia" />
-            </ng-template>
+            }
         </mat-card-content>
     </mat-card>
 </main>

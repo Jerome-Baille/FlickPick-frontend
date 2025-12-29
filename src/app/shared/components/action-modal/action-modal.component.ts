@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
-import { DataService } from 'src/app/core/services/data.service';
+import { DataService, ListItem } from 'src/app/core/services/data.service';
 
 @Component({
     selector: 'app-action-modal',
@@ -18,13 +18,11 @@ import { DataService } from 'src/app/core/services/data.service';
     standalone: true
 })
 export class ActionModalComponent implements OnInit {
-  lists: any;
-  selectedLists: number[] = [];
+  private dialogRef = inject<MatDialogRef<ActionModalComponent>>(MatDialogRef);
+  private dataService = inject(DataService);
 
-  constructor(
-    private dialogRef: MatDialogRef<ActionModalComponent>,
-    private dataService: DataService
-  ) {}
+  lists: ListItem[] = [];
+  selectedLists: number[] = [];
 
   ngOnInit() {
     this.dataService.getAllListsForUser().subscribe((lists) => {

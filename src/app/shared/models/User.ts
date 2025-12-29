@@ -1,3 +1,15 @@
+export interface UserList {
+    id: number;
+    name: string;
+    description?: string;
+}
+
+export interface UserGroup {
+    id: number;
+    name: string;
+    code?: string;
+}
+
 export interface User {
     id?: number;
     username: string;
@@ -6,8 +18,8 @@ export interface User {
     bio?: string;
     createdAt?: string;
     updatedAt?: string;
-    Lists?: any[];
-    Groups?: any[];
+    Lists?: UserList[];
+    Groups?: UserGroup[];
     Favorites?: {
         id: number;
         mediaItemId: number;

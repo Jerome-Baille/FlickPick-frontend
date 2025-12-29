@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,20 @@ import { UserService } from 'src/app/core/services/user.service';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+
+interface FavoriteItem {
+  id: number;
+  MediaItem: {
+    id: number;
+    title: string;
+    mediaType: string;
+    tmdbId: number;
+  };
+}
+
+interface FavoriteResponse {
+  message: string;
+}
 
 @Component({
   selector: 'app-favorite',
@@ -28,6 +42,11 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
   styleUrl: './favorite.component.scss'
 })
 export class FavoriteComponent {
+  private userService = inject(UserService);
+  private dataService = inject(DataService);
+  private snackbarService = inject(SnackbarService);
+  private dialog = inject(MatDialog);
+
   userProfile: User = {
     username: '',
     Lists: [],
@@ -39,12 +58,7 @@ export class FavoriteComponent {
   faFilm = faFilm;
   faTv = faTv;
 
-  constructor(
-    private userService: UserService,
-    private dataService: DataService,
-    private snackbarService: SnackbarService,
-    private dialog: MatDialog
-  ) {
+  constructor() {
     this.userService.getUserProfileById().subscribe({
       next: (response: User) => {
         this.userProfile = {
@@ -52,13 +66,13 @@ export class FavoriteComponent {
           Favorites: response.Favorites || []
         };
       },
-      error: (err: any) => {
-        this.snackbarService.showError(err);
+      error: (err: Error) => {
+        this.snackbarService.showError(err.message);
       }
     });
   }
 
-  removeFromFavorites(favorite: any) {
+  removeFromFavorites(favorite: FavoriteItem) {
     const mediaItem = favorite.MediaItem;
     const dialogRef = this.dialog.open(BasicModalComponent, {
       data: {
@@ -71,12 +85,13 @@ export class FavoriteComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.dataService.removeFromFavorites({ tmdbId: mediaItem.tmdbId, mediaType: mediaItem.mediaType }).subscribe({
-          next: (response: any) => {
-            this.snackbarService.showSuccess(response.message);
-            this.userProfile.Favorites = this.userProfile.Favorites!.filter((f: any) => f.id !== favorite.id);
+          next: (response: unknown) => {
+            const res = response as FavoriteResponse;
+            this.snackbarService.showSuccess(res.message);
+            this.userProfile.Favorites = this.userProfile.Favorites!.filter((f) => f.id !== favorite.id);
           },
-          error: (err: any) => {
-            this.snackbarService.showError(err);
+          error: (err: Error) => {
+            this.snackbarService.showError(err.message);
           }
         });
       }

@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,9 +20,7 @@ import { AuthService } from '../../services/auth.service';
     standalone: true
 })
 export class HeaderComponent {
-  readonly isLoggedIn = computed(() => this.authService.isAuthenticated());
+  private authService = inject(AuthService);
 
-  constructor(
-    private authService: AuthService,
-  ) {}
+  readonly isLoggedIn = computed(() => this.authService.isAuthenticated());
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoaderService } from '../../services/loader.service';
 
@@ -9,6 +9,6 @@ import { LoaderService } from '../../services/loader.service';
     standalone: true,
     imports: [CommonModule]
 })
-export class LoaderComponent {
-  constructor(public loaderService: LoaderService) { }
+export class LoaderComponent {  loaderService = inject(LoaderService);
+
 }

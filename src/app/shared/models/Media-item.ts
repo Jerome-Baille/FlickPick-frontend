@@ -30,7 +30,5 @@ export interface MediaItem {
             type: string;
         }[]
     };
-  ListMediaItems?: {
-      [key: string]: ListMediaItems;
-  };
+  ListMediaItems?: Record<string, ListMediaItems>;
 }

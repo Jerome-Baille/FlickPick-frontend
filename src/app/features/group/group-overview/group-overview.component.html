@@ -17,28 +17,33 @@
             </div>
         </mat-card-header>
         <mat-card-content>
-            <ng-container *ngIf="groups.length; else noGroups">
-                <div *ngFor="let group of groups" class="list-item">
-                    <div class="item-content" routerLink="/group/detail/{{ group.id }}">
-                        <fa-icon [icon]="faUsers"></fa-icon>
-                        <div class="item-info">
-                            <span class="item-title">{{ group.name }}</span>
-                            <span class="group-code" (click)="copyGroupCode($event, group.code)" matTooltip="Click to copy">
-                                Code: {{ group.code }}
-                            </span>
+            @if (groups.length) {
+                @for (group of groups; track group.id) {
+                    <div class="list-item">
+                        <div class="item-content" routerLink="/group/detail/{{ group.id }}">
+                            <fa-icon [icon]="faUsers"></fa-icon>
+                            <div class="item-info">
+                                <span class="item-title">{{ group.name }}</span>
+                                <button class="group-code" (click)="copyGroupCode($event, group.code)" (keydown.enter)="copyGroupCode($event, group.code)" tabindex="0" matTooltip="Click to copy">
+                                    Code: {{ group.code }}
+                                </button>
+                            </div>
+                            @if (group.isAdmin) {
+                                <span class="media-type-badge">Admin</span>
+                            }
                         </div>
-                        <span *ngIf="group.isAdmin" class="media-type-badge">Admin</span>
+                        @if (group.isAdmin) {
+                            <button mat-icon-button color="warn" (click)="deleteGroup(group)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        }
                     </div>
-                    <button *ngIf="group.isAdmin" mat-icon-button color="warn" (click)="deleteGroup(group)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </div>
-            </ng-container>
-            <ng-template #noGroups>
+                }
+            } @else {
                 <div class="empty-state">
                     <p>No groups yet. Create one to start watching together!</p>
                 </div>
-            </ng-template>
+            }
         </mat-card-content>
     </mat-card>
 </main>

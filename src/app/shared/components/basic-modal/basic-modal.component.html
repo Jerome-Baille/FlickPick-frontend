@@ -2,10 +2,12 @@
 <mat-dialog-content>
     <form (ngSubmit)="onSubmit()" class="form">
         <p>{{ data.message }}</p>
-        <mat-form-field *ngIf="data.showInput" appearance="fill">
-            <mat-label>{{ data.placeholder }}</mat-label>
-            <input matInput [(ngModel)]="inputValue" [placeholder]="data.placeholder || ''" name="inputField">
-        </mat-form-field>
+        @if (data.showInput) {
+            <mat-form-field appearance="fill">
+                <mat-label>{{ data.placeholder }}</mat-label>
+                <input matInput [(ngModel)]="inputValue" [placeholder]="data.placeholder || ''" name="inputField">
+            </mat-form-field>
+        }
         <mat-dialog-actions class="form-actions">
             <button mat-button mat-dialog-close>Cancel</button>
             <button mat-raised-button color="primary" type="submit">

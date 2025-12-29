@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -29,12 +29,10 @@ export interface DialogData {
     standalone: true
 })
 export class BasicModalComponent {
-  inputValue: string = '';
+  data = inject<DialogData>(MAT_DIALOG_DATA);
+  private dialogRef = inject<MatDialogRef<BasicModalComponent>>(MatDialogRef);
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private dialogRef: MatDialogRef<BasicModalComponent>
-  ) {}
+  inputValue = '';
 
   onSubmit() {
     if (this.data.showInput && !this.inputValue) {

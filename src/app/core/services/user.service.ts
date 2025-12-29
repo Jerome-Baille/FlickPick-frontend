@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
@@ -8,9 +8,9 @@ import { User } from 'src/app/shared/models/User';
   providedIn: 'root'
 })
 export class UserService {
-  private userURL = environment.userURL;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) { }
+  private userURL = environment.userURL;
 
   getUserProfileById(): Observable<User> {
     return this.http.get<User>(`${this.userURL}/profile`);

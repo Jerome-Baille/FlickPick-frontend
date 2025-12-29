@@ -30,7 +30,7 @@
                 </button>
                 <p>
                     {{ isRegisterMode ? 'Already have an account?' : "Don't have an account?" }}
-                    <a (click)="toggleMode()" [class.disabled]="isLoading">
+                    <a (click)="toggleMode()" (keydown.enter)="toggleMode()" tabindex="0" [class.disabled]="isLoading">
                         {{ isRegisterMode ? 'Login' : 'Register' }}
                     </a>
                 </p>

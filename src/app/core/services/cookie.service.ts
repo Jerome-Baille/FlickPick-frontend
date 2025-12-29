@@ -4,9 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class CookieService {
-
-  constructor() { }
-
   // Method to set a cookie
   setCookie(name: string, value: string, expiresIn: Date): void {
     const date = new Date();

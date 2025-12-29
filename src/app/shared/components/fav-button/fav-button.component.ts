@@ -1,10 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faHeartCircleMinus, faHeartCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { DataService } from 'src/app/core/services/data.service';
+import { DataService, Media } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
+
+interface MediaInput {
+  id?: number;
+  tmdbId?: number;
+  title?: string;
+  name?: string;
+}
+
+interface FavoriteItem {
+  tmdbId: number;
+}
+
+interface ApiError {
+  error?: {
+    message?: string;
+  };
+  message?: string;
+}
 
 @Component({
     selector: 'app-fav-button',
@@ -18,51 +36,51 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
     standalone: true
 })
 export class FavButtonComponent implements OnInit {
-  @Input() media: any;
+  private dataService = inject(DataService);
+  private snackbarService = inject(SnackbarService);
+
+  @Input() media: MediaInput | undefined;
   isFav = false;
 
   faHeartCirclePlus = faHeartCirclePlus;
   faHeartCircleMinus = faHeartCircleMinus;
 
-  constructor(
-    private dataService: DataService,
-    private snackbarService: SnackbarService
-  ) {  }
-
   ngOnInit(): void {
     if (this.media) {
-      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const foundFavorite = favorites.some((fav: any) => fav.tmdbId === this.media.tmdbId);
-      foundFavorite ? this.isFav = true : this.isFav = false;
+      const favorites: FavoriteItem[] = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const foundFavorite = favorites.some((fav: FavoriteItem) => fav.tmdbId === this.media?.tmdbId);
+      this.isFav = foundFavorite;
     }
   }
 
-  onClick(event: any) {
+  onClick(event: Event): void {
     event.stopPropagation();
+
+    if (!this.media || this.media.id === undefined) return;
 
     const mediaType = this.media.title ? 'movie' : 'tv';
 
-    const mediaPayload = {
+    const mediaPayload: Media = {
       tmdbId: this.media.id,
       mediaType: mediaType,
     };
 
     if (this.isFav) {
       this.dataService.removeFromFavorites(mediaPayload).subscribe({
-        next: (response: any) => {
+        next: (response) => {
           this.snackbarService.showSuccess(response.message);
         },
-        error: (err: any) => {
-          this.snackbarService.showError(err);
+        error: (err: ApiError) => {
+          this.snackbarService.showError(err.error?.message || err.message || 'Error');
         }
       });
     } else {
       this.dataService.addToFavorites(mediaPayload).subscribe({
-        next: (response: any) => {
+        next: (response) => {
           this.snackbarService.showSuccess(response.message);
         },
-        error: (err: any) => {
-          this.snackbarService.showError(err);
+        error: (err: ApiError) => {
+          this.snackbarService.showError(err.error?.message || err.message || 'Error');
         }
       });
     }

@@ -11,9 +11,9 @@ const refreshTokenSignal = signal<boolean>(false);
 let refreshAttempts = 0; // Add counter for refresh attempts
 
 // A queue to store pending requests during refresh
-const pendingRequests: Array<{
+const pendingRequests: {
   resolve: (value: boolean) => void;
-}> = [];
+}[] = [];
 
 // Function to notify waiting requests
 function notifyRefreshComplete() {

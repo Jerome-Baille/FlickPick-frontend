@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,14 +21,14 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
   ]
 })
 export class AuthComponent {
+  private authService = inject(AuthService);
+  private snackbarService = inject(SnackbarService);
+
   isLoggedIn = false;
   isLoading = false;
   isRegisterMode = false;
 
-  constructor(
-    private authService: AuthService,
-    private snackbarService: SnackbarService
-  ) {
+  constructor() {
     this.authService.waitForAuthState().subscribe(
       (isLoggedIn: boolean) => {
         this.isLoggedIn = isLoggedIn;
@@ -50,7 +50,7 @@ export class AuthComponent {
       } else {
         this.authService.login();
       }
-    } catch (error) {
+    } catch {
       this.isLoading = false;
       this.snackbarService.showError(`Failed to redirect to ${this.isRegisterMode ? 'registration' : 'authentication'} service`);
     }
@@ -60,7 +60,7 @@ export class AuthComponent {
     this.isLoading = true;
     try {
       this.authService.logout();
-    } catch (error) {
+    } catch {
       this.isLoading = false;
       this.snackbarService.showError('Failed to redirect to logout');
     }

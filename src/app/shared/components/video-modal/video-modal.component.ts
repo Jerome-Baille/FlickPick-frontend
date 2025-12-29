@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YouTubePlayer } from '@angular/youtube-player';
 
@@ -12,11 +12,13 @@ import { YouTubePlayer } from '@angular/youtube-player';
     standalone: true
 })
 export class VideoModalComponent implements OnInit {
+  data = inject(MAT_DIALOG_DATA);
+
   videoId!: string;
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.videoId = data.trailers[0].key;
   }
 

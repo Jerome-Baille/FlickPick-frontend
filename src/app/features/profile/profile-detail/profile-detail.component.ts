@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { faCirclePlus, faList, faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
 import { MatCardModule } from '@angular/material/card';
@@ -20,6 +20,19 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { CreateCollectionModalComponent } from 'src/app/shared/components/create-collection-modal/create-collection-modal.component';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
+interface ApiResponse {
+  message: string;
+  list?: {
+    id: number;
+    name: string;
+  };
+}
+
+interface ListItem {
+  id: number;
+  name: string;
+}
+
 @Component({
     selector: 'app-profile-detail',
     imports: [
@@ -40,6 +53,12 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
     standalone: true
 })
 export class ProfileDetailComponent {
+    private userService = inject(UserService);
+    private dataService = inject(DataService);
+    private authService = inject(AuthService);
+    private snackbarService = inject(SnackbarService);
+    dialog = inject(MatDialog);
+
     userProfile: User = {
         username: '',
         Lists: [],
@@ -52,13 +71,7 @@ export class ProfileDetailComponent {
     faUser = faUser;
     faSignOut = faSignOut;
 
-    constructor(
-        private userService: UserService,
-        private dataService: DataService,
-        private authService: AuthService,
-        private snackbarService: SnackbarService,
-        public dialog: MatDialog
-    ) {
+    constructor() {
         this.userService.getUserProfileById().subscribe({
             next: (response: User) => {
                 this.userProfile = {
@@ -66,8 +79,8 @@ export class ProfileDetailComponent {
                     Lists: response.Lists || []
                 };
             },
-            error: (err: any) => {
-                this.snackbarService.showError(err);
+            error: (err: Error) => {
+                this.snackbarService.showError(err.message);
             }
         });
     }
@@ -79,33 +92,37 @@ export class ProfileDetailComponent {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result: { name: string } | undefined) => {
             if (result) {
                 const listData = {
                     name: result.name
                 }
 
                 this.dataService.createList(listData).subscribe({
-                    next: (response: any) => {
-                        this.snackbarService.showSuccess(response.message);
-                        this.userProfile.Lists!.push(response.list);
+                    next: (response: unknown) => {
+                        const res = response as ApiResponse;
+                        this.snackbarService.showSuccess(res.message);
+                        if (res.list) {
+                            this.userProfile.Lists!.push(res.list);
+                        }
                     },
-                    error: (err: any) => {
-                        this.snackbarService.showError(err);
+                    error: (err: Error) => {
+                        this.snackbarService.showError(err.message);
                     }
                 });
             }
         });
     }
 
-    deleteList(list: any) {
+    deleteList(list: ListItem) {
         this.dataService.deleteList(list.id).subscribe({
-            next: (response: any) => {
-                this.snackbarService.showSuccess(response.message);
-                this.userProfile.Lists = this.userProfile.Lists!.filter((l: any) => l.id !== list.id);
+            next: (response: unknown) => {
+                const res = response as ApiResponse;
+                this.snackbarService.showSuccess(res.message);
+                this.userProfile.Lists = this.userProfile.Lists!.filter((l: ListItem) => l.id !== list.id);
             },
-            error: (err: any) => {
-                this.snackbarService.showError(err);
+            error: (err: Error) => {
+                this.snackbarService.showError(err.message);
             }
         })
     }

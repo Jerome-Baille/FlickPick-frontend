@@ -10,40 +10,46 @@
             <mat-label>Search for movies or TV shows</mat-label>
             <input type="text" matInput [formControl]="searchCtrl" [matAutocomplete]="auto" />
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onOptionSelected($event)">
-                <mat-option *ngFor="let media of filteredMedia | async" [value]="media" class="media-option">
-                    <div class="media-option-content">
-                        <img [src]="media.poster_path ? TMDB_IMAGE_BASE_URL + media.poster_path : 'assets/images/poster-not-found.png'"
-                             [alt]="media.title || media.name"
-                             class="media-thumbnail" />
-                        <div class="media-info">
-                            <div class="media-title">{{ media.title || media.name }}</div>
-                            <div class="media-details">
-                                <span class="media-type">{{ media.media_type | titlecase }}</span>
-                                <span class="media-year" *ngIf="media.release_date || media.first_air_date">
-                                    {{ media.release_date || media.first_air_date | date:'yyyy' }}
-                                </span>
+                @for (media of filteredMedia | async; track media.id) {
+                    <mat-option [value]="media" class="media-option">
+                        <div class="media-option-content">
+                            <img [src]="media.poster_path ? TMDB_IMAGE_BASE_URL + media.poster_path : 'assets/images/poster-not-found.png'"
+                                 [alt]="media.title || media.name"
+                                 class="media-thumbnail" />
+                            <div class="media-info">
+                                <div class="media-title">{{ media.title || media.name }}</div>
+                                <div class="media-details">
+                                    <span class="media-type">{{ media.media_type | titlecase }}</span>
+                                    @if (media.release_date || media.first_air_date) {
+                                        <span class="media-year">
+                                            {{ media.release_date || media.first_air_date | date:'yyyy' }}
+                                        </span>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </mat-option>
+                    </mat-option>
+                }
             </mat-autocomplete>
         </mat-form-field>
 
         <mat-chip-listbox aria-label="Selected media">
-            <mat-chip *ngFor="let media of selectedMedia" (removed)="removeMedia(media)" class="media-chip">
-                <div class="chip-content">
-                    <span class="chip-title">{{ media.title || media.name }}</span>
-                    <span class="chip-details">
-                        {{ media.media_type | titlecase }}
-                        <ng-container *ngIf="media.release_date || media.first_air_date">
-                            • {{ media.release_date || media.first_air_date | date:'yyyy' }}
-                        </ng-container>
-                    </span>
-                </div>
-                <button matChipRemove>
-                    <mat-icon>cancel</mat-icon>
-                </button>
-            </mat-chip>
+            @for (media of selectedMedia; track media.id) {
+                <mat-chip (removed)="removeMedia(media)" class="media-chip">
+                    <div class="chip-content">
+                        <span class="chip-title">{{ media.title || media.name }}</span>
+                        <span class="chip-details">
+                            {{ media.media_type | titlecase }}
+                            @if (media.release_date || media.first_air_date) {
+                                • {{ media.release_date || media.first_air_date | date:'yyyy' }}
+                            }
+                        </span>
+                    </div>
+                    <button matChipRemove>
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </mat-chip>
+            }
         </mat-chip-listbox>
 
         <mat-dialog-actions class="form-actions">

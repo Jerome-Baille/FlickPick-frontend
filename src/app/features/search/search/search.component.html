@@ -9,61 +9,75 @@
         </form>
     </div>
 
-    <div *ngIf="movies && movies.length > 0">
-        <h2>Movies</h2>
-        <div class="result-cards">
-            <mat-card *ngFor="let movie of movies" class="search-result-card" (click)="onNavigateToDetail(movie)">
-                <div class="search-result-card__poster-container">
-                    <img mat-card-image class="search-result-card__poster"
-                        [src]="movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : 'assets/images/poster-not-found.png'"
-                        alt="{{ movie.title }}" />
-                </div>
-                <mat-card-content>
-                    <p class="overview">
-                        {{ movie.title }}
-                        <span *ngIf="movie.release_date">({{ movie.release_date | date:'yyyy'}})</span>
-                    </p>
-                </mat-card-content>
+    @if (movies && movies.length > 0) {
+        <div>
+            <h2>Movies</h2>
+            <div class="result-cards">
+                @for (movie of movies; track movie.id) {
+                    <mat-card class="search-result-card" (click)="onNavigateToDetail(movie)">
+                        <div class="search-result-card__poster-container">
+                            <img mat-card-image class="search-result-card__poster"
+                                [src]="movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : 'assets/images/poster-not-found.png'"
+                                alt="{{ movie.title }}" />
+                        </div>
+                        <mat-card-content>
+                            <p class="overview">
+                                {{ movie.title }}
+                                @if (movie.release_date) {
+                                    <span>({{ movie.release_date | date:'yyyy'}})</span>
+                                }
+                            </p>
+                        </mat-card-content>
 
-                <mat-card-actions class="result-card-action">
-                    <button mat-icon-button 
-                        (click)="isChecked(movie.id) ? removeMedia($event, movie) : addMedia($event, movie)">
-                        <fa-icon [icon]="isChecked(movie.id) ? faCircleCheck : faCirclePlus" />
-                    </button>
-                    <app-fav-button [media]="movie"/>
-                </mat-card-actions>
-            </mat-card>
+                        <mat-card-actions class="result-card-action">
+                            <button mat-icon-button 
+                                (click)="isChecked() ? removeMedia($event, movie) : addMedia($event, movie)">
+                                <fa-icon [icon]="isChecked() ? faCircleCheck : faCirclePlus" />
+                            </button>
+                            <app-fav-button [media]="movie"/>
+                        </mat-card-actions>
+                    </mat-card>
+                }
+            </div>
         </div>
-    </div>
+    }
 
-    <div *ngIf="tvShows && tvShows.length > 0">
-        <h2>TV Shows</h2>
-        <div class="result-cards">
-            <mat-card *ngFor="let tvShow of tvShows" class="search-result-card" (click)="onNavigateToDetail(tvShow)">
-                <div class="search-result-card__poster-container">
-                    <img mat-card-image class="search-result-card__poster"
-                        [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
-                        alt="{{ tvShow.name }}" />
-                </div>
-                <mat-card-content>
-                    <p class="overview">
-                        {{ tvShow.name }}
-                        <span *ngIf="tvShow.first_air_date">({{ tvShow.first_air_date | date:'yyyy'}})</span>
-                    </p>
-                </mat-card-content>
+    @if (tvShows && tvShows.length > 0) {
+        <div>
+            <h2>TV Shows</h2>
+            <div class="result-cards">
+                @for (tvShow of tvShows; track tvShow.id) {
+                    <mat-card class="search-result-card" (click)="onNavigateToDetail(tvShow)">
+                        <div class="search-result-card__poster-container">
+                            <img mat-card-image class="search-result-card__poster"
+                                [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
+                                alt="{{ tvShow.name }}" />
+                        </div>
+                        <mat-card-content>
+                            <p class="overview">
+                                {{ tvShow.name }}
+                                @if (tvShow.first_air_date) {
+                                    <span>({{ tvShow.first_air_date | date:'yyyy'}})</span>
+                                }
+                            </p>
+                        </mat-card-content>
 
-                <mat-card-actions class="result-card-action">
-                    <button mat-icon-button 
-                        (click)="isChecked(tvShow.id) ? removeMedia($event, tvShow) : addMedia($event, tvShow)">
-                        <fa-icon [icon]="isChecked(tvShow.id) ? faCircleCheck : faCirclePlus" />
-                    </button>
-                    <app-fav-button [media]="tvShow"/>
-                </mat-card-actions>
-            </mat-card>
+                        <mat-card-actions class="result-card-action">
+                            <button mat-icon-button 
+                                (click)="isChecked() ? removeMedia($event, tvShow) : addMedia($event, tvShow)">
+                                <fa-icon [icon]="isChecked() ? faCircleCheck : faCirclePlus" />
+                            </button>
+                            <app-fav-button [media]="tvShow"/>
+                        </mat-card-actions>
+                    </mat-card>
+                }
+            </div>
         </div>
-    </div>
+    }
 
-    <div *ngIf="movies && movies.length === 0 && tvShows && tvShows.length === 0" class="result-cards-not-found">
-        No results found.
-    </div>
+    @if (movies && movies.length === 0 && tvShows && tvShows.length === 0) {
+        <div class="result-cards-not-found">
+            No results found.
+        </div>
+    }
 </mat-card>

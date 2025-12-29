@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
@@ -9,11 +9,10 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
     standalone: true
 })
 export class AfterLoginComponent implements OnInit {
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    private snackbarService: SnackbarService
-  ) {}
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private snackbarService = inject(SnackbarService);
+
 
   ngOnInit() {
     this.authService.handlePostLogin().subscribe({
@@ -26,7 +25,7 @@ export class AfterLoginComponent implements OnInit {
           this.router.navigate(['/auth']);
         }
       },
-      error: (error) => {
+      error: () => {
         this.snackbarService.showError('Authentication failed');
         this.router.navigate(['/auth']);
       }

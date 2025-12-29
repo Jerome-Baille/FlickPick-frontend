@@ -1,36 +1,47 @@
-<ng-container *ngIf="mediaItems && mediaItems.length > 0">
+@if (mediaItems && mediaItems.length > 0) {
     <!-- Mobile card layout -->
     <section class="mobile-only">
         <div class="card-grid">
-            <div class="media-card" *ngFor="let mediaItem of mediaItems; let i = index" 
-                [class.top-pick]="i === 0 && mediaItem.sumOfRatings"
-                (click)="navigateToMedia(mediaItem)">
-                
-                <div class="rank-badge" [class.top-rank]="i === 0">{{ i + 1 }}</div>
-                
-                <fa-icon [icon]="faTrophy" *ngIf="i === 0 && mediaItem.sumOfRatings" class="winner-icon" />
-
-                <div class="media-image">
-                    <img [src]="mediaItem.posterPath ? TMDB_IMAGE_BASE_URL_300 + mediaItem.posterPath : 'assets/images/poster-not-found.png'"
-                        alt="{{ mediaItem.title }} poster">
-                </div>
-                
-                <div class="media-info">
-                    <h3>{{ mediaItem.title }}</h3>
-                    <p class="release-year">{{ mediaItem.releaseDate | date: 'yyyy' }}</p>
+            @for (mediaItem of mediaItems; track mediaItem.tmdbId; let i = $index) {
+                <div class="media-card" 
+                    [class.top-pick]="i === 0 && mediaItem.sumOfRatings"
+                    (click)="navigateToMedia(mediaItem)"
+                    (keydown.enter)="navigateToMedia(mediaItem)"
+                    tabindex="0"
+                    role="button">
                     
-                    <div class="media-type-badge" [class.movie]="mediaItem.mediaType === 'movie'" [class.tv]="mediaItem.mediaType === 'tv'">
-                        {{ mediaItem.mediaType === 'movie' ? 'Movie' : 'TV Show' }}
+                    <div class="rank-badge" [class.top-rank]="i === 0">{{ i + 1 }}</div>
+                    
+                    @if (i === 0 && mediaItem.sumOfRatings) {
+                        <fa-icon [icon]="faTrophy" class="winner-icon" />
+                    }
+
+                    <div class="media-image">
+                        <img [src]="mediaItem.posterPath ? TMDB_IMAGE_BASE_URL_300 + mediaItem.posterPath : 'assets/images/poster-not-found.png'"
+                            alt="{{ mediaItem.title }} poster">
                     </div>
                     
-                    <p *ngIf="showPoints && mediaItem.points" class="points">{{ mediaItem.points }} points</p>
-                </div>
+                    <div class="media-info">
+                        <h3>{{ mediaItem.title }}</h3>
+                        <p class="release-year">{{ mediaItem.releaseDate | date: 'yyyy' }}</p>
+                        
+                        <div class="media-type-badge" [class.movie]="mediaItem.mediaType === 'movie'" [class.tv]="mediaItem.mediaType === 'tv'">
+                            {{ mediaItem.mediaType === 'movie' ? 'Movie' : 'TV Show' }}
+                        </div>
+                        
+                        @if (showPoints && mediaItem.points) {
+                            <p class="points">{{ mediaItem.points }} points</p>
+                        }
+                    </div>
 
-                <button mat-icon-button class="delete-button" *ngIf='mediaItem.isAdmin' 
-                    (click)="deleteMediaItem(mediaItem); $event.stopPropagation()" aria-label="Delete media item">
-                    <mat-icon>delete</mat-icon>
-                </button>
-            </div>
+                    @if (mediaItem.isAdmin) {
+                        <button mat-icon-button class="delete-button" 
+                            (click)="deleteMediaItem(mediaItem); $event.stopPropagation()" aria-label="Delete media item">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    }
+                </div>
+            }
         </div>
     </section>
 
@@ -41,8 +52,12 @@
             <td mat-cell *matCellDef="let mediaItem; let i = index">
                 <div class="rank-container" [class.top-rank]="i === 0">
                     <div class="rank-number">{{ i + 1 }}</div>
-                    <fa-icon [icon]="faTrophy" *ngIf="i === 0 && mediaItem.sumOfRatings" class="winner-icon" />
-                    <div *ngIf="showPoints && mediaItem.points" class="points-badge">{{ mediaItem.points }}</div>
+                    @if (i === 0 && mediaItem.sumOfRatings) {
+                        <fa-icon [icon]="faTrophy" class="winner-icon" />
+                    }
+                    @if (showPoints && mediaItem.points) {
+                        <div class="points-badge">{{ mediaItem.points }}</div>
+                    }
                 </div>
             </td>
         </ng-container>
@@ -66,7 +81,9 @@
                 <div class="info-container">
                     <h3 class="media-title">{{ mediaItem.title }}</h3>
                     <p class="release-date">{{ mediaItem.releaseDate | date: 'yyyy' }}</p>
-                    <p class="overview-text" *ngIf="mediaItem.overview">{{ mediaItem.overview | slice:0:150 }}{{ mediaItem.overview.length > 150 ? '...' : '' }}</p>
+                    @if (mediaItem.overview) {
+                        <p class="overview-text">{{ mediaItem.overview | slice:0:150 }}{{ mediaItem.overview.length > 150 ? '...' : '' }}</p>
+                    }
                 </div>
             </td>
         </ng-container>
@@ -78,21 +95,25 @@
                     <button mat-icon-button color="primary" (click)="navigateToMedia(mediaItem)" aria-label="View details">
                         <mat-icon>info</mat-icon>
                     </button>
-                    <button mat-icon-button color="warn" *ngIf='mediaItem.isAdmin' (click)="deleteMediaItem(mediaItem)" aria-label="Delete">
-                        <mat-icon>delete</mat-icon>
-                    </button>
+                    @if (mediaItem.isAdmin) {
+                        <button mat-icon-button color="warn" (click)="deleteMediaItem(mediaItem)" aria-label="Delete">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    }
                 </div>
             </td>
         </ng-container>
 
         <tr mat-row *matRowDef="let mediaItem; columns: ['rank', 'poster', 'info', 'actions']" 
-            class="media-row" (click)="navigateToMedia(mediaItem)"></tr>
+            class="media-row" (click)="navigateToMedia(mediaItem)"
+            (keydown.enter)="navigateToMedia(mediaItem)"
+            tabindex="0"></tr>
     </table>
-</ng-container>
-
-<!-- Empty state -->
-<div *ngIf="!mediaItems || mediaItems.length === 0" class="empty-state">
-    <mat-icon class="empty-icon">movie_filter</mat-icon>
-    <h3>No results found</h3>
-    <p>There are no media items to display.</p>
-</div>
+} @else {
+    <!-- Empty state -->
+    <div class="empty-state">
+        <mat-icon class="empty-icon">movie_filter</mat-icon>
+        <h3>No results found</h3>
+        <p>There are no media items to display.</p>
+    </div>
+}

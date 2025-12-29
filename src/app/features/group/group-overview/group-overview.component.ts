@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,28 @@ import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { CreateCollectionModalComponent } from 'src/app/shared/components/create-collection-modal/create-collection-modal.component';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+
+interface SelectedMedia {
+  tmdbId: number;
+  mediaType: 'movie' | 'tv';
+  title?: string;
+  releaseDate?: string;
+  posterPath?: string;
+  overview?: string;
+}
+
+interface DialogResult {
+  name: string;
+  listName: string;
+  selectedMedia: SelectedMedia[];
+}
+
+interface ApiResponse {
+  message: string;
+  list?: unknown;
+  group?: Group;
+  code?: string;
+}
 
 @Component({
     selector: 'app-group-overview',
@@ -30,25 +52,25 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
     ]
 })
 export class GroupOverviewComponent {
+    private dataService = inject(DataService);
+    private snackbarService = inject(SnackbarService);
+    dialog = inject(MatDialog);
+
     groups: Group[] = [];
     faCirclePlus = faCirclePlus;
     faUsers = faUsers;
 
-    constructor(
-        private dataService: DataService,
-        private snackbarService: SnackbarService,
-        public dialog: MatDialog
-    ) {
+    constructor() {
         this.loadGroups();
     }
 
     loadGroups() {
         this.dataService.getUserGroups().subscribe({
-            next: (response: any) => {
-                this.groups = response || [];
+            next: (response: unknown) => {
+                this.groups = (response as Group[]) || [];
             },
-            error: (err: any) => {
-                this.snackbarService.showError(err);
+            error: (err: Error) => {
+                this.snackbarService.showError(err.message);
             }
         });
     }
@@ -71,11 +93,11 @@ export class GroupOverviewComponent {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result: DialogResult | undefined) => {
             if (result) {
                 const listData = {
                     name: result.listName,
-                    selectedMedia: result.selectedMedia.map((media: any) => ({
+                    selectedMedia: result.selectedMedia.map((media: SelectedMedia) => ({
                         tmdbId: media.tmdbId,
                         mediaType: media.mediaType,
                         title: media.title,
@@ -86,24 +108,27 @@ export class GroupOverviewComponent {
                 };
 
                 this.dataService.createList(listData).subscribe({
-                    next: (listResponse: any) => {
+                    next: () => {
                         const groupData = {
                             name: result.name,
                             listName: result.listName
                         };
 
                         this.dataService.createGroup(groupData).subscribe({
-                            next: (groupResponse: any) => {
-                                this.groups.push(groupResponse.group);
-                                this.snackbarService.showSuccess(`Group created successfully. Share this code with others to join: ${groupResponse.code}`);
+                            next: (groupResponse: unknown) => {
+                                const res = groupResponse as ApiResponse;
+                                if (res.group) {
+                                    this.groups.push(res.group);
+                                }
+                                this.snackbarService.showSuccess(`Group created successfully. Share this code with others to join: ${res.code}`);
                             },
-                            error: (err: any) => {
-                                this.snackbarService.showError(err);
+                            error: (err: Error) => {
+                                this.snackbarService.showError(err.message);
                             }
                         });
                     },
-                    error: (err: any) => {
-                        this.snackbarService.showError(err);
+                    error: (err: Error) => {
+                        this.snackbarService.showError(err.message);
                     }
                 });
             }
@@ -121,17 +146,18 @@ export class GroupOverviewComponent {
             }
         });
 
-        dialogRef.afterClosed().subscribe(code => {
+        dialogRef.afterClosed().subscribe((code: string | undefined) => {
             if (code) {
                 this.dataService.joinGroup(code).subscribe({
-                    next: (response: any) => {
-                        this.snackbarService.showSuccess(response.message);
-                        if (response.group) {
-                            this.groups.push(response.group);
+                    next: (response: unknown) => {
+                        const res = response as ApiResponse;
+                        this.snackbarService.showSuccess(res.message);
+                        if (res.group) {
+                            this.groups.push(res.group);
                         }
                     },
-                    error: (err: any) => {
-                        this.snackbarService.showError(err);
+                    error: (err: Error) => {
+                        this.snackbarService.showError(err.message);
                     }
                 });
             }
@@ -147,15 +173,16 @@ export class GroupOverviewComponent {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.afterClosed().subscribe((result: boolean | undefined) => {
             if (result) {
                 this.dataService.deleteGroup(group.id).subscribe({
-                    next: (response: any) => {
-                        this.snackbarService.showSuccess(response.message);
+                    next: (response: unknown) => {
+                        const res = response as ApiResponse;
+                        this.snackbarService.showSuccess(res.message);
                         this.groups = this.groups.filter(g => g.id !== group.id);
                     },
-                    error: (err: any) => {
-                        this.snackbarService.showError(err);
+                    error: (err: Error) => {
+                        this.snackbarService.showError(err.message);
                     }
                 });
             }
