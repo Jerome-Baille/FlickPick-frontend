@@ -4,8 +4,8 @@ import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './interceptors/token.interceptor';
-import { loaderInterceptor } from './interceptors/loading.interceptor';
+import { authInterceptor } from './core/interceptors/token.interceptor';
+import { loaderInterceptor } from './core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
