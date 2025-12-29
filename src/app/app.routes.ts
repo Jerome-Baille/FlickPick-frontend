@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { authGuard } from './core/guards/auth.guard';
 import { AuthComponent } from './features/auth/auth/auth.component';
@@ -14,7 +14,7 @@ import { FavoriteComponent } from './features/favorite/favorite.component';
 import { environment } from 'src/environments/environment';
 
 // Build auth children routes conditionally
-const authChildren = [
+const authChildren: Route[] = [
   { path: '', component: AuthComponent },
   { path: 'after-login', component: AfterLoginComponent },
 ];
@@ -24,7 +24,7 @@ if (!environment.production) {
   authChildren.push({
     path: 'dev',
     loadComponent: () => import('./features/auth/dev-auth/dev-auth.component').then(m => m.DevAuthComponent)
-  } as any);
+  });
 }
 
 export const routes: Routes = [
