@@ -1,32 +1,67 @@
-<mat-toolbar class="toolbar" color="primary">
-  <span class="toolbar__title desktop-only" routerLink="/">Flick Pick</span>
-  <span class="spacer desktop-only"></span>
-  <nav class="desktop-nav">
+<header class="header glass-panel">
+    <div class="header-container">
+        <!-- Logo -->
+        <div class="logo" routerLink="/">
+            <span class="material-symbols-outlined logo-icon">movie_filter</span>
+            <h1 class="logo-text">FLICK PICK</h1>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="header-actions">
+            <!-- Desktop Nav Links -->
+            <nav class="desktop-nav">
+                @if (isLoggedIn()) {
+                    <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+                    <a routerLink="/media" routerLinkActive="active">Movies</a>
+                    <a routerLink="/group/overview" routerLinkActive="active">Groups</a>
+                } @else {
+                    <a routerLink="/auth" routerLinkActive="active">Login</a>
+                }
+            </nav>
+
+            @if (isLoggedIn()) {
+                <div class="nav-divider desktop-only"></div>
+
+                <div class="user-actions">
+                    <!-- Notifications -->
+                    <button class="notification-btn desktop-only">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="notification-badge"></span>
+                    </button>
+
+                    <!-- User Avatar -->
+                    <div class="user-avatar" routerLink="/profile">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-nav">
     @if (isLoggedIn()) {
-    <a mat-button routerLink="/dashboard" routerLinkActive="active"
-      >Dashboard</a
-    >
-    <a mat-button routerLink="/media" routerLinkActive="active">Search</a>
-    <a mat-button routerLink="/profile" routerLinkActive="active">Profile</a>
-    } @if(!isLoggedIn()) {
-    <a mat-button routerLink="/auth" routerLinkActive="active">Login</a>
+        <a routerLink="/dashboard" routerLinkActive="active">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="nav-label">Home</span>
+        </a>
+        <a routerLink="/media" routerLinkActive="active">
+            <span class="material-symbols-outlined">search</span>
+            <span class="nav-label">Search</span>
+        </a>
+        <a routerLink="/group/overview" routerLinkActive="active">
+            <span class="material-symbols-outlined">groups</span>
+            <span class="nav-label">Groups</span>
+        </a>
+        <a routerLink="/profile" routerLinkActive="active">
+            <span class="material-symbols-outlined">person</span>
+            <span class="nav-label">Profile</span>
+        </a>
+    } @else {
+        <a routerLink="/auth" routerLinkActive="active">
+            <span class="material-symbols-outlined">login</span>
+            <span class="nav-label">Login</span>
+        </a>
     }
-  </nav>
-  <nav class="mobile-nav">
-    @if (isLoggedIn()) {
-    <a mat-icon-button routerLink="/dashboard" routerLinkActive="active">
-      <mat-icon>dashboard</mat-icon>
-    </a>
-    <a mat-icon-button routerLink="/media" routerLinkActive="active">
-      <mat-icon>search</mat-icon>
-    </a>
-    <a mat-icon-button routerLink="/profile" routerLinkActive="active">
-      <mat-icon>person</mat-icon>
-    </a>
-    } @if (!isLoggedIn()) {
-    <a mat-icon-button routerLink="/auth" routerLinkActive="active">
-      <mat-icon>login</mat-icon>
-    </a>
-    }
-  </nav>
-</mat-toolbar>
+</nav>

@@ -1,103 +1,226 @@
-.spacer {
-    flex: 1 1 auto;
+// Glass panel utility
+.glass-panel {
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
+    border-top: none;
+    border-left: none;
+    border-right: none;
 }
 
-.toolbar {
+// Header
+.header {
     position: fixed;
-    padding: 0 16px;
-    height: 64px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    background-color: rgba(18, 25, 51, 0.95) !important;
-    z-index: 1000;
     top: 0;
     left: 0;
     right: 0;
-    
-    &__title {
-        font-size: 1.5rem;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        
-        &:hover {
-            color: #a6b1ff;
-            transform: scale(1.02);
+    z-index: 1000;
+    height: 64px;
+
+    .header-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        @media screen and (min-width: 640px) {
+            padding: 0 1.5rem;
+        }
+
+        @media screen and (min-width: 1024px) {
+            padding: 0 2rem;
         }
     }
 }
 
+// Logo
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    .logo-icon {
+        font-size: 32px;
+        color: var(--color-primary);
+    }
+
+    .logo-text {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.75rem;
+        color: var(--color-primary);
+        letter-spacing: 0.02em;
+        margin: 0;
+        margin-top: 4px; // Optical alignment
+    }
+}
+
+// Header Actions
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+// Desktop Navigation
 .desktop-nav {
+    display: none;
+    gap: 1.5rem;
+
+    @media screen and (min-width: 768px) {
+        display: flex;
+    }
+
     a {
-        margin: 0 4px;
+        font-size: 0.875rem;
         font-weight: 500;
-        letter-spacing: 0.3px;
-        position: relative;
-        
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: currentColor;
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-            opacity: 0;
-        }
-        
-        &:hover::after, &.active::after {
-            width: 80%;
-            opacity: 1;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover, &.active {
+            color: var(--color-primary);
         }
     }
 }
 
-.mobile-nav {
+// Navigation Divider
+.nav-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--color-border);
+}
+
+.desktop-only {
     display: none;
-    width: 100%;
+
+    @media screen and (min-width: 768px) {
+        display: block;
+    }
+}
+
+// User Actions
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+// Notification Button
+.notification-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background: rgba(58, 55, 39, 0.5);
+    }
+
+    .material-symbols-outlined {
+        font-size: 24px;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        background-color: var(--color-primary);
+        border-radius: 50%;
+    }
+}
+
+// User Avatar
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+
+    &:hover {
+        opacity: 0.8;
+    }
+
+    .material-symbols-outlined {
+        font-size: 20px;
+    }
+}
+
+// Mobile Navigation (Bottom Bar)
+.mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: 64px;
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--color-glass-border);
     justify-content: space-around;
     align-items: center;
+    padding: 0 1rem;
+
+    @media screen and (min-width: 768px) {
+        display: none;
+    }
 
     a {
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: rgba(255, 255, 255, 0.7);
-        transition: all 0.3s ease;
+        gap: 0.25rem;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        transition: all 0.2s;
+        padding: 0.5rem;
 
-        &.active {
-            color: #fff;
-            mat-icon {
+        .material-symbols-outlined {
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .nav-label {
+            font-size: 0.625rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        &:hover, &.active {
+            color: var(--color-primary);
+
+            .material-symbols-outlined {
                 transform: translateY(-2px);
             }
         }
-
-        mat-icon {
-            transition: transform 0.3s ease;
-        }
-    }
-}
-
-@media (max-width: 767px) {
-    .desktop-nav, .desktop-only {
-        display: none;
-    }
-    
-    .mobile-nav {
-        display: flex;
-    }
-    
-    .toolbar {
-        top: auto;
-        bottom: 0;
-        height: 56px;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.2);
     }
 }

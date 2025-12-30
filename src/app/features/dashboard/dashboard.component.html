@@ -1,67 +1,165 @@
 <main class="dashboard-container">
-    <section class="quick-actions">
-        <h2 class="section-title">Quick Actions</h2>
-        <mat-card>
-            <mat-card-content class="quick-actions-grid">
-                <button mat-raised-button color="primary" routerLink="/group/overview">
-                    <fa-icon [icon]="faUsers"></fa-icon>
-                    View Groups
-                </button>
-                <button mat-raised-button color="accent" routerLink="/media/search">
-                    <fa-icon [icon]="faFilm"></fa-icon>
-                    Find Movies
-                </button>
-                <button mat-raised-button color="warn" routerLink="/favorite">
-                    <fa-icon [icon]="faHeart"></fa-icon>
-                    My Favorites
-                </button>
-            </mat-card-content>
-        </mat-card>
+    <!-- Header Section -->
+    <section class="dashboard-header">
+        <div class="header-content">
+            <p class="header-subtitle">Lights, Camera, Action...</p>
+            <h1 class="header-title">Ready for the show, {{ userName }}?</h1>
+        </div>
+        <div class="header-actions">
+            @if (pendingVotes > 0) {
+                <div class="stat-card glass-panel">
+                    <span class="stat-value">{{ pendingVotes }}</span>
+                    <span class="stat-label">Pending Votes</span>
+                </div>
+            }
+            <button class="primary-action-btn" (click)="createGroup()">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>Start New Group</span>
+            </button>
+        </div>
     </section>
 
-    <section class="activity-overview">
-        <mat-card class="recent-groups">
-            <mat-card-header>
-                <mat-card-title>Recent Groups</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                @if (recentGroups.length > 0) {
-                    @for (group of recentGroups; track group.id) {
-                        <div class="activity-item" [routerLink]="['/group/detail', group.id]">
-                            <fa-icon [icon]="faUsers"></fa-icon>
-                            <span class="item-title">{{ group.name }}</span>
-                            @if (group.isAdmin) {
-                                <span class="media-type-badge">Admin</span>
-                            }
-                        </div>
-                    }
-                } @else {
-                    <div class="empty-state">
-                        <p>No groups yet. Create one to get started!</p>
-                    </div>
-                }
-            </mat-card-content>
-        </mat-card>
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+        <!-- Left Column - Groups -->
+        <div class="groups-section">
+            <div class="section-header">
+                <h2 class="section-title">Your Casting Couches</h2>
+                <div class="section-tabs">
+                    <button class="tab-btn active">Active</button>
+                    <span class="tab-divider">|</span>
+                    <button class="tab-btn">Archived</button>
+                </div>
+            </div>
 
-        <mat-card class="recent-favorites">
-            <mat-card-header>
-                <mat-card-title>Recent Favorites</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                @if (favoriteMedia.length > 0) {
-                    @for (media of favoriteMedia; track media.id) {
-                        <div class="activity-item" [routerLink]="['/media/detail', media.mediaType, media.tmdbId]">
-                            <fa-icon [icon]="media.mediaType === 'movie' ? faFilm : faTv"></fa-icon>
-                            <span class="item-title">{{ media.title }}</span>
-                            <span class="media-type-badge">{{ media.mediaType }}</span>
+            <div class="groups-grid">
+                @for (group of recentGroups; track group.id) {
+                    <div class="group-card glass-panel" [routerLink]="['/group/detail', group.id]">
+                        <!-- Status Badge -->
+                        <div class="status-badge" [class.voting]="group.status === 'voting'" 
+                             [class.selecting]="group.status === 'selecting'"
+                             [class.scheduled]="group.status === 'scheduled'">
+                            <span class="material-symbols-outlined">{{ getStatusIcon(group.status) }}</span>
+                            {{ getStatusLabel(group.status) }}
                         </div>
-                    }
-                } @else {
-                    <div class="empty-state">
-                        <p>No favorites yet. Start exploring movies!</p>
+
+                        <!-- Cover Image -->
+                        <div class="group-cover" [style.background-image]="'url(' + group.coverImage + ')'">
+                            <div class="cover-gradient"></div>
+                        </div>
+
+                        <!-- Group Info -->
+                        <div class="group-info">
+                            <h3 class="group-name">{{ group.name }}</h3>
+                            <p class="group-session">{{ group.nextSession || 'No session scheduled' }}</p>
+
+                            <div class="group-footer">
+                                <div class="member-avatars">
+                                    @if (group.Users && group.Users.length > 0) {
+                                        @for (user of group.Users.slice(0, 3); track user.id) {
+                                            <div class="avatar-placeholder">
+                                                {{ user.username.charAt(0).toUpperCase() }}
+                                            </div>
+                                        }
+                                        @if (group.Users.length > 3) {
+                                            <div class="avatar-more">+{{ group.Users.length - 3 }}</div>
+                                        }
+                                    }
+                                </div>
+                                <button class="group-action-btn" 
+                                        [class.primary]="group.status === 'selecting'"
+                                        (click)="$event.stopPropagation()">
+                                    @switch (group.status) {
+                                        @case ('voting') { Cast Vote }
+                                        @case ('selecting') { Create Shortlist }
+                                        @default { View Details }
+                                    }
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 }
-            </mat-card-content>
-        </mat-card>
-    </section>
+
+                <!-- Create New Group Card -->
+                <div class="create-group-card" (click)="createGroup()">
+                    <div class="create-icon">
+                        <span class="material-symbols-outlined">add</span>
+                    </div>
+                    <h3 class="create-title">Start a New Club</h3>
+                    <p class="create-description">Gather your friends and start picking flicks.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Sidebar -->
+        <div class="sidebar-section">
+            <!-- Coming Soon Panel -->
+            <div class="coming-soon-panel glass-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">Coming Soon</h3>
+                    <span class="material-symbols-outlined primary-icon">calendar_month</span>
+                </div>
+
+                <div class="upcoming-list">
+                    @if (upcomingSessions.length > 0) {
+                        @for (session of upcomingSessions; track session.movieTitle) {
+                            <div class="upcoming-item">
+                                <div class="movie-poster-small">
+                                    @if (session.posterPath) {
+                                        <img [src]="'https://image.tmdb.org/t/p/w200' + session.posterPath" 
+                                             [alt]="session.movieTitle">
+                                    } @else {
+                                        <span class="material-symbols-outlined">movie</span>
+                                    }
+                                    @if (session.isWinner) {
+                                        <span class="winner-badge">WINNER</span>
+                                    }
+                                </div>
+                                <div class="upcoming-info">
+                                    <span class="session-time">{{ session.dateTime }}</span>
+                                    <h4 class="movie-title">{{ session.movieTitle }}</h4>
+                                    <p class="session-group">{{ session.groupName }}</p>
+                                    @if (session.status === 'confirmed') {
+                                        <div class="countdown-badge">
+                                            <span class="material-symbols-outlined">timer</span>
+                                            <span>Coming up</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    } @else {
+                        <div class="empty-upcoming">
+                            <div class="poster-placeholder">
+                                <span class="material-symbols-outlined">movie</span>
+                            </div>
+                            <div class="upcoming-info">
+                                <span class="session-time">No sessions scheduled</span>
+                                <h4 class="movie-title">TBD</h4>
+                                <p class="session-group">Create a group to get started</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <button class="view-calendar-btn">
+                    <span>View Full Calendar</span>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+
+            <!-- The Vault Panel -->
+            <div class="vault-panel" routerLink="/favorite">
+                <div class="vault-background"></div>
+                <div class="vault-content">
+                    <div class="vault-header">
+                        <span class="material-symbols-outlined primary-icon">history_edu</span>
+                        <span class="vault-label">Watched History</span>
+                    </div>
+                    <h3 class="vault-title">The Vault</h3>
+                    <p class="vault-count">{{ watchedCount }} movies in your collection.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
