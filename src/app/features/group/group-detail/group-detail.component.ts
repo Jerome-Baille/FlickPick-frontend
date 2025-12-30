@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { MatCardModule } from '@angular/material/card';
@@ -10,12 +10,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipsModule } from '@angular/material/chips';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ChoosingGameComponent } from '../choosing-game/choosing-game.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MediaTableViewComponent } from 'src/app/shared/components/media-table-view/media-table-view.component';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { CreateCollectionModalComponent } from 'src/app/shared/components/create-collection-modal/create-collection-modal.component';
@@ -23,6 +21,9 @@ import { CreateCollectionModalComponent } from 'src/app/shared/components/create
 interface GroupMember {
   id: number;
   username: string;
+  avatar?: string;
+  isReady?: boolean;
+  isHost?: boolean;
 }
 
 interface GroupMediaItem {
@@ -72,8 +73,6 @@ interface ApiResponse {
         MatExpansionModule, 
         MatChipsModule,
         FontAwesomeModule,
-        ChoosingGameComponent,
-        MediaTableViewComponent,
         MatFormFieldModule,
         MatInputModule,
         MatTooltipModule
@@ -84,6 +83,7 @@ interface ApiResponse {
 })
 export class GroupDetailComponent {
     private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private dataService = inject(DataService);
     private snackbarService = inject(SnackbarService);
     dialog = inject(MatDialog);
@@ -209,5 +209,37 @@ export class GroupDetailComponent {
 
     hasMediaWithVotes(): boolean {
         return this.groupMedia.some(media => media.votes.length > 0);
+    }
+
+    copyLink(): void {
+        const groupUrl = `${window.location.origin}/group/${this.groupData.id}`;
+        navigator.clipboard.writeText(groupUrl).then(() => {
+            this.snackbarService.showSuccess('Group link copied to clipboard!');
+        }).catch(err => {
+            this.snackbarService.showError('Failed to copy link');
+            console.error('Failed to copy link', err);
+        });
+    }
+
+    showQRCode(): void {
+        // TODO: Implement QR code modal
+        this.snackbarService.showSuccess('QR Code feature coming soon!');
+    }
+
+    manageInvites(): void {
+        // TODO: Implement manage invites functionality
+        this.snackbarService.showSuccess('Manage Invites feature coming soon!');
+    }
+
+    getReadyCount(): number {
+        return this.groupMembers.filter(m => m.isReady).length;
+    }
+
+    getMemberAvatar(member: GroupMember): string {
+        return member.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(member.username) + '&background=3a3727&color=bbb69b&size=128';
+    }
+
+    startVoting(): void {
+        this.router.navigate(['/group/voting', this.groupData.id]);
     }
 }

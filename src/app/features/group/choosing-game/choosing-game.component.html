@@ -1,142 +1,158 @@
 @if (displayedItems.length !== 0) {
-    <div class="choosing-game" [@fadeAnimation]>
-        <!-- Game Header with Description -->
-        @if (!isGameOver) {
-            <div class="game-header">
-                <div class="round-indicator">
-                    <h2 class="round-title">{{ getRoundDescription() }}</h2>
-                </div>
-                
-                <!-- Progress bar to show game advancement -->
-                @if (currentRound > 2) {
-                    <div class="progress-container">
-                        <div class="progress-text">{{ filteredMediaItems.length + winningItems.length }} titles left</div>
-                        <mat-progress-bar mode="determinate" [value]="getGameProgress()"></mat-progress-bar>
-                    </div>
-                }
+    <div class="voting-container" [@fadeAnimation]>
+        <!-- Page Heading -->
+        <div class="voting-header">
+            <div class="header-content">
+                <h1 class="header-title">
+                    Rank Your <span class="highlight">Favorites</span>
+                </h1>
+                <p class="header-subtitle">
+                    Drag movies from the shortlist into your top 3 slots. The group's combined ranking will decide what we watch!
+                </p>
             </div>
-        }
+            <div class="selections-indicator">
+                <span class="selections-label">Selections</span>
+                <span class="selections-count">{{ rankedItems.length }}<span class="selections-total">/{{ requiredSlots }}</span></span>
+            </div>
+        </div>
 
-        <!-- Media Type Selection (Round 1) -->
-        @if (!isGameOver && currentRound === 1) {
-            <section class="mat-card-container" [@cardAnimation]="selectedChoice">
-                <mat-card (click)="makeChoice('A')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'A'">
-                    <div class="mat-card-icon-container">
-                        <mat-icon class="media-type-icon">movie</mat-icon>
+        <!-- Main Interactive Area -->
+        <div class="voting-grid">
+            <!-- Left Column: The Shortlist (Source) -->
+            <div class="shortlist-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <mat-icon>list_alt</mat-icon>
+                        The Shortlist
+                    </h3>
+                    <div class="view-toggle">
+                        <button mat-icon-button class="view-button">
+                            <mat-icon>grid_view</mat-icon>
+                        </button>
+                        <button mat-icon-button class="view-button">
+                            <mat-icon>view_list</mat-icon>
+                        </button>
                     </div>
-                    <mat-card-content class="mat-card-content">
-                        <p class="mat-card-text">
-                            Movies
-                        </p>
-                        <p class="mat-card-subtext">
-                            Choose from film selections
-                        </p>
-                    </mat-card-content>
-                </mat-card>
-                
-                <!-- VS badge positioned between cards -->
-                <div class="versus-badge">VS</div>
-                
-                <mat-card (click)="makeChoice('B')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'B'">
-                    <div class="mat-card-icon-container">
-                        <mat-icon class="media-type-icon">tv</mat-icon>
-                    </div>
-                    <mat-card-content class="mat-card-content">
-                        <p class="mat-card-text">
-                            TV Shows
-                        </p>
-                        <p class="mat-card-subtext">
-                            Choose from series selections
-                        </p>
-                    </mat-card-content>
-                </mat-card>
-            </section>
-        }
+                </div>
 
-        <!-- Title Selection (Round 3+) -->
-        @if (!isGameOver && currentRound > 2) {
-            <section class="mat-card-container" [@cardAnimation]="selectedChoice">
-                <mat-card (click)="makeChoice('A')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'A'">
-                    @if (choiceA.mediaItem) {
-                        <div class="mat-card-poster-container">
-                            <img mat-card-image class="mat-card-poster"
-                                [src]="choiceA.mediaItem.posterPath ? TMDB_IMAGE_BASE_URL_300 + choiceA.mediaItem.posterPath : 'assets/images/poster-not-found.png'"
-                                alt="{{ choiceA.title }}" />
+                <!-- Movie Grid -->
+                <div class="movie-grid" cdkDropList #shortlistDropList="cdkDropList" 
+                     [cdkDropListData]="availableItems"
+                     [cdkDropListConnectedTo]="[rankingDropList]"
+                     (cdkDropListDropped)="onDrop($event)">
+                    @for (item of availableItems; track item.tmdbId) {
+                        <div class="movie-card" cdkDrag [@cardAnimation]>
+                            <div class="movie-poster">
+                                <div class="poster-image" 
+                                     [style.background-image]="'url(' + (item.posterPath ? TMDB_IMAGE_BASE_URL_300 + item.posterPath : 'assets/images/poster-not-found.png') + ')'">
+                                </div>
+                                <div class="poster-overlay"></div>
+                                @if (item.sumOfRatings) {
+                                    <div class="rating-badge">
+                                        {{ (item.sumOfRatings / 10).toFixed(1) }}
+                                    </div>
+                                }
+                            </div>
+                            <div class="movie-info">
+                                <h4 class="movie-title">{{ item.title }}</h4>
+                                <div class="movie-meta">
+                                    @if (item.releaseDate) {
+                                        <span>{{ item.releaseDate | date:'yyyy' }}</span>
+                                        <span class="meta-dot"></span>
+                                    }
+                                    <span>{{ item.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</span>
+                                </div>
+                            </div>
+                            <!-- Hover Action Overlay -->
+                            <div class="drag-overlay">
+                                <span class="drag-cta">
+                                    <mat-icon>drag_pan</mat-icon> Drag to Rank
+                                </span>
+                            </div>
                         </div>
                     }
-                    <mat-card-content class="mat-card-content">
-                        <p class="mat-card-text">
-                            {{ choiceA.title }}
-                            @if (choiceA.mediaItem && choiceA.mediaItem.releaseDate) {
-                                <span>({{ choiceA.mediaItem.releaseDate | date:'yyyy'}})</span>
-                            }
-                        </p>
-                    </mat-card-content>
-                </mat-card>
-                
-                <!-- VS badge positioned between cards -->
-                <div class="versus-badge">VS</div>
-                
-                <mat-card (click)="makeChoice('B')" class="mat-card mat-card-button" [class.selected]="selectedChoice === 'B'">
-                    @if (choiceB.mediaItem) {
-                        <div class="mat-card-poster-container">
-                            <img mat-card-image class="mat-card-poster"
-                            [src]="choiceB.mediaItem.posterPath ? TMDB_IMAGE_BASE_URL_300 + choiceB.mediaItem.posterPath : 'assets/images/poster-not-found.png'"
-                                alt="{{ choiceB.title }}" />
-                        </div>
-                    }
-                    <mat-card-content class="mat-card-content">
-                        <p class="mat-card-text">
-                            {{ choiceB.title }}
-                            @if (choiceB.mediaItem && choiceB.mediaItem.releaseDate) {
-                                <span>({{ choiceB.mediaItem.releaseDate | date:'yyyy'}})</span>
-                            }
-                        </p>
-                    </mat-card-content>
-                </mat-card>
-            </section>
-        }
+                </div>
+            </div>
 
-        <!-- Genre Selection (Round 2) -->
-        @if (!isGameOver && currentRound === 2) {
-            <div class="genre-selection-container" [@fadeAnimation]>
-                <div class="checkbox-container">
-                    <ul class="genre-list">
-                        @for (genre of genresSet; track genre) {
-                            <li [@genreAnimation]>
-                                <mat-card class="genre-card" [class.selected]="userSelectedGenres.has(genre)" (click)="onGenreSelect(genre)">
-                                    <mat-card-content>
-                                        <mat-checkbox color="primary" [checked]="userSelectedGenres.has(genre)" (change)="onGenreSelect(genre)">
-                                            <span class="checkbox-text">{{ genre }}</span>
-                                        </mat-checkbox>
-                                    </mat-card-content>
-                                </mat-card>
-                            </li>
+            <!-- Right Column: Ranking Slots (Target) -->
+            <div class="ranking-section">
+                <div class="ranking-panel glass-panel">
+                    <div class="ranking-header">
+                        <h3 class="ranking-title">
+                            <mat-icon class="trophy-icon">emoji_events</mat-icon>
+                            Your Top Picks
+                        </h3>
+                        <span class="slots-badge">{{ requiredSlots }} slots required</span>
+                    </div>
+
+                    <div class="ranking-slots" cdkDropList #rankingDropList="cdkDropList"
+                         [cdkDropListData]="rankedItems"
+                         [cdkDropListConnectedTo]="[shortlistDropList]"
+                         (cdkDropListDropped)="onDrop($event)">
+                        @for (slot of rankingSlots; track slot.rank; let i = $index) {
+                            <div class="ranking-slot" [class.filled]="slot.item" [class.rank-one]="slot.rank === 1">
+                                <div class="rank-number">{{ slot.rank }}</div>
+                                @if (slot.item) {
+                                    <!-- Filled State -->
+                                    <div class="ranked-card" cdkDrag>
+                                        <div class="drag-handle" cdkDragHandle>
+                                            <mat-icon>drag_indicator</mat-icon>
+                                        </div>
+                                        <div class="ranked-poster" 
+                                             [style.background-image]="'url(' + (slot.item.posterPath ? TMDB_IMAGE_BASE_URL_300 + slot.item.posterPath : 'assets/images/poster-not-found.png') + ')'">
+                                        </div>
+                                        <div class="ranked-info">
+                                            <h4 class="ranked-title">{{ slot.item.title }}</h4>
+                                            <p class="ranked-meta">{{ slot.item.releaseDate | date:'yyyy' }}</p>
+                                        </div>
+                                        <button mat-icon-button class="remove-button" (click)="removeFromRanking(i)">
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                    </div>
+                                } @else {
+                                    <!-- Empty State -->
+                                    <div class="empty-slot" cdkDrag>
+                                        <mat-icon class="empty-icon">add_circle</mat-icon>
+                                        <p class="empty-text">Drag your #{{ slot.rank }} choice here</p>
+                                    </div>
+                                }
+                            </div>
                         }
-                    </ul>
+                    </div>
 
-                    <button mat-raised-button color="primary" class="submit-button" (click)="submitGenreSelection()" [disabled]="userSelectedGenres.size === 0">
-                        Continue with {{ userSelectedGenres.size }} genre{{ userSelectedGenres.size !== 1 ? 's' : '' }}
-                    </button>
+                    <!-- Action Footer -->
+                    <div class="action-footer">
+                        @if (isRankingComplete()) {
+                            <button mat-raised-button color="primary" class="submit-button" (click)="submitVotes()">
+                                <mat-icon>how_to_vote</mat-icon>
+                                Cast My Ballots
+                            </button>
+                        } @else {
+                            <button mat-button class="submit-button disabled" disabled>
+                                <mat-icon>lock_clock</mat-icon>
+                                Complete Ranking to Submit
+                            </button>
+                            <p class="footer-hint">
+                                {{ requiredSlots - rankedItems.length }} more selection{{ (requiredSlots - rankedItems.length) !== 1 ? 's' : '' }} needed
+                            </p>
+                        }
+                    </div>
                 </div>
             </div>
-        }
+        </div>
 
-        <!-- Game Results -->
-        @if (isGameOver) {
-            <div class="results-container" [@celebrateAnimation]>
-                <div class="winner-announcement">
-                    <h2>Results Ready!</h2>
-                    <p>We've found your perfect picks:</p>
-                </div>
-                <mat-card class="mat-card results-card">
-                    <mat-card-content class="mat-card-content">
-                        <app-media-table-view [mediaItems]="rankings"/>
-                    </mat-card-content>
-                </mat-card>
-                <div class="game-summary">
-                    <p>You compared {{ mediaItems.length }} titles across {{ getRoundDescription() }}</p>
-                    <button mat-raised-button color="primary" (click)="restartGame()">Play Again</button>
+        <!-- Waiting State (After Submission) -->
+        @if (hasSubmitted) {
+            <div class="waiting-overlay" [@celebrateAnimation]>
+                <div class="waiting-card glass-panel">
+                    <div class="waiting-animation">
+                        <mat-icon class="popcorn-icon">local_movies</mat-icon>
+                    </div>
+                    <h2 class="waiting-title">Votes Submitted!</h2>
+                    <p class="waiting-text">Waiting for other members to finish voting...</p>
+                    <div class="waiting-progress">
+                        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                    </div>
                 </div>
             </div>
         }
@@ -146,5 +162,8 @@
         <mat-icon class="empty-icon">movie_filter</mat-icon>
         <h2>No Media Available</h2>
         <p>There are no items to choose from in your collection.</p>
+        <button mat-raised-button color="primary" routerLink="/group/overview">
+            Return to Groups
+        </button>
     </div>
 }

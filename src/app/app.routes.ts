@@ -64,6 +64,18 @@ export const routes: Routes = [
     children: [
       { path: 'overview', component: GroupOverviewComponent },
       { path: 'detail/:groupId', component: GroupDetailComponent },
+      { 
+        path: 'create', 
+        loadComponent: () => import('./features/group/create-group/create-group.component').then(m => m.CreateGroupComponent) 
+      },
+      { 
+        path: 'setup', 
+        loadComponent: () => import('./features/group/group-setup/group-setup.component').then(m => m.GroupSetupComponent) 
+      },
+      { 
+        path: 'voting/:groupId', 
+        loadComponent: () => import('./features/group/choosing-game/choosing-game.component').then(m => m.ChoosingGameComponent) 
+      },
       { path: '', pathMatch: 'full', redirectTo: 'overview' }
     ]
   },

@@ -1,79 +1,155 @@
 <main>
     <mat-card class="list-card">
         @if (groupData.name) {
-            <div class="list-card-header">
-                <div class="list-name-container">
+            <!-- Hero Section: Title & Code -->
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="status-badges">
+                        <span class="badge badge-primary">Lobby</span>
+                        @if (!groupData.hasVoted) {
+                            <span class="badge badge-secondary">Waiting for Votes</span>
+                        } @else {
+                            <span class="badge badge-secondary">Voting Complete</span>
+                        }
+                    </div>
+                    
                     @if (!isEditing) {
-                        <h1>
+                        <h1 class="group-title">
                             <fa-icon [icon]="faUsers"></fa-icon>
                             {{ groupData.name }}
                         </h1>
                     }
-                    @if (groupData.isAdmin) {
-                        @if (!isEditing) {
-                            <div>
-                                <button mat-icon-button (click)="enterEditMode()">
-                                    <mat-icon>edit</mat-icon>
-                                </button>
-                            </div>
-                        }
-                        @if (isEditing) {
-                            <div class="list-card-editing">
-                                <mat-form-field appearance="outline">
-                                    <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (keyup)="replaceSpacesWithUnderscores($event)" />
-                                </mat-form-field>
-                                <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
-                                    <mat-icon>done</mat-icon>
-                                </button>
-                                <button mat-icon-button (click)="isEditing = false">
-                                    <mat-icon>clear</mat-icon>
-                                </button>
-                            </div>
-                        }
+                    @if (isEditing) {
+                        <div class="title-editing">
+                            <mat-form-field appearance="outline">
+                                <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
+                                    [ngModelOptions]="{ standalone: true }"
+                                    (keyup)="replaceSpacesWithUnderscores($event)" />
+                            </mat-form-field>
+                            <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
+                                <mat-icon>done</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="isEditing = false">
+                                <mat-icon>clear</mat-icon>
+                            </button>
+                        </div>
+                    }
+                    
+                    @if (!groupData.hasVoted) {
+                        <p class="waiting-status">
+                            <span class="pulse-indicator">
+                                <span class="pulse-ring"></span>
+                                <span class="pulse-dot"></span>
+                            </span>
+                            Waiting for members to vote...
+                        </p>
                     }
                 </div>
-                <button class="group-code" (click)="copyGroupCode($event, groupData.code)" (keydown.enter)="copyGroupCode($event, groupData.code)" tabindex="0" matTooltip="Click to copy">
-                    Code: {{ groupData.code }}
-                </button>
+
+                <!-- Join Code Card -->
+                <div class="join-code-card glass-panel">
+                    <p class="join-code-label">Join Code</p>
+                    <h2 class="join-code">{{ groupData.code }}</h2>
+                    <div class="join-code-actions">
+                        <button mat-button class="secondary-button" (click)="showQRCode()">
+                            <mat-icon>qr_code_2</mat-icon>
+                            <span>Show QR</span>
+                        </button>
+                        <button mat-raised-button color="primary" class="primary-button" (click)="copyLink()">
+                            <mat-icon>content_copy</mat-icon>
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Participants Section -->
+            <div class="participants-section">
+                <div class="participants-header">
+                    <h3 class="participants-title">
+                        Participants
+                        <span class="participants-count">{{ groupMembers.length }}</span>
+                    </h3>
+                    @if (groupData.isAdmin) {
+                        <button mat-button class="manage-button" (click)="manageInvites()">
+                            Manage Invites
+                        </button>
+                        <button mat-icon-button (click)="enterEditMode()" matTooltip="Edit Group Name">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    }
+                </div>
+
+                <!-- Members Grid -->
+                <div class="members-grid">
+                    @for (member of groupMembers; track member.id) {
+                        <div class="member-card glass-panel" [class.host-card]="member.isHost">
+                            @if (member.isHost && groupData.isAdmin) {
+                                <div class="host-badge" title="Host">
+                                    <mat-icon>star</mat-icon>
+                                </div>
+                            }
+                            
+                            <div class="member-avatar-container">
+                                <div class="member-avatar" [style.background-image]="'url(' + getMemberAvatar(member) + ')'">
+                                </div>
+                                @if (member.isReady) {
+                                    <div class="ready-badge">
+                                        <mat-icon>check</mat-icon>
+                                    </div>
+                                }
+                            </div>
+                            
+                            <div class="member-info">
+                                <p class="member-name">{{ member.username }}</p>
+                                <p class="member-status" [class.ready]="member.isReady">
+                                    @if (member.isHost && groupData.isAdmin) {
+                                        <span>Host • </span>
+                                    }
+                                    {{ member.isReady ? 'Ready' : 'Joining...' }}
+                                </p>
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Empty Slots -->
+                    @for (slot of [1, 2]; track slot) {
+                        <div class="member-card empty-slot">
+                            <div class="empty-avatar">
+                                <mat-icon>person_add</mat-icon>
+                            </div>
+                            <p class="empty-text">Waiting...</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Action Buttons Section -->
+            <div class="actions-section">
+                <div class="actions-info">
+                    <p class="actions-title">Ready to start?</p>
+                    <p class="actions-subtitle">{{ getReadyCount() }}/{{ groupMembers.length }} members are ready.</p>
+                </div>
+                
+                <div class="actions-buttons">
+                    @if (groupData.isAdmin && hasMediaWithVotes()) {
+                        <button mat-stroked-button class="secondary-action" (click)="resetVotes()">
+                            <mat-icon>restart_alt</mat-icon>
+                            Reset Votes
+                        </button>
+                    }
+                    @if (!groupData.hasVoted) {
+                        <button mat-raised-button color="primary" class="primary-action" (click)="startVoting()">
+                            <mat-icon>play_arrow</mat-icon>
+                            Start Voting
+                        </button>
+                    }
+                </div>
             </div>
         }
-
-        <mat-card-content class="group-content">
-            @if (groupMembers && groupMembers.length > 0) {
-                <mat-expansion-panel class="members-panel">
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <div class="members-container">
-                                <h2>Members ({{ groupMembers.length }})</h2>
-                            </div>
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <mat-chip-listbox>
-                        @for (member of groupMembers; track member.id) {
-                            <mat-chip color="primary">
-                                {{ member.username }}
-                            </mat-chip>
-                        }
-                    </mat-chip-listbox>
-                </mat-expansion-panel>
-            }
-
-            @if (groupData.isAdmin && hasMediaWithVotes()) {
-                <button mat-raised-button 
-                    color="primary" 
-                    (click)="resetVotes()"
-                    class="reset-votes-button">
-                    Reset the votes
-                </button>
-            }
-
-            @if (!groupData.hasVoted) {
-                <app-choosing-game />
-            } @else {
-                <app-media-table-view [mediaItems]="groupMedia" />
-            }
-        </mat-card-content>
     </mat-card>
 </main>

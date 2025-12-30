@@ -1,0 +1,217 @@
+<section class="group-setup-container">
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <button class="back-button" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-text">Back to Search</span>
+      </button>
+      <h1 class="page-title">Finalize Event Details</h1>
+      <p class="page-subtitle">Lock in the date and invite your crew. Once you're ready, launch the voting session.</p>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="form-grid">
+      <!-- Date & Time Section -->
+      <section class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined section-icon">calendar_month</span>
+          Date & Time
+        </h3>
+
+        <div class="calendar-card">
+          <!-- Calendar Header -->
+          <div class="calendar-header">
+            <h4 class="calendar-month">{{ currentMonthName }}</h4>
+            <div class="calendar-nav">
+              <button class="nav-btn" (click)="previousMonth()" type="button">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              <button class="nav-btn" (click)="nextMonth()" type="button">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div class="calendar-grid">
+            @for (day of weekDays; track day) {
+              <div class="calendar-weekday">{{ day }}</div>
+            }
+            @for (day of calendarDays; track $index) {
+              @if (day === null) {
+                <div class="calendar-day empty"></div>
+              } @else {
+                <button 
+                  class="calendar-day"
+                  [class.selected]="isSelectedDay(day)"
+                  [class.today]="isToday(day)"
+                  [class.past]="isPastDay(day)"
+                  [disabled]="isPastDay(day)"
+                  (click)="selectDate(day)"
+                  type="button"
+                >
+                  {{ day }}
+                  @if (isToday(day)) {
+                    <span class="today-indicator"></span>
+                  }
+                </button>
+              }
+            }
+          </div>
+
+          <!-- Time Selection -->
+          <div class="time-selection">
+            <span class="time-label" id="time-label">Start Time</span>
+            <div class="time-inputs" role="group" aria-labelledby="time-label">
+              <div class="time-select-wrapper">
+                <select 
+                  class="time-select" 
+                  [(ngModel)]="startTime"
+                >
+                  @for (time of timeOptions; track time) {
+                    <option [value]="time">{{ formatTime(time) }}</option>
+                  }
+                </select>
+                <span class="material-symbols-outlined select-arrow">expand_more</span>
+              </div>
+              <span class="time-separator">to</span>
+              <div class="time-select-wrapper">
+                <select 
+                  class="time-select" 
+                  [(ngModel)]="endTime"
+                >
+                  @for (time of timeOptions; track time) {
+                    <option [value]="time">{{ formatTime(time) }}</option>
+                  }
+                </select>
+                <span class="material-symbols-outlined select-arrow">expand_more</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Guest List Section -->
+      <section class="form-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined section-icon">group</span>
+            The Guest List
+          </h3>
+          <span class="guest-count">{{ guestCount }} Attending</span>
+        </div>
+
+        <div class="guest-card">
+          <!-- Add Guest Input -->
+          <div class="add-guest-form">
+            <div class="email-input-wrapper">
+              <span class="material-symbols-outlined input-icon">alternate_email</span>
+              <input 
+                type="email" 
+                class="email-input" 
+                placeholder="Invite by email..."
+                [(ngModel)]="guestEmail"
+                (keydown.enter)="addGuest()"
+              />
+            </div>
+            <button class="add-btn" (click)="addGuest()" type="button">
+              <span class="material-symbols-outlined">add</span>
+              Add
+            </button>
+          </div>
+
+          <!-- Guest List -->
+          <div class="guest-list">
+            @for (guest of guests; track guest.id) {
+              <div class="guest-item" [class.is-host]="guest.isHost">
+                <div class="guest-avatar">{{ guest.initials }}</div>
+                <div class="guest-info">
+                  <h5 class="guest-name">{{ guest.name }}{{ guest.isHost ? ' (You)' : '' }}</h5>
+                  @if (guest.isHost) {
+                    <p class="guest-role host">Host</p>
+                  } @else {
+                    <p class="guest-email">{{ guest.email }}</p>
+                  }
+                </div>
+                @if (guest.isHost) {
+                  <span class="material-symbols-outlined host-badge">verified_user</span>
+                } @else {
+                  @if (guest.status === 'pending') {
+                    <span class="status-badge pending">Pending</span>
+                  }
+                  <button 
+                    class="remove-btn" 
+                    (click)="removeGuest(guest.id)"
+                    type="button"
+                  >
+                    <span class="material-symbols-outlined">close</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Copy Link Button -->
+          <div class="copy-link-section">
+            <button class="copy-link-btn" (click)="copyInviteLink()" type="button">
+              <span class="material-symbols-outlined">link</span>
+              Copy Invite Link
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Sidebar - Ballot Summary -->
+  <aside class="ballot-sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <h3 class="sidebar-title">Ballot Summary</h3>
+        <div class="movie-count">{{ selectedMovies.length }} Movies</div>
+      </div>
+
+      <!-- Movie List -->
+      <div class="movie-list">
+        @for (movie of selectedMovies; track movie.tmdbId) {
+          <div class="movie-item">
+            <div 
+              class="movie-poster" 
+              [style.background-image]="'url(' + getPosterUrl(movie.posterPath) + ')'"
+            ></div>
+            <div class="movie-info">
+              <h5 class="movie-title">{{ movie.title }}</h5>
+              <p class="movie-year">{{ getYear(movie.releaseDate) }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="sidebar-footer">
+        <div class="launch-note">
+          <span class="note-highlight">Note:</span> Invitations will be sent to all {{ guestCount }} guests immediately upon launch.
+        </div>
+        <button 
+          class="launch-btn" 
+          (click)="launchVotingSession()"
+          [disabled]="isSubmitting || !selectedDate"
+          type="button"
+        >
+          @if (isSubmitting) {
+            <span class="material-symbols-outlined spin">progress_activity</span>
+            Creating...
+          } @else {
+            <span class="material-symbols-outlined">rocket_launch</span>
+            Launch Voting Session
+          }
+        </button>
+        <button class="draft-btn" (click)="saveDraft()" type="button">
+          Save as Draft
+        </button>
+      </div>
+    </div>
+  </aside>
+</section>

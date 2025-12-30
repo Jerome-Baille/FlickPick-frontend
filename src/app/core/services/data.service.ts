@@ -100,7 +100,14 @@ export class DataService {
     return this.http.get(`${this.mediaURL}/list/My_Personal_List`);
   }
 
-  createGroup(groupData: { name: string, listName: string }) {
+  createGroup(groupData: { 
+    name: string; 
+    listName: string;
+    eventDate?: string;
+    startTime?: string;
+    endTime?: string;
+    invitedEmails?: string[];
+  }) {
     return this.http.post(`${this.groupURL}`, groupData);
   }
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 import { CommonModule } from '@angular/common';
@@ -8,8 +8,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { MediaTableViewComponent } from 'src/app/shared/components/media-table-view/media-table-view.component';
 import { DataService } from 'src/app/core/services/data.service';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
@@ -32,13 +32,12 @@ interface MediaItem {
   sumOfRatings?: number;
 }
 
-interface Choice {
-  title: string;
-  condition: string;
-  mediaItem?: MediaItem;
+interface RankingSlot {
+  rank: number;
+  item: MediaItem | null;
 }
 
-interface GroupMediaResponse {
+interface GroupMediaResponse{
   mediaItems: {
     MediaItems: MediaItem[];
   };
@@ -57,7 +56,7 @@ interface VoteResponse {
       MatProgressBarModule,
       MatIconModule,
       MatButtonModule,
-      MediaTableViewComponent
+      DragDropModule
     ],
     templateUrl: './choosing-game.component.html',
     styleUrls: ['./choosing-game.component.scss'],
@@ -72,29 +71,11 @@ interface VoteResponse {
           animate('400ms ease-out', style({ opacity: 0 }))
         ])
       ]),
-      // Card selection animation
+      // Card animation for movie cards
       trigger('cardAnimation', [
-        state('A', style({
-          transform: 'translateX(-10px)'
-        })),
-        state('B', style({
-          transform: 'translateX(10px)'
-        })),
-        transition('* => A', [
-          animate('300ms ease-out')
-        ]),
-        transition('* => B', [
-          animate('300ms ease-out')
-        ]),
-        transition('* => null', [
-          animate('300ms ease-in')
-        ])
-      ]),
-      // Genre animation for staggered entry
-      trigger('genreAnimation', [
         transition(':enter', [
-          style({ opacity: 0, transform: 'translateY(20px)' }),
-          animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          style({ opacity: 0, transform: 'scale(0.9)' }),
+          animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
         ])
       ]),
       // Celebration animation for game completion
@@ -110,342 +91,120 @@ interface VoteResponse {
 })
 export class ChoosingGameComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private dataService = inject(DataService);
   private tmdbService = inject(TmdbService);
   private snackbarService = inject(SnackbarService);
 
   TMDB_IMAGE_BASE_URL_300 = environment.TMDB_IMAGE_BASE_URL_300;
-  mediaItems!: MediaItem[];
-  selectedChoice: string | null = null;
-  choiceA: Choice = { title: 'Movies', condition: 'mediaItem.mediaType === "movie"' };
-  choiceB: Choice = { title: 'TV Shows', condition: 'mediaItem.mediaType === "tv"' };
-  isGameOver = false;
-  currentRound = 1;
+  
+  // Data arrays
+  mediaItems: MediaItem[] = [];
+  availableItems: MediaItem[] = [];
+  rankedItems: MediaItem[] = [];
   displayedItems: MediaItem[] = [];
-  winningItems: MediaItem[] = [];
-  genresSet = new Set<string>();
-  userSelectedGenres = new Set<string>();
-  rankings: MediaItem[] = [];
-  filteredMediaItems: MediaItem[] = [];
+  
+  // Ranking configuration
+  requiredSlots = 3;
+  rankingSlots: RankingSlot[] = [];
+  
+  // State management
+  hasSubmitted = false;
   groupId!: number;
-  initialMediaItemCount = 0;
-
-  // Get the step description without round number
-  getRoundDescription(): string {
-    switch (this.currentRound) {
-      case 1:
-        return 'Choose media type preference';
-      case 2:
-        return 'Select your favorite genres';
-      default:
-        return 'Pick your favorite';
-    }
-  }
 
   ngOnInit() {
+    // Initialize ranking slots
+    for (let i = 1; i <= this.requiredSlots; i++) {
+      this.rankingSlots.push({ rank: i, item: null });
+    }
+
+    // Get group ID from route and load media items
     this.route.params.subscribe(params => {
-      this.groupId = params['groupId'];
-      this.dataService.getAllMediaItemsForUserInGroup(this.groupId).subscribe({
-        next: (data: unknown) => {
-          const response = data as GroupMediaResponse;
-          const mediaItems = response.mediaItems.MediaItems;
-          this.initialMediaItemCount = mediaItems.length;
-
-          // Create an array of observables to fetch runtime and genres for each media item
-          const fetchObservables: Observable<unknown>[] = mediaItems.map((mediaItem: MediaItem) => {
-            if (mediaItem.mediaType === 'movie') {
-              return this.tmdbService.getMovieDetails(mediaItem.tmdbId);
-            } else if (mediaItem.mediaType === 'tv') {
-              return this.tmdbService.getTVShowDetails(mediaItem.tmdbId);
-            }
-            return new Observable<null>();
-          });
-
-          // Use forkJoin to wait for all fetchObservables to complete
-          forkJoin(fetchObservables).subscribe((movieDetails: unknown[]) => {
-            // Assign runtime and genres to media items
-            mediaItems.forEach((mediaItem: MediaItem, index: number) => {
-              const details = movieDetails[index] as { runtime?: number; episode_run_time?: number[]; genres?: Genre[] };
-              if (mediaItem.mediaType === 'movie') {
-                mediaItem.runtime = details.runtime;
-                mediaItem.genres = details.genres;
-                this.updateGenresSet(mediaItem.genres || []);
-              } else if (mediaItem.mediaType === 'tv') {
-                mediaItem.runtime = details.episode_run_time?.[0];
-                mediaItem.genres = details.genres;
-                this.updateGenresSet(mediaItem.genres || []);
-              }
-            });
-
-            this.mediaItems = mediaItems;
-
-            // Initialize the game (you can customize this logic)
-            this.initializeGame();
-          });
-        },
-        error: (err: Error) => {
-          this.snackbarService.showError(err.message);
-        }
-      });
+      this.groupId = +params['groupId'];
+      this.loadMediaItems();
     });
   }
 
-  initializeGame() {
-    // Initialize points for media items
-    for (const mediaItem of this.mediaItems) {
-      mediaItem.points = 0;
-    }
-
-    // Check if all media items are of the same type to skip Round 1 if needed
-    const hasMovies = this.mediaItems.some(item => item.mediaType === 'movie');
-    const hasTVShows = this.mediaItems.some(item => item.mediaType === 'tv');
-    
-    // If all items are of the same type, skip to Round 2
-    if (hasMovies && !hasTVShows) {
-      this.selectedChoice = 'A'; // Movies
-      this.currentRound = 2;
-    } else if (!hasMovies && hasTVShows) {
-      this.selectedChoice = 'B'; // TV Shows
-      this.currentRound = 2;
-    }
-    
-    // Start the game
-    this.startRound();
+  loadMediaItems() {
+    this.dataService.getAllMediaItemsForUserInGroup(this.groupId).subscribe({
+      next: (data: unknown) => {
+        const response = data as GroupMediaResponse;
+        this.mediaItems = response.mediaItems.MediaItems;
+        
+        // Initialize points for all items
+        this.mediaItems.forEach(item => item.points = 0);
+        
+        // All items start as available for selection
+        this.availableItems = [...this.mediaItems];
+      },
+      error: (err: Error) => {
+        this.snackbarService.showError('Failed to load media items: ' + err.message);
+      }
+    });
   }
 
-  startRound() {
-    if (this.currentRound === 1) {
-      // The first round, select choices based on media type (movie vs TV)
-      this.displayedItems = this.mediaItems.slice();
-      // Update the choices for the first round
-      this.choiceA = { title: 'Movies', condition: 'mediaItem.mediaType === "movie"' };
-      this.choiceB = { title: 'TV Shows', condition: 'mediaItem.mediaType === "tv"' };
-    } else if (this.currentRound === 2) {
-      // Second round, filter by user-selected media type (movie or TV show)
-      this.displayedItems = this.mediaItems.filter((mediaItem: MediaItem) => {
-        if (this.selectedChoice === 'A' && mediaItem.mediaType === 'movie') {
-          return true;
-        } else if (this.selectedChoice === 'B' && mediaItem.mediaType === 'tv') {
-          return true;
-        }
-        return false;
-      });
-
-      if (this.displayedItems.length === 0) {
-        // No media items match the user's selection
-        this.snackbarService.showError('No media items match your selection');
-        return;
-      }
-
-      if (this.displayedItems.length === 1) {
-        // give one point to the winning media item
-        if (this.displayedItems[0]) {
-          this.displayedItems[0].points += 1;
-        }
-        this.isGameOver = true;
-        this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-
-        // Save the rankings to the database
-        this.saveVotes();
-
-        return;
+  onDrop(event: CdkDragDrop<MediaItem[]>) {
+    if (event.previousContainer === event.container) {
+      // Reordering within the same list
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      
+      // Update ranking slots if reordering in ranked items
+      if (event.container.data === this.rankedItems) {
+        this.updateRankingSlots();
       }
     } else {
-      // Subsequent rounds, use the remaining media items
-      this.displayedItems = this.filteredMediaItems.slice();
-    }
-
-    this.mediaSelection();
-  }
-
-  mediaSelection() {
-    if (this.currentRound > 2) {
-      this.displayedItems = this.filteredMediaItems;
-    }
-
-    // Check if there's only one media item left
-    if (this.displayedItems.length <= 1) {
-
-      if (this.winningItems.length > 1) {
-        this.displayedItems = this.winningItems;
-        this.winningItems = [];
-        this.currentRound++;
-      }
-
-      if (this.winningItems.length === 1) {
-        this.isGameOver = true;
-        this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-
-        // Save the rankings to the database
-        this.saveVotes();
-
-        return;
-      }
-
-      if (this.displayedItems.length === 1 && this.winningItems.length === 0) {
-        if (this.displayedItems[0]) {
-          this.displayedItems[0].points += 1;
-        }
-        this.isGameOver = true;
-        this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-
-        // Save the rankings to the database
-        this.saveVotes();
-        return;
+      // Moving between lists
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+      
+      // Update ranking slots
+      this.updateRankingSlots();
+      
+      // Limit ranked items to requiredSlots
+      if (this.rankedItems.length > this.requiredSlots) {
+        const overflow = this.rankedItems.splice(this.requiredSlots);
+        this.availableItems.push(...overflow);
       }
     }
+  }
 
-    // Select two random media items for the round
-    const [choice1, choice2] = this.selectRandomMediaItems(this.displayedItems);
-    this.choiceA.mediaItem = choice1;
-    this.choiceB.mediaItem = choice2;
+  updateRankingSlots() {
+    // Update the ranking slots with current ranked items
+    this.rankingSlots = this.rankingSlots.map((slot, index) => ({
+      rank: index + 1,
+      item: this.rankedItems[index] || null
+    }));
+  }
 
-    if (this.currentRound > 2) {
-      this.choiceA.title = choice1.title ?? '';
-      this.choiceB.title = choice2.title ?? '';
+  removeFromRanking(index: number) {
+    const item = this.rankedItems.splice(index, 1)[0];
+    if (item) {
+      this.availableItems.push(item);
     }
-
-    // Reset user choice and genres for the new round
-    this.selectedChoice = null;
-    this.userSelectedGenres.clear();
+    this.updateRankingSlots();
   }
 
-  selectRandomMediaItems(mediaItems: MediaItem[]): [MediaItem, MediaItem] {
-    // Implement logic to select two random media items for the round
-    const index1 = Math.floor(Math.random() * mediaItems.length);
-    let index2;
-    do {
-      index2 = Math.floor(Math.random() * mediaItems.length);
-    } while (index2 === index1);
-
-    return [mediaItems[index1], mediaItems[index2]];
+  isRankingComplete(): boolean {
+    return this.rankedItems.length === this.requiredSlots;
   }
 
-  makeChoice(choice: string) {
-    if (this.selectedChoice !== null) {
-      // User has already made a choice for this round
+  submitVotes() {
+    if (!this.isRankingComplete()) {
+      this.snackbarService.showError('Please complete all ranking slots before submitting');
       return;
     }
 
-    this.selectedChoice = choice;
-
-    if (this.currentRound === 1) {
-      // Add genres from all media items of the selected type to user-selected genres
-      const selectedMediaType = choice === 'A' ? 'movie' : 'tv';
-      
-      // Find all media items of the selected type
-      const selectedMediaItems = this.mediaItems.filter(item => item.mediaType === selectedMediaType);
-      
-      // Extract unique genres from the selected media items
-      for (const mediaItem of selectedMediaItems) {
-        if (mediaItem.genres) {
-          for (const genre of mediaItem.genres) {
-            this.userSelectedGenres.add(genre.name);
-          }
-        }
-      }
-    }
-
-    if (this.currentRound > 2) {
-      const winningMediaItem = choice === 'A' ? this.choiceA.mediaItem : this.choiceB.mediaItem;
-      if (winningMediaItem) {
-        winningMediaItem.points = (winningMediaItem.points ?? 0) + 1;
-        this.winningItems.push(winningMediaItem);
-        // Remove the winning media item from filteredMediaItems
-        this.filteredMediaItems = this.filteredMediaItems.filter(item => item !== winningMediaItem);
-      }
-
-      // Check if there's only one media item left
-      if (this.filteredMediaItems.length <= 1) {
-        this.mediaSelection();
-        return;
-      }
-    }
-
-    // Start the next round only if it's not round 3 with 2 or more items
-    if (!(this.currentRound === 3 && this.filteredMediaItems.length >= 2)) {
-      this.currentRound++;
-    }
-
-    // Update rankings and check if the game is over
-    this.updateRankings();
-    this.checkGameOver();
-  }
-
-  updateRankings() {
-    // Sort media items by points in descending order
-    this.rankings = [...this.mediaItems].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-  }
-
-  checkGameOver() {
-    if (this.isGameOver) {
-      // Game over logic
-      // Display rankings and the winning media item
-    } else {
-      // Continue to the next round
-      this.startRound();
-    }
-  }
-
-  updateGenresSet(genres: Genre[]): void {
-    // Update the genres set with unique genre names
-    for (const genre of genres) {
-      this.genresSet.add(genre.name);
-    }
-  }
-
-  onGenreSelect(genre: string) {
-    // Handle genre selection here
-    // Add the selected genre to the userSelectedGenres set
-    if (this.userSelectedGenres.has(genre)) {
-      this.userSelectedGenres.delete(genre); // Deselect genre if already selected
-    } else {
-      this.userSelectedGenres.add(genre); // Select genre
-    }
-  }
-
-  submitGenreSelection() {
-    // Filter media items by selected genres and media type
-    this.filteredMediaItems = this.mediaItems.filter((mediaItem: MediaItem) => {
-      // First filter by media type based on choice in round 1
-      if (this.selectedChoice === 'A' && mediaItem.mediaType !== 'movie') {
-        return false;
-      }
-      if (this.selectedChoice === 'B' && mediaItem.mediaType !== 'tv') {
-        return false;
-      }
-      
-      // Then filter by selected genres
-      for (const genre of mediaItem.genres || []) {
-        if (this.userSelectedGenres.has(genre.name)) {
-          return true;
-        }
-      }
-      return false;
+    // Assign points based on ranking (higher rank = more points)
+    this.rankedItems.forEach((item, index) => {
+      item.points = this.requiredSlots - index;
     });
 
-    // Start the next round
-    this.currentRound++;
-
-    this.mediaSelection();
-  }
-
-  // Calculate progress percentage for the progress bar
-  getGameProgress(): number {
-    const totalItems = this.initialMediaItemCount;
-    const remainingItems = this.filteredMediaItems.length + this.winningItems.length;
-    
-    if (totalItems === 0) return 0;
-    
-    // Calculate how far along in the process we are
-    const progress = ((totalItems - remainingItems) / totalItems) * 100;
-    return progress;
-  }
-
-  // Save votes to backend
-  saveVotes() {
-    // Save the rankings to the database
-    this.rankings.forEach((mediaItem: MediaItem) => {
+    // Save votes to backend
+    const votePromises = this.rankedItems.map((mediaItem: MediaItem) => {
       const data = {
         groupId: this.groupId,
         tmdbId: mediaItem.tmdbId,
@@ -453,59 +212,20 @@ export class ChoosingGameComponent implements OnInit {
         rating: mediaItem.points || 0
       };
 
-      this.dataService.createVote(data).subscribe({
-        next: (response: unknown) => {
-          const res = response as VoteResponse;
-          this.snackbarService.showSuccess(res.message);
-        },
-        error: (err: Error) => {
-          this.snackbarService.showError(err.message);
-        }
-      });
+      return this.dataService.createVote(data).toPromise();
+    });
+
+    Promise.all(votePromises).then(() => {
+      this.hasSubmitted = true;
+      this.snackbarService.showSuccess('Your votes have been submitted!');
+      
+      // Navigate back to group detail after a delay
+      setTimeout(() => {
+        this.router.navigate(['/group/detail', this.groupId]);
+      }, 3000);
+    }).catch((err: Error) => {
+      this.snackbarService.showError('Failed to submit votes: ' + err.message);
     });
   }
 
-  // Restart the game
-  restartGame() {
-    // First, delete existing votes for this group before starting a new game
-    this.deleteUserVotesForGroup().subscribe({
-      next: () => {
-        this.isGameOver = false;
-        this.currentRound = 1;
-        this.selectedChoice = null;
-        this.userSelectedGenres.clear();
-        this.filteredMediaItems = [];
-        this.winningItems = [];
-        
-        // Reset points for all media items
-        for (const mediaItem of this.mediaItems) {
-          mediaItem.points = 0;
-        }
-        
-        // Start from beginning
-        this.initializeGame();
-      },
-      error: (err: Error) => {
-        this.snackbarService.showError('Failed to reset previous votes: ' + err.message);
-        // Continue with restarting the game even if deleting votes failed
-        this.isGameOver = false;
-        this.currentRound = 1;
-        this.selectedChoice = null;
-        this.userSelectedGenres.clear();
-        this.filteredMediaItems = [];
-        this.winningItems = [];
-        
-        for (const mediaItem of this.mediaItems) {
-          mediaItem.points = 0;
-        }
-        
-        this.initializeGame();
-      }
-    });
-  }
-
-  // Delete all votes for the current user in this group
-  deleteUserVotesForGroup() {
-    return this.dataService.deleteVotesInGroup(this.groupId);
-  }
 }

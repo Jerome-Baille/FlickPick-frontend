@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { Router, RouterLink } from '@angular/router';
 import { DataService } from 'src/app/core/services/data.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
@@ -80,7 +79,7 @@ export class DashboardComponent implements OnInit {
   private dataService = inject(DataService);
   private userService = inject(UserService);
   private snackbarService = inject(SnackbarService);
-  private dialog = inject(MatDialog);
+  private router = inject(Router);
 
   userName = '';
   pendingVotes = 0;
@@ -193,50 +192,6 @@ export class DashboardComponent implements OnInit {
   }
 
   createGroup() {
-    const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
-      width: '800px',
-      data: {
-        formType: 'all'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((result: DialogResult | undefined) => {
-      if (result) {
-        const listData = {
-          name: result.listName,
-          selectedMedia: result.selectedMedia.map((media: SelectedMedia) => ({
-            tmdbId: media.tmdbId,
-            mediaType: media.mediaType,
-            title: media.title,
-            releaseDate: media.releaseDate,
-            posterPath: media.posterPath,
-            overview: media.overview
-          }))
-        };
-
-        this.dataService.createList(listData).subscribe({
-          next: () => {
-            const groupData = {
-              name: result.name,
-              listName: result.listName
-            };
-
-            this.dataService.createGroup(groupData).subscribe({
-              next: (groupResponse: unknown) => {
-                const res = groupResponse as ApiResponse;
-                this.snackbarService.showSuccess(`Group created successfully. Share this code with others to join: ${res.code}`);
-                this.loadGroups(); // Refresh groups
-              },
-              error: (err: Error) => {
-                this.snackbarService.showError(err.message);
-              }
-            });
-          },
-          error: (err: Error) => {
-            this.snackbarService.showError(err.message);
-          }
-        });
-      }
-    });
+    this.router.navigate(['/group/create']);
   }
 }
