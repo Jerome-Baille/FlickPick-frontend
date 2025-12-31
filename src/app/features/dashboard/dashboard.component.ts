@@ -7,7 +7,6 @@ import { Router, RouterLink } from '@angular/router';
 import { DataService } from 'src/app/core/services/data.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
-import { CreateCollectionModalComponent } from 'src/app/shared/components/create-collection-modal/create-collection-modal.component';
 import { User } from 'src/app/shared/models/User';
 import { Group } from 'src/app/shared/models/Group';
 
@@ -21,14 +20,6 @@ interface GroupItem {
   status?: 'voting' | 'selecting' | 'scheduled' | 'completed';
   nextSession?: string;
   scheduledMovie?: string;
-}
-
-interface MediaItem {
-  id: number;
-  title: string;
-  mediaType: string;
-  tmdbId: number;
-  posterPath?: string;
 }
 
 interface UpcomingSession {
@@ -84,9 +75,7 @@ export class DashboardComponent implements OnInit {
   userName = '';
   pendingVotes = 0;
   recentGroups: GroupItem[] = [];
-  favoriteMedia: MediaItem[] = [];
   upcomingSessions: UpcomingSession[] = [];
-  watchedCount = 0;
 
   // Placeholder cover images for groups
   private readonly groupCovers = [
@@ -99,7 +88,6 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.loadUserProfile();
     this.loadGroups();
-    this.loadFavorites();
   }
 
   private loadUserProfile() {
@@ -128,35 +116,6 @@ export class DashboardComponent implements OnInit {
           this.pendingVotes = this.recentGroups.filter(g => g.status === 'voting').length;
         } else {
           this.recentGroups = [];
-        }
-      },
-      error: (err) => this.snackbarService.showError(err.message)
-    });
-  }
-
-  private loadFavorites() {
-    this.dataService.getUserFavorites().subscribe({
-      next: (response: unknown) => {
-        const favorites = response as MediaItem[];
-        if (favorites && Array.isArray(favorites) && favorites.length > 0) {
-          this.favoriteMedia = favorites.slice(0, 3);
-          this.watchedCount = favorites.length;
-          
-          // Create upcoming sessions from favorites (placeholder)
-          if (favorites.length > 0) {
-            this.upcomingSessions = [
-              {
-                groupName: this.recentGroups[0]?.name || 'Movie Night',
-                movieTitle: favorites[0].title,
-                posterPath: favorites[0].posterPath,
-                dateTime: 'Tonight · 8:00 PM',
-                isWinner: true,
-                status: 'confirmed'
-              }
-            ];
-          }
-        } else {
-          this.favoriteMedia = [];
         }
       },
       error: (err) => this.snackbarService.showError(err.message)

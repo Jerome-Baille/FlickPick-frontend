@@ -1,5 +1,6 @@
 import { User } from './User';
 import { List } from './List';
+import { Event } from './Event';
 
 export interface GroupUser {
     uuid: number;
@@ -16,6 +17,7 @@ export interface Group {
     isAdmin?: boolean;  // Optional boolean to indicate if current user is admin
     Users: User[];
     Lists: List[];
+    Events?: Event[];   // Movie night events under this group
     createdAt: string;
     updatedAt: string;
 }

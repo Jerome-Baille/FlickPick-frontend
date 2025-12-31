@@ -20,17 +20,4 @@ export interface User {
     updatedAt?: string;
     Lists?: UserList[];
     Groups?: UserGroup[];
-    Favorites?: {
-        id: number;
-        mediaItemId: number;
-        uuid: number;
-        createdAt: string;
-        updatedAt: string;
-        MediaItem: {
-            id: number;
-            title: string;
-            mediaType: string;
-            tmdbId: number;
-        };
-    }[];
 }

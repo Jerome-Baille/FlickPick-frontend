@@ -10,7 +10,6 @@ import { ProfileDetailComponent } from './features/profile/profile-detail/profil
 import { ProfileListComponent } from './features/profile/profile-list/profile-list.component';
 import { GroupOverviewComponent } from './features/group/group-overview/group-overview.component';
 import { GroupDetailComponent } from './features/group/group-detail/group-detail.component';
-import { FavoriteComponent } from './features/favorite/favorite.component';
 import { environment } from 'src/environments/environment';
 
 // Build auth children routes conditionally
@@ -78,11 +77,6 @@ export const routes: Routes = [
       },
       { path: '', pathMatch: 'full', redirectTo: 'overview' }
     ]
-  },
-  {
-    path: 'favorite',
-    component: FavoriteComponent,
-    canActivate: [authGuard]
   },
   {
     path: '',

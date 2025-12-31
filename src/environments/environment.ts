@@ -11,6 +11,7 @@ export const environment = {
   authURL: `${apiBaseURL}/auth`,
   userURL: `${apiBaseURL}/user`,
   groupURL: `${apiBaseURL}/group`,
+  eventURL: `${apiBaseURL}/event`,
   listURL: `${apiBaseURL}/list`,
   mediaURL: `${apiBaseURL}/media`,
   voteURL: `${apiBaseURL}/vote`,

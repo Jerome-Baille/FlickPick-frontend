@@ -1,10 +1,15 @@
-@if (displayedItems.length !== 0) {
+@if (isLoading) {
+    <div class="empty-state">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <p>Loading media...</p>
+    </div>
+} @else if (mediaItems.length !== 0) {
     <div class="voting-container" [@fadeAnimation]>
         <!-- Page Heading -->
         <div class="voting-header">
             <div class="header-content">
                 <h1 class="header-title">
-                    Rank Your <span class="highlight">Favorites</span>
+                    Rank Your <span class="highlight">Shortlist</span>
                 </h1>
                 <p class="header-subtitle">
                     Drag movies from the shortlist into your top 3 slots. The group's combined ranking will decide what we watch!
@@ -63,12 +68,22 @@
                                     <span>{{ item.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</span>
                                 </div>
                             </div>
-                            <!-- Hover Action Overlay -->
-                            <div class="drag-overlay">
-                                <span class="drag-cta">
-                                    <mat-icon>drag_pan</mat-icon> Drag to Rank
-                                </span>
-                            </div>
+                            <!-- Desktop: Hover Action Overlay -->
+                            @if (!isMobile) {
+                                <div class="drag-overlay">
+                                    <span class="drag-cta">
+                                        <mat-icon>drag_pan</mat-icon> Drag to Rank
+                                    </span>
+                                </div>
+                            }
+                            <!-- Mobile: Assign Button -->
+                            @if (isMobile) {
+                                <button mat-raised-button color="primary" class="mobile-assign-btn" 
+                                        (click)="openRankSelector(item)">
+                                    <mat-icon>add</mat-icon>
+                                    Assign Rank
+                                </button>
+                            }
                         </div>
                     }
                 </div>
@@ -95,9 +110,11 @@
                                 @if (slot.item) {
                                     <!-- Filled State -->
                                     <div class="ranked-card" cdkDrag>
-                                        <div class="drag-handle" cdkDragHandle>
-                                            <mat-icon>drag_indicator</mat-icon>
-                                        </div>
+                                        @if (!isMobile) {
+                                            <div class="drag-handle" cdkDragHandle>
+                                                <mat-icon>drag_indicator</mat-icon>
+                                            </div>
+                                        }
                                         <div class="ranked-poster" 
                                              [style.background-image]="'url(' + (slot.item.posterPath ? TMDB_IMAGE_BASE_URL_300 + slot.item.posterPath : 'assets/images/poster-not-found.png') + ')'">
                                         </div>
@@ -105,15 +122,32 @@
                                             <h4 class="ranked-title">{{ slot.item.title }}</h4>
                                             <p class="ranked-meta">{{ slot.item.releaseDate | date:'yyyy' }}</p>
                                         </div>
+                                        <!-- Mobile Reorder Buttons -->
+                                        @if (isMobile) {
+                                            <div class="mobile-reorder-buttons">
+                                                <button mat-icon-button class="reorder-button" 
+                                                        [disabled]="i === 0"
+                                                        (click)="moveUp(i)"
+                                                        aria-label="Move up">
+                                                    <mat-icon>arrow_upward</mat-icon>
+                                                </button>
+                                                <button mat-icon-button class="reorder-button" 
+                                                        [disabled]="i === rankedItems.length - 1"
+                                                        (click)="moveDown(i)"
+                                                        aria-label="Move down">
+                                                    <mat-icon>arrow_downward</mat-icon>
+                                                </button>
+                                            </div>
+                                        }
                                         <button mat-icon-button class="remove-button" (click)="removeFromRanking(i)">
                                             <mat-icon>close</mat-icon>
                                         </button>
                                     </div>
                                 } @else {
                                     <!-- Empty State -->
-                                    <div class="empty-slot" cdkDrag>
+                                    <div class="empty-slot">
                                         <mat-icon class="empty-icon">add_circle</mat-icon>
-                                        <p class="empty-text">Drag your #{{ slot.rank }} choice here</p>
+                                        <p class="empty-text">{{ isMobile ? 'Tap a movie to assign' : 'Drag your #' + slot.rank + ' choice here' }}</p>
                                     </div>
                                 }
                             </div>

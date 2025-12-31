@@ -169,19 +169,9 @@ export class GroupDetailComponent {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                const updatedGroup = {
-                    listName: result.listName
-                }
-
-                this.dataService.updateGroup(this.groupData.id, updatedGroup).subscribe({
-                    next: (response: unknown) => {
-                        const res = response as ApiResponse;
-                        this.groupList = res.group?.Lists || [];
-                    },
-                    error: (err: Error) => {
-                        this.snackbarService.showError(err.message);
-                    }
-                });
+                // Note: List management is now done through events, not directly on groups
+                // This feature may need to be refactored to work with Events
+                this.snackbarService.showSuccess('List update feature coming soon with Events!');
             }
         })
     }

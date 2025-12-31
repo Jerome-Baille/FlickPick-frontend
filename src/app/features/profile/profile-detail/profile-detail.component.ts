@@ -61,8 +61,7 @@ export class ProfileDetailComponent {
 
     userProfile: User = {
         username: '',
-        Lists: [],
-        Favorites: []
+        Lists: []
     };
 
     // Icons

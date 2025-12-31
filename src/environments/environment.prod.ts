@@ -12,6 +12,7 @@ export const environment = {
   authURL: `${authBaseURL}/auth`,
   userURL: `${flickPickBaseURL}/user`,
   groupURL: `${flickPickBaseURL}/group`,
+  eventURL: `${flickPickBaseURL}/event`,
   listURL: `${flickPickBaseURL}/list`,
   mediaURL: `${flickPickBaseURL}/media`,
   voteURL: `${flickPickBaseURL}/vote`,

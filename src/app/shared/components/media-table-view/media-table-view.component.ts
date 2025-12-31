@@ -21,7 +21,7 @@ interface MediaItem {
   points?: number;
   sumOfRatings?: number;
   rating?: number;
-  groupId?: number;
+  eventId?: number;
   isAdmin?: boolean;
   ListMediaItem?: {
     ListId: number;
@@ -85,7 +85,7 @@ export class MediaTableViewComponent {
     const data: Media = {
       tmdbId: mediaItem.tmdbId,
       mediaType: mediaItem.mediaType,
-      groupId: mediaItem.groupId,
+      eventId: mediaItem.eventId,
       rating: rating
     };
 
@@ -102,7 +102,7 @@ export class MediaTableViewComponent {
 
   deleteRating(mediaItem: MediaItem): void {
     const data: Media = {
-      groupId: mediaItem.groupId,
+      eventId: mediaItem.eventId,
       tmdbId: mediaItem.tmdbId,
       mediaType: mediaItem.mediaType
     }

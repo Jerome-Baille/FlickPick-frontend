@@ -212,6 +212,15 @@
     }
 }
 
+.mobile-assign-btn {
+    margin: 0.75rem;
+    width: calc(100% - 1.5rem);
+    
+    mat-icon {
+        margin-right: 0.25rem;
+    }
+}
+
 .movie-poster {
     position: relative;
     aspect-ratio: 2/3;
@@ -491,6 +500,9 @@
     flex-shrink: 0;
     color: rgba(255, 255, 255, 0.4);
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     &:hover {
         background-color: rgba(255, 255, 255, 0.1);
@@ -501,6 +513,46 @@
         font-size: 20px;
         width: 20px;
         height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+// Mobile Reorder Buttons
+.mobile-reorder-buttons {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+
+.reorder-button {
+    width: 36px;
+    height: 36px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover:not(:disabled) {
+        background-color: rgba(249, 212, 6, 0.1);
+        color: var(--color-primary);
+    }
+    
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+    
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -712,4 +764,62 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+// Bottom Sheet Styles (Global)
+::ng-deep .rank-selector-bottom-sheet {
+    .mat-bottom-sheet-container {
+        background: linear-gradient(180deg, rgba(25, 23, 11, 0.98) 0%, rgba(18, 16, 8, 0.98) 100%);
+        backdrop-filter: blur(20px);
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-top: 2px solid rgba(249, 212, 6, 0.3);
+        color: white;
+        padding: 0;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+// Mobile optimizations
+@media (max-width: 767px) {
+    .movie-card {
+        cursor: default;
+        
+        &:active {
+            cursor: default;
+        }
+        
+        &.cdk-drag {
+            pointer-events: none;
+            
+            > * {
+                pointer-events: auto;
+            }
+        }
+    }
+    
+    .ranked-card.cdk-drag {
+        pointer-events: none;
+        
+        > * {
+            pointer-events: auto;
+        }
+    }
+    
+    .drag-overlay {
+        display: none !important;
+    }
+    
+    .drag-handle {
+        display: none !important;
+    }
+    
+    .ranking-section {
+        position: static;
+    }
+    
+    .ranking-panel {
+        margin-bottom: 2rem;
+    }
 }

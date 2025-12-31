@@ -1,6 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -8,11 +7,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { trigger, state, style, animate, transition } from '@angular/animations';
+import { trigger, style, animate, transition } from '@angular/animations';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DataService } from 'src/app/core/services/data.service';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
+import { RankSelectorSheetComponent } from './rank-selector-sheet.component';
 
 interface Genre {
   id: number;
@@ -37,14 +41,10 @@ interface RankingSlot {
   item: MediaItem | null;
 }
 
-interface GroupMediaResponse{
+interface EventMediaResponse {
   mediaItems: {
     MediaItems: MediaItem[];
   };
-}
-
-interface VoteResponse {
-  message: string;
 }
 
 @Component({
@@ -56,6 +56,7 @@ interface VoteResponse {
       MatProgressBarModule,
       MatIconModule,
       MatButtonModule,
+      MatBottomSheetModule,
       DragDropModule
     ],
     templateUrl: './choosing-game.component.html',
@@ -89,12 +90,15 @@ interface VoteResponse {
     ],
     standalone: true
 })
-export class ChoosingGameComponent implements OnInit {
+export class ChoosingGameComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dataService = inject(DataService);
   private tmdbService = inject(TmdbService);
   private snackbarService = inject(SnackbarService);
+  private bottomSheet = inject(MatBottomSheet);
+  private breakpointObserver = inject(BreakpointObserver);
+  private destroy$ = new Subject<void>();
 
   TMDB_IMAGE_BASE_URL_300 = environment.TMDB_IMAGE_BASE_URL_300;
   
@@ -103,6 +107,8 @@ export class ChoosingGameComponent implements OnInit {
   availableItems: MediaItem[] = [];
   rankedItems: MediaItem[] = [];
   displayedItems: MediaItem[] = [];
+
+  isLoading = false;
   
   // Ranking configuration
   requiredSlots = 3;
@@ -110,7 +116,11 @@ export class ChoosingGameComponent implements OnInit {
   
   // State management
   hasSubmitted = false;
-  groupId!: number;
+  eventId!: number;
+  groupId!: number; // Keep for navigation back to group
+  
+  // Mobile detection
+  isMobile = false;
 
   ngOnInit() {
     // Initialize ranking slots
@@ -118,17 +128,33 @@ export class ChoosingGameComponent implements OnInit {
       this.rankingSlots.push({ rank: i, item: null });
     }
 
-    // Get group ID from route and load media items
+    // Detect mobile viewport
+    this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.isMobile = result.matches;
+      });
+
+    // Get event ID from route and load media items
+    // Route can be /group/voting/:eventId or /event/voting/:eventId
     this.route.params.subscribe(params => {
-      this.groupId = +params['groupId'];
+      this.eventId = +params['eventId'] || +params['groupId']; // Support both route params for backward compat
+      this.groupId = +params['groupId'] || 0;
       this.loadMediaItems();
     });
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadMediaItems() {
-    this.dataService.getAllMediaItemsForUserInGroup(this.groupId).subscribe({
+    this.isLoading = true;
+    this.dataService.getEventMediaItems(this.eventId).subscribe({
       next: (data: unknown) => {
-        const response = data as GroupMediaResponse;
+        const response = data as EventMediaResponse;
         this.mediaItems = response.mediaItems.MediaItems;
         
         // Initialize points for all items
@@ -136,8 +162,11 @@ export class ChoosingGameComponent implements OnInit {
         
         // All items start as available for selection
         this.availableItems = [...this.mediaItems];
+
+        this.isLoading = false;
       },
       error: (err: Error) => {
+        this.isLoading = false;
         this.snackbarService.showError('Failed to load media items: ' + err.message);
       }
     });
@@ -203,29 +232,92 @@ export class ChoosingGameComponent implements OnInit {
       item.points = this.requiredSlots - index;
     });
 
-    // Save votes to backend
-    const votePromises = this.rankedItems.map((mediaItem: MediaItem) => {
-      const data = {
-        groupId: this.groupId,
-        tmdbId: mediaItem.tmdbId,
-        mediaType: mediaItem.mediaType,
-        rating: mediaItem.points || 0
-      };
+    // Save the entire ballot in one call
+    const rankings = this.rankedItems.map((mediaItem: MediaItem) => ({
+      tmdbId: mediaItem.tmdbId,
+      mediaType: mediaItem.mediaType,
+      rating: mediaItem.points || 0,
+      title: mediaItem.title,
+      posterPath: mediaItem.posterPath,
+      releaseDate: mediaItem.releaseDate,
+      overview: mediaItem.overview,
+    }));
 
-      return this.dataService.createVote(data).toPromise();
-    });
-
-    Promise.all(votePromises).then(() => {
+    this.dataService.submitBallot({ eventId: this.eventId, rankings }).subscribe({
+      next: () => {
       this.hasSubmitted = true;
       this.snackbarService.showSuccess('Your votes have been submitted!');
       
       // Navigate back to group detail after a delay
       setTimeout(() => {
-        this.router.navigate(['/group/detail', this.groupId]);
+        if (this.groupId) {
+          this.router.navigate(['/group/detail', this.groupId]);
+        } else {
+          this.router.navigate(['/group/overview']);
+        }
       }, 3000);
-    }).catch((err: Error) => {
-      this.snackbarService.showError('Failed to submit votes: ' + err.message);
+      },
+      error: (err: any) => {
+        const message = err?.error?.message || err?.message || 'Unknown error';
+        this.snackbarService.showError('Failed to submit votes: ' + message);
+      }
     });
+  }
+
+  // Mobile-specific methods
+  openRankSelector(item: MediaItem) {
+    // Get available slots (slots that are currently empty or contain this item)
+    const availableSlots = this.rankingSlots
+      .filter(slot => !slot.item || slot.item.tmdbId === item.tmdbId)
+      .map(slot => slot.rank);
+
+    if (availableSlots.length === 0) {
+      this.snackbarService.showError('All ranking slots are filled. Remove an item first.');
+      return;
+    }
+
+    const bottomSheetRef = this.bottomSheet.open(RankSelectorSheetComponent, {
+      data: { item, availableSlots },
+      panelClass: 'rank-selector-bottom-sheet'
+    });
+
+    bottomSheetRef.afterDismissed().subscribe(rank => {
+      if (rank !== undefined) {
+        this.assignToSlot(item, rank - 1); // Convert 1-based rank to 0-based index
+      }
+    });
+  }
+
+  assignToSlot(item: MediaItem, slotIndex: number) {
+    // Remove item from current position if already ranked
+    const currentIndex = this.rankedItems.findIndex(i => i.tmdbId === item.tmdbId);
+    if (currentIndex !== -1) {
+      this.rankedItems.splice(currentIndex, 1);
+    } else {
+      // Remove from available items if not already ranked
+      const availableIndex = this.availableItems.findIndex(i => i.tmdbId === item.tmdbId);
+      if (availableIndex !== -1) {
+        this.availableItems.splice(availableIndex, 1);
+      }
+    }
+
+    // Insert at new position
+    this.rankedItems.splice(slotIndex, 0, item);
+    this.updateRankingSlots();
+  }
+
+  moveUp(index: number) {
+    if (index > 0) {
+      moveItemInArray(this.rankedItems, index, index - 1);
+      this.updateRankingSlots();
+    }
+  }
+
+  moveDown(index: number) {
+    if (index < this.rankedItems.length - 1) {
+      moveItemInArray(this.rankedItems, index, index + 1);
+      this.updateRankingSlots();
+    }
   }
 
 }

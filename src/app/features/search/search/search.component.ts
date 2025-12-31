@@ -11,7 +11,6 @@ import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatButtonModule } from '@angular/material/button';
-import { FavButtonComponent } from 'src/app/shared/components/fav-button/fav-button.component';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { DataService, Media } from 'src/app/core/services/data.service';
 import { LocalStorageService } from 'src/app/core/services/local-storage.service';
@@ -46,8 +45,7 @@ interface FavoriteItem {
         FontAwesomeModule,
         FormsModule,
         MatFormFieldModule,
-        MatInputModule,
-        FavButtonComponent
+      MatInputModule
     ],
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.scss'],
@@ -79,16 +77,6 @@ export class SearchComponent implements OnDestroy {
     this.authSubscription = this.authService.isLoggedIn.subscribe(
       (isLoggedIn: boolean) => {
         this.isLoggedIn = isLoggedIn;
-        if (isLoggedIn) {
-          this.dataService.getUserFavorites().subscribe({
-            next: (data: unknown) => {
-              localStorage.setItem('favorites', JSON.stringify(data));
-            },
-            error: (err: Error) => {
-              this.snackbarService.showError(err.message);
-            }
-          });
-        }
       }
     );
   }
