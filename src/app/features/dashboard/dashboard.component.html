@@ -125,7 +125,7 @@
                                     }
                                 </div>
                                 <div class="upcoming-info">
-                                    <span class="session-time">{{ session.dateTime }}</span>
+                                    <span class="session-time">{{ formatSessionDateTime(session.dateTime) }}</span>
                                     <h4 class="movie-title">{{ session.movieTitle }}</h4>
                                     <p class="session-group">{{ session.groupName }}</p>
                                     @if (session.status === 'confirmed') {

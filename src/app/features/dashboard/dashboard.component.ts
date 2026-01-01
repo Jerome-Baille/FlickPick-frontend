@@ -54,6 +54,32 @@ export class DashboardComponent implements OnInit {
   recentGroups: GroupItem[] = [];
   upcomingSessions: UpcomingSession[] = [];
 
+  /**
+   * Formats a date string as 'SAT, JAN 3 · 7:00 PM' or 'TONIGHT · 7:00 PM' if today.
+   */
+  formatSessionDateTime(dateTime: string): string {
+    if (!dateTime) return '';
+    const date = new Date(dateTime);
+    const now = new Date();
+    // Check if the date is today (local time)
+    const isToday = date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate();
+    // Always show minutes (e.g., 7:00 PM)
+    const timeString = date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    if (isToday) {
+      return `TONIGHT · ${timeString}`;
+    }
+    const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const dayNum = date.getDate();
+    return `${day}, ${month} ${dayNum} · ${timeString}`;
+  }
+
   // Placeholder cover images for groups
   private readonly groupCovers = [
     'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80',
