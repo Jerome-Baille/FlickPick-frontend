@@ -1,121 +1,515 @@
 main {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 1rem;
 
     @media (min-width: 768px) {
-        padding: 2rem;
+        padding: 2.5rem;
     }
 }
 
-.groups-card {
-    background-color: #181d39;
-    color: #fff;
-
-    mat-card-header {
-        padding: 0.75rem 0.75rem 0.5rem;
-
-        @media (min-width: 480px) {
-            padding: 1rem 1rem 0.5rem;
-        }
-
-        .mat-mdc-card-header-text {
-            width: 100%;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-    }
-
-    .mat-mdc-card-title {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 0;
-        font-family: 'Bebas Neue', sans-serif;
-        font-size: 1.25rem;
-        letter-spacing: 0.02em;
-
-        @media (min-width: 480px) {
-            font-size: 1.5rem;
-        }
-    }
-}
-
-.list-item {
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.2s ease;
+// Page Header
+.page-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
 
-    @media (min-width: 480px) {
-        padding: 0.75rem 1rem;
+    @media (min-width: 768px) {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
     }
 
-    &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-        cursor: pointer;
-    }
+    .header-text {
+        .header-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
 
-    &:last-child {
-        border-bottom: none;
-    }
+            .material-symbols-outlined {
+                font-size: 0.875rem;
+            }
+        }
 
-    .item-content {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        .page-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+            color: #fff;
+            margin: 0 0 0.5rem 0;
 
-        @media (min-width: 480px) {
-            gap: 0.75rem;
+            @media (min-width: 768px) {
+                font-size: 4rem;
+            }
+        }
+
+        .page-description {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.125rem;
+            color: var(--color-text-muted);
+            max-width: 42rem;
+            margin: 0;
+            line-height: 1.6;
         }
     }
 
-    .item-title {
-        flex-grow: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .media-type-badge {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .item-info {
-        flex-grow: 1;
+    .header-actions {
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+}
 
-        .group-code {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
+// Buttons
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+
+    .material-symbols-outlined {
+        font-size: 1.25rem;
+    }
+
+    &.btn-primary {
+        background-color: var(--color-primary);
+        color: var(--color-background);
+        box-shadow: 0 0 15px rgba(249, 212, 6, 0.3);
+
+        &:hover {
+            background-color: var(--color-primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(249, 212, 6, 0.4);
+        }
+    }
+
+    &.btn-secondary {
+        background-color: transparent;
+        color: #fff;
+        border: 1px solid var(--color-border-hover);
+
+        &:hover {
+            background-color: var(--color-border);
+        }
+    }
+
+    &.btn-action {
+        background-color: var(--color-primary);
+        color: var(--color-background);
+        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
+        box-shadow: 0 2px 8px rgba(249, 212, 6, 0.1);
+
+        &:hover {
+            background-color: var(--color-primary-hover);
+        }
+    }
+}
+
+// Tab Navigation
+.tabs-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 2rem;
+
+    .tabs {
+        display: flex;
+        gap: 2rem;
+        overflow-x: auto;
+        flex-grow: 1;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--color-text-muted);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.25rem;
+            letter-spacing: 0.02em;
+            padding: 0 0 1rem 0;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: all 0.2s ease;
+            white-space: nowrap;
 
             &:hover {
                 color: #fff;
+                border-bottom-color: var(--color-border);
+            }
+
+            &.active {
+                color: #fff;
+                border-bottom-color: var(--color-primary);
+            }
+
+            .tab-count {
+                font-family: 'Inter', sans-serif;
+                font-size: 0.875rem;
+                color: var(--color-text-muted);
+                margin-left: 0.25rem;
+            }
+        }
+    }
+
+    .view-toggle {
+        display: none;
+        gap: 0.5rem;
+        padding-bottom: 1rem;
+
+        @media (min-width: 640px) {
+            display: flex;
+        }
+
+        .view-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            padding: 0;
+
+            &:hover {
+                color: #fff;
+            }
+
+            .material-symbols-outlined {
+                font-size: 1.5rem;
             }
         }
     }
 }
 
-.empty-state {
+// Groups Grid
+.groups-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+// Create New Group Card
+.create-card {
+    background-color: rgba(35, 32, 15, 0.2);
+    border: 2px dashed var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 2rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
+    min-height: 20rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: rgba(35, 32, 15, 0.6);
+        border-color: rgba(249, 212, 6, 0.5);
+
+        .create-icon {
+            background-color: var(--color-primary);
+            color: var(--color-background);
+            transform: scale(1.1);
+        }
+    }
+
+    .create-icon {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        background-color: rgba(58, 55, 39, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        .material-symbols-outlined {
+            font-size: 2.5rem;
+            color: #fff;
+        }
+    }
+
+    .create-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        color: #fff;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .create-description {
+        font-family: 'Playfair Display', serif;
+        font-style: italic;
+        font-size: 0.875rem;
+        color: var(--color-text-muted);
+        max-width: 15rem;
+        margin: 0;
+        line-height: 1.5;
+    }
+}
+
+// Group Card
+.group-card {
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &:not(.create-card):hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        border-color: rgba(249, 212, 6, 0.3);
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+        .material-symbols-outlined {
+            font-size: 0.875rem;
+        }
+
+        &.badge-admin {
+            background-color: rgba(249, 212, 6, 0.9);
+            color: var(--color-background);
+            border: 1px solid rgba(24, 23, 17, 0.1);
+        }
+
+        &.badge-voting {
+            background-color: rgba(249, 212, 6, 0.9);
+            color: var(--color-background);
+        }
+
+        &.badge-scheduled {
+            background-color: rgba(34, 139, 34, 0.9);
+            color: #d0f0d0;
+            border: 1px solid rgba(34, 139, 34, 0.8);
+        }
+
+        &.badge-archived {
+            background-color: rgba(35, 32, 15, 0.9);
+            color: var(--color-text-muted);
+            border: 1px solid var(--color-border);
+        }
+    }
+
+    .card-image {
+        height: 12rem;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+
+        .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--color-surface) 0%, rgba(35, 32, 15, 0.4) 40%, transparent 100%);
+        }
+
+        .card-creator {
+            position: absolute;
+            bottom: 1rem;
+            left: 1.25rem;
+            z-index: 10;
+
+            span {
+                font-size: 0.625rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    .card-content {
+        padding: 1.25rem;
+        padding-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+
+        .card-header {
+            margin-bottom: 1rem;
+
+            .card-title {
+                font-family: 'Archivo Black', sans-serif;
+                font-size: 1.5rem;
+                font-weight: 400;
+                letter-spacing: 0.02em;
+                color: #fff;
+                margin: 0 0 0.25rem 0;
+                cursor: pointer;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: var(--color-primary);
+                }
+            }
+
+            .card-subtitle {
+                font-family: 'Playfair Display', serif;
+                font-style: italic;
+                font-size: 0.875rem;
+                color: var(--color-text-muted);
+                margin: 0;
+                cursor: pointer;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: #fff;
+                }
+            }
+        }
+
+        .card-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+
+            .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 0.375rem;
+                font-size: 0.75rem;
+                color: var(--color-text-muted);
+
+                .material-symbols-outlined {
+                    font-size: 1rem;
+                }
+            }
+        }
+
+        .card-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .member-avatars {
+                display: flex;
+                margin-left: -0.5rem;
+
+                .avatar {
+                    width: 2rem;
+                    height: 2rem;
+                    border-radius: 50%;
+                    border: 2px solid var(--color-surface);
+                    margin-left: -0.5rem;
+                    overflow: hidden;
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+
+                    &.avatar-count {
+                        background-color: var(--color-border);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 0.625rem;
+                        font-weight: 700;
+                        color: #fff;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Empty State Card
+.empty-state-card {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+
+    .empty-icon {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        background-color: rgba(58, 55, 39, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+
+        .material-symbols-outlined {
+            font-size: 2rem;
+            color: var(--color-text-muted);
+        }
+    }
+
+    h4 {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: #fff;
+        margin: 0 0 0.5rem 0;
+    }
+
+    p {
+        font-size: 0.875rem;
+        color: var(--color-text-muted);
+        margin: 0;
+    }
 }

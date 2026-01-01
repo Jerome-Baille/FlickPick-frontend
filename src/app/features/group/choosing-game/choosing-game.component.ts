@@ -17,6 +17,7 @@ import { DataService } from 'src/app/core/services/data.service';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { RankSelectorSheetComponent } from './rank-selector-sheet.component';
+import { Event as MovieNightEvent } from '../../../shared/models/Event';
 
 interface Genre {
   id: number;
@@ -117,7 +118,7 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
   // State management
   hasSubmitted = false;
   eventId!: number;
-  groupId!: number; // Keep for navigation back to group
+  groupId?: number; // Optional: for navigation back to group
   
   // Mobile detection
   isMobile = false;
@@ -137,17 +138,32 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
       });
 
     // Get event ID from route and load media items
-    // Route can be /group/voting/:eventId or /event/voting/:eventId
     this.route.params.subscribe(params => {
-      this.eventId = +params['eventId'] || +params['groupId']; // Support both route params for backward compat
-      this.groupId = +params['groupId'] || 0;
+      this.eventId = +params['eventId'];
+      if (!this.eventId) {
+        this.snackbarService.showError('Invalid event ID');
+        this.router.navigate(['/group/overview']);
+        return;
+      }
       this.loadMediaItems();
+      this.loadEventDetails();
     });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  loadEventDetails() {
+    this.dataService.getEventById(this.eventId).subscribe({
+      next: (event: MovieNightEvent) => {
+        this.groupId = event.groupId;
+      },
+      error: (err: Error) => {
+        console.error('Failed to load event details:', err);
+      }
+    });
   }
 
   loadMediaItems() {
@@ -257,8 +273,8 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
         }
       }, 3000);
       },
-      error: (err: any) => {
-        const message = err?.error?.message || err?.message || 'Unknown error';
+      error: (err: Error) => {
+        const message = err.message || 'Unknown error';
         this.snackbarService.showError('Failed to submit votes: ' + message);
       }
     });

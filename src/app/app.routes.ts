@@ -71,11 +71,25 @@ export const routes: Routes = [
         path: 'setup', 
         loadComponent: () => import('./features/group/group-setup/group-setup.component').then(m => m.GroupSetupComponent) 
       },
-      { 
-        path: 'voting/:groupId', 
-        loadComponent: () => import('./features/group/choosing-game/choosing-game.component').then(m => m.ChoosingGameComponent) 
-      },
       { path: '', pathMatch: 'full', redirectTo: 'overview' }
+    ]
+  },
+  {
+    path: 'event',
+    canActivate: [authGuard],
+    children: [
+      { 
+        path: 'create', 
+        loadComponent: () => import('./features/event/create-event/create-event.component').then(m => m.CreateEventComponent) 
+      },
+      { 
+        path: 'detail/:eventId', 
+        loadComponent: () => import('./features/event/event-detail/event-detail.component').then(m => m.EventDetailComponent) 
+      },
+      { 
+        path: 'voting/:eventId', 
+        loadComponent: () => import('./features/group/choosing-game/choosing-game.component').then(m => m.ChoosingGameComponent) 
+      }
     ]
   },
   {

@@ -1,0 +1,86 @@
+<main>
+  <div class="dev-auth-panel">
+    <div class="auth-bg" aria-hidden="true">
+      <div class="bg-pattern"></div>
+      <div class="bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuADQjh2_sGg3EDHSKm-nXAkajVp-LfB9nTeSBOlRmn6t9CZAE4X-cIOBJCiqMh207kTfG8wZfHyNGOQdptm-tIcm9EvOgRPJ3_AacwaC31qqIkKp0dFcw1n1z16rf1AK1E5TITbjVJzdnWbo4kxKko0s8p3Wuenl_dcVnx9D2z8PRwvRQ443MUq3SwYq-f3rbVT-3beRU6s6ZMHSO685_Fv9W6Emiy2PffaZ5PfDnl1UD8Z2uMpqS_x9LqrQAUquWcItEy-FJnVOUHp');"></div>
+      <div class="bg-gradient"></div>
+      <div class="bg-cinema-gradient"></div>
+    </div>
+
+    <div class="dev-auth-card" role="region" aria-labelledby="dev-auth-title">
+      <div class="dev-auth-header">
+        <div class="dev-auth-logo" aria-hidden="true">
+          <mat-icon class="material-symbols-outlined">developer_mode</mat-icon>
+        </div>
+        <h1 id="dev-auth-title" class="dev-auth-title">DEVELOPMENT MODE</h1>
+        <p class="dev-auth-subtitle">Select a test user to login</p>
+      </div>
+
+      <div class="dev-auth-content">
+        @if (isLoading) {
+          <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading test users...</p>
+          </div>
+        } @else if (error) {
+          <div class="error-container">
+            <mat-icon color="warn">error</mat-icon>
+            <p class="error-message">{{ error }}</p>
+            <button mat-raised-button color="primary" (click)="loadUsers()" class="retry-btn">
+              <mat-icon>refresh</mat-icon>
+              Retry
+            </button>
+          </div>
+        } @else {
+          <div class="warning-chip">
+            <mat-icon>warning</mat-icon>
+            <span>Do not use in production!</span>
+          </div>
+
+          <div class="user-list">
+            @for (user of users; track user.id) {
+              <div 
+                class="user-card"
+                (click)="selectUser(user)"
+                [class.disabled]="loginInProgress"
+                [class.selected]="loginInProgress && selectedUser?.id === user.id"
+                tabindex="0"
+                role="button"
+                [attr.aria-disabled]="loginInProgress">
+                <mat-icon class="user-icon">person</mat-icon>
+                <div class="user-info">
+                  <span class="username">{{ user.username }}</span>
+                  <span class="uuid">ID: {{ user.id }} | UUID: {{ user.uuid | slice:0:8 }}...</span>
+                </div>
+                @if (loginInProgress && selectedUser?.id === user.id) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                  <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                }
+              </div>
+            } @empty {
+              <div class="empty-state">
+                <mat-icon>group_off</mat-icon>
+                <p>No test users found</p>
+                <p class="hint">Run <code>npm run seed</code> in the backend to create test users</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="dev-auth-actions">
+        <a routerLink="/auth" class="back-link">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Back to Production Auth</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="legal-links">
+      <a href="#">Privacy Policy</a>
+      <span>•</span>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+</main>

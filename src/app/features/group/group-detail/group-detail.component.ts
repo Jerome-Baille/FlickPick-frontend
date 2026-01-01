@@ -16,7 +16,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
-import { CreateCollectionModalComponent } from 'src/app/shared/components/create-collection-modal/create-collection-modal.component';
+
+import { Event as MovieNightEvent, EventStatus } from '../../../shared/models/Event';
 
 interface GroupMember {
   id: number;
@@ -26,39 +27,22 @@ interface GroupMember {
   isHost?: boolean;
 }
 
-interface GroupMediaItem {
-  tmdbId: number;
-  mediaType: string;
-  title: string;
-  posterPath?: string;
-  releaseDate?: string;
-  overview?: string;
-  points?: number;
-  sumOfRatings?: number;
-  isAdmin?: boolean;
-  votes: unknown[];
-}
-
 interface GroupData {
   id: number;
   name: string;
   code: string;
+  adminIds: number[];
   isAdmin?: boolean;
-  hasVoted?: boolean;
   Users?: GroupMember[];
-  Lists?: unknown[];
+  Events?: MovieNightEvent[];
 }
 
 interface GroupResponse {
   group: GroupData;
-  MediaItems: GroupMediaItem[];
 }
 
 interface ApiResponse {
   message: string;
-  group?: {
-    Lists: unknown[];
-  };
 }
 
 @Component({
@@ -91,36 +75,51 @@ export class GroupDetailComponent {
     isEditing = false;
     editedGroupName = '';
 
-    groupData: GroupData = { id: 0, name: '', code: '' };
+    groupData: GroupData = { id: 0, name: '', code: '', adminIds: [] };
     groupMembers: GroupMember[] = [];
-    groupList: unknown[] = [];
-    groupMedia: GroupMediaItem[] = [];
-
+    groupEvents: MovieNightEvent[] = [];
 
     faCirclePlus = faCirclePlus;
     faUsers = faUsers;
 
     constructor() {
         this.route.params.subscribe(params => {
-            const groupId = params['groupId'];
+            const groupId = +params['groupId'];
+            if (groupId) {
+                this.loadGroupData(groupId);
+            }
+        });
+    }
 
-            this.dataService.getGroupById(groupId).subscribe({
-                next: (response: unknown) => {
-                    const res = response as GroupResponse;
-                    this.groupData = res.group;
-                    this.groupMembers = res.group.Users || [];
-                    this.groupMedia = res.MediaItems;
-
-                    if (res.group.isAdmin && res.group.isAdmin === true) {
-                        this.groupMedia = this.groupMedia.map(media => {
-                            return { ...media, isAdmin: true };
-                        });
-                    }
-                },
-                error: (err: Error) => {
-                    this.snackbarService.showError(err.message);
+    loadGroupData(groupId: number): void {
+        this.dataService.getGroupById(groupId).subscribe({
+            next: (response: unknown) => {
+                const res = response as GroupResponse;
+                this.groupData = res.group;
+                const userId = Number(localStorage.getItem('userId'));
+                // Defensive: ensure adminIds is an array and userId is valid
+                if (Array.isArray(this.groupData.adminIds) && userId) {
+                    this.groupData.isAdmin = this.groupData.adminIds.map(Number).includes(userId);
+                } else {
+                    this.groupData.isAdmin = false;
                 }
-            })
+                this.groupMembers = res.group.Users || [];
+                this.loadGroupEvents(groupId);
+            },
+            error: (err: Error) => {
+                this.snackbarService.showError('Failed to load group: ' + err.message);
+            }
+        });
+    }
+
+    loadGroupEvents(groupId: number): void {
+        this.dataService.getEventsByGroup(groupId).subscribe({
+            next: (events: MovieNightEvent[]) => {
+                this.groupEvents = events;
+            },
+            error: (err: Error) => {
+                this.snackbarService.showError('Failed to load events: ' + err.message);
+            }
         });
     }
 
@@ -159,21 +158,7 @@ export class GroupDetailComponent {
 
     updateGroupList(event: Event) {
         event.stopPropagation();
-
-        const dialogRef = this.dialog.open(CreateCollectionModalComponent, {
-            data: {
-                formType: 'listName'
-            },
-            panelClass: 'modal-container'
-        })
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                // Note: List management is now done through events, not directly on groups
-                // This feature may need to be refactored to work with Events
-                this.snackbarService.showSuccess('List update feature coming soon with Events!');
-            }
-        })
+        this.snackbarService.showSuccess('List management is now done per movie night event.');
     }
 
     replaceSpacesWithUnderscores(event: Event) {
@@ -181,55 +166,53 @@ export class GroupDetailComponent {
         input.value = input.value.replace(/\s+/g, '_');
     }
 
-    resetVotes() {
-        this.dataService.deleteVotesByGroup(this.groupData.id).subscribe({
-            next: (response: unknown) => {
-                const res = response as ApiResponse;
-                this.snackbarService.showSuccess(res.message);
-                this.groupData.hasVoted = false;
-                this.groupMedia = this.groupMedia.map(media => {
-                    return { ...media, votes: [] };
-                });
-            },
-            error: (err: Error) => {
-                this.snackbarService.showError(err.message);
-            }
-        })
-    }
-
-    hasMediaWithVotes(): boolean {
-        return this.groupMedia.some(media => media.votes.length > 0);
-    }
-
     copyLink(): void {
-        const groupUrl = `${window.location.origin}/group/${this.groupData.id}`;
-        navigator.clipboard.writeText(groupUrl).then(() => {
-            this.snackbarService.showSuccess('Group link copied to clipboard!');
-        }).catch(err => {
+        const joinUrl = `${window.location.origin}/group/join?code=${this.groupData.code}`;
+        navigator.clipboard.writeText(joinUrl).then(() => {
+            this.snackbarService.showSuccess('Join link copied to clipboard!');
+        }).catch(() => {
             this.snackbarService.showError('Failed to copy link');
-            console.error('Failed to copy link', err);
         });
     }
 
     showQRCode(): void {
-        // TODO: Implement QR code modal
         this.snackbarService.showSuccess('QR Code feature coming soon!');
     }
 
     manageInvites(): void {
-        // TODO: Implement manage invites functionality
-        this.snackbarService.showSuccess('Manage Invites feature coming soon!');
-    }
-
-    getReadyCount(): number {
-        return this.groupMembers.filter(m => m.isReady).length;
+        this.snackbarService.showSuccess('Invite management coming soon!');
     }
 
     getMemberAvatar(member: GroupMember): string {
-        return member.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(member.username) + '&background=3a3727&color=bbb69b&size=128';
+        return member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.username)}&background=3a3727&color=bbb69b&size=128`;
     }
 
-    startVoting(): void {
-        this.router.navigate(['/group/voting', this.groupData.id]);
+    createEvent(): void {
+        this.router.navigate(['/event/create'], {
+            queryParams: { groupId: this.groupData.id }
+        });
+    }
+
+    viewEvent(eventToView: MovieNightEvent): void {
+        // Always navigate to event detail page
+        this.router.navigate(['/event/detail', eventToView.id]);
+    }
+
+    getEventStatusLabel(status: EventStatus): string {
+        switch (status) {
+            case 'draft': return 'Planning';
+            case 'voting': return 'Voting Now';
+            case 'completed': return 'Completed';
+            case 'cancelled': return 'Cancelled';
+            default: return status;
+        }
+    }
+
+    getUpcomingEvent(): MovieNightEvent | undefined {
+        return this.groupEvents.find(e => e.status === 'draft' || e.status === 'voting');
+    }
+
+    getActiveEventsCount(): number {
+        return this.groupEvents.filter(e => e.status === 'draft' || e.status === 'voting').length;
     }
 }

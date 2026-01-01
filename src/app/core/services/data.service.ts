@@ -151,6 +151,25 @@ export class DataService {
     return this.http.post<{ message: string; event: Event }>(`${this.eventURL}`, eventData);
   }
 
+  createEventWithMedia(eventData: {
+    groupId: number;
+    name: string;
+    eventDate?: string;
+    startTime?: string;
+    endTime?: string;
+    listName?: string;
+    selectedMedia?: {
+      tmdbId: number;
+      mediaType: 'movie' | 'tv';
+      title?: string;
+      releaseDate?: string;
+      posterPath?: string;
+      overview?: string;
+    }[];
+  }): Observable<{ message: string; event: Event }> {
+    return this.http.post<{ message: string; event: Event }>(`${this.eventURL}/group/${eventData.groupId}`, eventData);
+  }
+
   getEventById(eventId: number): Observable<Event> {
     return this.http.get<Event>(`${this.eventURL}/${eventId}`);
   }
@@ -207,7 +226,7 @@ export class DataService {
     return this.http.post<ApiMessageResponse>(`${this.voteURL}`, data);
   }
 
-  submitBallot(data: { eventId: number; rankings: Array<Media & { rating: number }> }): Observable<ApiMessageResponse> {
+  submitBallot(data: { eventId: number; rankings: (Media & { rating: number })[] }): Observable<ApiMessageResponse> {
     return this.http.post<ApiMessageResponse>(`${this.voteURL}/ballot`, data);
   }
 

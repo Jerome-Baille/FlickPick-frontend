@@ -34,14 +34,18 @@
 
             <div class="groups-grid">
                 @for (group of recentGroups; track group.id) {
-                    <div class="group-card glass-panel" [routerLink]="['/group/detail', group.id]">
+                    <div class="group-card glass-panel" [routerLink]="getEventRoute(group)">
                         <!-- Status Badge -->
-                        <div class="status-badge" [class.voting]="group.status === 'voting'" 
-                             [class.selecting]="group.status === 'selecting'"
-                             [class.scheduled]="group.status === 'scheduled'">
-                            <span class="material-symbols-outlined">{{ getStatusIcon(group.status) }}</span>
-                            {{ getStatusLabel(group.status) }}
-                        </div>
+                        @let status = getGroupStatus(group);
+                        @if (status.label) {
+                            <div class="status-badge" 
+                                 [class.voting]="status.type === 'voting'" 
+                                 [class.selecting]="status.type === 'selecting'"
+                                 [class.scheduled]="status.type === 'scheduled'">
+                                <span class="material-symbols-outlined">{{ getStatusIcon(status.type) }}</span>
+                                {{ status.label }}
+                            </div>
+                        }
 
                         <!-- Cover Image -->
                         <div class="group-cover" [style.background-image]="'url(' + group.coverImage + ')'">
@@ -51,7 +55,7 @@
                         <!-- Group Info -->
                         <div class="group-info">
                             <h3 class="group-name">{{ group.name }}</h3>
-                            <p class="group-session">{{ group.nextSession || 'No session scheduled' }}</p>
+                            <p class="group-session">{{ getNextSession(group) }}</p>
 
                             <div class="group-footer">
                                 <div class="member-avatars">
@@ -67,11 +71,11 @@
                                     }
                                 </div>
                                 <button class="group-action-btn" 
-                                        [class.primary]="group.status === 'selecting'"
+                                        [class.primary]="status.type === 'selecting'"
                                         (click)="$event.stopPropagation()">
-                                    @switch (group.status) {
+                                    @switch (status.type) {
                                         @case ('voting') { Cast Vote }
-                                        @case ('selecting') { Create Shortlist }
+                                        @case ('selecting') { Plan Event }
                                         @default { View Details }
                                     }
                                 </button>
@@ -81,7 +85,12 @@
                 }
 
                 <!-- Create New Group Card -->
-                <div class="create-group-card" (click)="createGroup()">
+                <div class="create-group-card" 
+                     (click)="createGroup()" 
+                     (keydown.enter)="createGroup()" 
+                     (keydown.space)="createGroup()"
+                     tabindex="0"
+                     role="button">
                     <div class="create-icon">
                         <span class="material-symbols-outlined">add</span>
                     </div>

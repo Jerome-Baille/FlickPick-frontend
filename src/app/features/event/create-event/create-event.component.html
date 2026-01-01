@@ -1,0 +1,384 @@
+<section class="create-event-container">
+  <!-- Step Indicator -->
+  <div class="step-indicator">
+    <div class="step" [class.active]="currentStep === 'group'" [class.completed]="currentStep !== 'group'">
+      <div class="step-number">1</div>
+      <span class="step-label">Select Group</span>
+    </div>
+    <div class="step-divider" [class.completed]="currentStep !== 'group'"></div>
+    <div class="step" [class.active]="currentStep === 'movies'" [class.completed]="currentStep === 'schedule'">
+      <div class="step-number">2</div>
+      <span class="step-label">Choose Movies</span>
+    </div>
+    <div class="step-divider" [class.completed]="currentStep === 'schedule'"></div>
+    <div class="step" [class.active]="currentStep === 'schedule'">
+      <div class="step-number">3</div>
+      <span class="step-label">Schedule</span>
+    </div>
+  </div>
+
+  <!-- Step 1: Group Selection -->
+  @if (currentStep === 'group') {
+    <div class="step-content group-step">
+      <div class="step-header">
+        <h1 class="step-title">Choose Your Group</h1>
+        <p class="step-subtitle">Select an existing group or create a new one for your movie night.</p>
+      </div>
+
+      <div class="group-mode-selector">
+        <mat-radio-group [(ngModel)]="groupMode" class="mode-radio-group">
+          <mat-radio-button value="existing" class="mode-option">
+            <span class="mode-label">
+              <span class="material-symbols-outlined">groups</span>
+              Existing Group
+            </span>
+          </mat-radio-button>
+          <mat-radio-button value="new" class="mode-option">
+            <span class="mode-label">
+              <span class="material-symbols-outlined">group_add</span>
+              New Group
+            </span>
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      @if (groupMode === 'existing') {
+        <div class="existing-groups-section">
+          @if (isLoadingGroups) {
+            <div class="loading-state">
+              <span class="material-symbols-outlined spin">progress_activity</span>
+              <p>Loading groups...</p>
+            </div>
+          } @else if (existingGroups.length === 0) {
+            <div class="empty-state">
+              <span class="material-symbols-outlined">group_off</span>
+              <p>No groups found. Create a new group to get started.</p>
+              <button class="btn-primary" (click)="groupMode = 'new'">Create New Group</button>
+            </div>
+          } @else {
+            <div class="groups-grid">
+              @for (group of existingGroups; track group.id) {
+                <div 
+                  class="group-card" 
+                  [class.selected]="selectedGroupId === group.id"
+                  (click)="selectedGroupId = group.id"
+                  (keydown.enter)="selectedGroupId = group.id"
+                  (keydown.space)="selectedGroupId = group.id; $event.preventDefault()"
+                  tabindex="0"
+                  role="button"
+                >
+                  <div class="group-icon">
+                    <span class="material-symbols-outlined">groups</span>
+                  </div>
+                  <div class="group-info">
+                    <h3 class="group-name">{{ group.name }}</h3>
+                    <p class="group-meta">{{ group.memberCount }} member{{ group.memberCount !== 1 ? 's' : '' }}</p>
+                  </div>
+                  @if (selectedGroupId === group.id) {
+                    <span class="material-symbols-outlined check-icon">check_circle</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="new-group-section">
+          <mat-form-field appearance="outline" class="group-name-field">
+            <mat-label>Group Name</mat-label>
+            <input matInput [(ngModel)]="newGroupName" placeholder="e.g., Friday Movie Crew" maxlength="50">
+            <mat-icon matPrefix>groups</mat-icon>
+          </mat-form-field>
+          <p class="hint-text">You can invite members after creating the group.</p>
+        </div>
+      }
+
+      <div class="step-actions">
+        <button class="btn-secondary" (click)="goBack()">Cancel</button>
+        <button class="btn-primary" (click)="nextStep()" [disabled]="!canProceedFromGroup()">
+          Next: Choose Movies
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 2: Movie Selection -->
+  @if (currentStep === 'movies') {
+    <div class="step-content movies-step">
+      <div class="movies-layout">
+        <!-- Left Pane: Discovery -->
+        <div class="discovery-pane">
+          <div class="step-header">
+            <h1 class="step-title">Curate Your Watchlist</h1>
+            <p class="step-subtitle">Search for movies to add to your voting ballot for {{ getSelectedGroupName() }}.</p>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="search-section">
+            <label class="search-wrapper">
+              <div class="search-input-container">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input 
+                  type="text" 
+                  class="search-input" 
+                  placeholder="Search for a movie (e.g., Inception)..."
+                  [(ngModel)]="searchQuery"
+                  (input)="onSearchInput(searchQuery)"
+                />
+              </div>
+            </label>
+          </div>
+
+          <!-- Results Section -->
+          <div class="results-section">
+            <h3 class="results-title">{{ searchQuery ? 'Search Results' : 'Start searching for movies' }}</h3>
+            
+            @if (isSearching) {
+              <div class="loading-state">
+                <span class="material-symbols-outlined spin">progress_activity</span>
+                <p>Searching...</p>
+              </div>
+            } @else {
+              <div class="results-grid">
+                @for (movie of searchResults; track movie.tmdbId) {
+                  <div 
+                    class="movie-result-card" 
+                    [class.in-shortlist]="isInShortlist(movie)"
+                    [class.expanded]="isCardExpanded(movie.tmdbId)"
+                    (click)="toggleCardExpand(movie.tmdbId)"
+                    (keydown.enter)="toggleCardExpand(movie.tmdbId)"
+                    (keydown.space)="toggleCardExpand(movie.tmdbId); $event.preventDefault()"
+                    tabindex="0"
+                    role="button"
+                    [attr.aria-expanded]="isCardExpanded(movie.tmdbId)"
+                  >
+                    <div class="movie-poster-container">
+                      <div class="movie-poster" [style.background-image]="'url(' + getPosterUrl(movie.posterPath) + ')'"></div>
+                      @if (movie.voteAverage) {
+                        <div class="rating-badge">
+                          <span class="material-symbols-outlined">star</span>
+                          {{ getRatingStars(movie.voteAverage) }}
+                        </div>
+                      }
+                    </div>
+                    
+                    <div class="movie-info">
+                      <div class="movie-details">
+                        <h4 class="movie-title">{{ movie.title }}</h4>
+                        <p class="movie-meta">{{ getYear(movie.releaseDate) }} • {{ movie.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</p>
+                        <p class="movie-overview">{{ movie.overview }}</p>
+                      </div>
+                      
+                      <div class="movie-actions">
+                        @if (isInShortlist(movie)) {
+                          <button class="btn-added" disabled>
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Added
+                          </button>
+                        } @else {
+                          <button class="btn-add" (click)="$event.stopPropagation(); addToShortlist(movie)">
+                            <span class="material-symbols-outlined">add_circle</span>
+                            Add to Shortlist
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Pane: Ballot -->
+        <div class="ballot-pane">
+          <div class="ballot-content">
+            <div class="ballot-header">
+              <h3 class="ballot-title">Active Ballot</h3>
+              <div class="ballot-counter">{{ selectedMovies.length }} Selected</div>
+            </div>
+
+            @if (selectedMovies.length === 0) {
+              <div class="empty-state">
+                <span class="material-symbols-outlined empty-icon">movie_edit</span>
+                <p class="empty-text">Your ballot is empty.<br>Add movies from the search results.</p>
+              </div>
+            } @else {
+              <div class="ballot-list">
+                @for (movie of selectedMovies; track movie.tmdbId; let i = $index) {
+                  <div class="ballot-item">
+                    <div class="ballot-poster" [style.background-image]="'url(' + getPosterUrl(movie.posterPath) + ')'"></div>
+                    <div class="ballot-info">
+                      <h5 class="ballot-movie-title">{{ movie.title }}</h5>
+                      <p class="ballot-movie-year">{{ getYear(movie.releaseDate) }}</p>
+                    </div>
+                    <div class="ballot-actions">
+                      <button type="button" class="btn-remove" (click)="removeFromShortlist(i)" title="Remove from shortlist">
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <div class="ballot-footer">
+              <div class="footer-meta">
+                <button class="btn-clear" (click)="clearAll()" [disabled]="selectedMovies.length === 0">
+                  Clear All
+                </button>
+                <div class="tmdb-attribution">
+                  <span class="tmdb-text">Powered by</span>
+                  <span class="tmdb-logo">TMDB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn-secondary" (click)="previousStep()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back
+        </button>
+        <button class="btn-primary" (click)="nextStep()" [disabled]="!canProceedFromMovies()">
+          Next: Schedule
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Schedule -->
+  @if (currentStep === 'schedule') {
+    <div class="step-content schedule-step">
+      <div class="step-header">
+        <h1 class="step-title">Schedule Your Movie Night</h1>
+        <p class="step-subtitle">Pick a date and time for {{ getSelectedGroupName() }} to vote and watch.</p>
+      </div>
+
+      <div class="schedule-layout">
+        <!-- Event Name -->
+        <div class="event-name-section">
+          <mat-form-field appearance="outline" class="event-name-field">
+            <mat-label>Event Name</mat-label>
+            <input matInput [(ngModel)]="eventName" placeholder="e.g., Friday Movie Night" maxlength="100">
+            <mat-icon matPrefix>event</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar-section">
+          <h3 class="section-title">Select Date</h3>
+          <div class="calendar-container">
+            <div class="calendar-header">
+              <button class="calendar-nav" (click)="previousMonth()">
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              <span class="calendar-month">{{ currentMonthName }}</span>
+              <button class="calendar-nav" (click)="nextMonth()">
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+            
+            <div class="calendar-weekdays">
+              @for (day of weekDays; track day) {
+                <div class="weekday">{{ day }}</div>
+              }
+            </div>
+            
+            <div class="calendar-days">
+              @for (day of calendarDays; track $index) {
+                <div 
+                  class="calendar-day"
+                  [class.empty]="day === null"
+                  [class.selected]="isSelectedDay(day)"
+                  [class.today]="isToday(day)"
+                  [class.past]="isPastDay(day)"
+                  (click)="selectDate(day)"
+                  (keydown.enter)="selectDate(day)"
+                  (keydown.space)="selectDate(day); $event.preventDefault()"
+                  [tabindex]="day !== null && !isPastDay(day) ? 0 : -1"
+                  role="button"
+                >
+                  @if (day !== null) {
+                    {{ day }}
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Selection -->
+        <div class="time-section">
+          <h3 class="section-title">Select Time</h3>
+          <div class="time-selectors">
+            <div class="time-field">
+              <label class="time-label" for="startTimeSelect">Start Time</label>
+              <select id="startTimeSelect" [(ngModel)]="startTime" class="time-select">
+                @for (time of timeOptions; track time) {
+                  <option [value]="time">{{ formatTime(time) }}</option>
+                }
+              </select>
+            </div>
+            <div class="time-divider">
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </div>
+            <div class="time-field">
+              <label class="time-label" for="endTimeSelect">End Time</label>
+              <select id="endTimeSelect" [(ngModel)]="endTime" class="time-select">
+                @for (time of timeOptions; track time) {
+                  <option [value]="time">{{ formatTime(time) }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-section">
+          <h3 class="section-title">Summary</h3>
+          <div class="summary-card">
+            <div class="summary-item">
+              <span class="material-symbols-outlined">groups</span>
+              <span>{{ getSelectedGroupName() }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="material-symbols-outlined">movie</span>
+              <span>{{ selectedMovies.length }} movies to vote on</span>
+            </div>
+            @if (selectedDate) {
+              <div class="summary-item">
+                <span class="material-symbols-outlined">calendar_today</span>
+                <span>{{ selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="material-symbols-outlined">schedule</span>
+                <span>{{ formatTime(startTime) }} - {{ formatTime(endTime) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn-secondary" (click)="previousStep()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back
+        </button>
+        <button class="btn-primary btn-launch" (click)="createEvent()" [disabled]="!canSubmit() || isSubmitting">
+          @if (isSubmitting) {
+            <span class="material-symbols-outlined spin">progress_activity</span>
+            Creating...
+          } @else {
+            <span class="material-symbols-outlined">rocket_launch</span>
+            Create Event
+          }
+        </button>
+      </div>
+    </div>
+  }
+</section>

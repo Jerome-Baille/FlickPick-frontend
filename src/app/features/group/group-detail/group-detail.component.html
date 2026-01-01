@@ -1,30 +1,26 @@
 <main>
-    <mat-card class="list-card">
+    <mat-card class="group-detail-card">
         @if (groupData.name) {
-            <!-- Hero Section: Title & Code -->
-            <div class="hero-section">
-                <div class="hero-content">
-                    <div class="status-badges">
-                        <span class="badge badge-primary">Lobby</span>
-                        @if (!groupData.hasVoted) {
-                            <span class="badge badge-secondary">Waiting for Votes</span>
-                        } @else {
-                            <span class="badge badge-secondary">Voting Complete</span>
-                        }
-                    </div>
-                    
+            <!-- Header Section -->
+            <div class="group-header">
+                <div class="header-content">
                     @if (!isEditing) {
-                        <h1 class="group-title">
-                            <fa-icon [icon]="faUsers"></fa-icon>
-                            {{ groupData.name }}
-                        </h1>
-                    }
-                    @if (isEditing) {
+                        <div class="title-section">
+                            <h1 class="group-title">
+                                <fa-icon [icon]="faUsers"></fa-icon>
+                                {{ groupData.name }}
+                            </h1>
+                            @if (groupData.isAdmin) {
+                                <button mat-icon-button (click)="enterEditMode()" matTooltip="Edit Group Name">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                            }
+                        </div>
+                    } @else {
                         <div class="title-editing">
                             <mat-form-field appearance="outline">
-                                <input matInput type="text" [(ngModel)]="editedGroupName" #listNameInput
-                                    [ngModelOptions]="{ standalone: true }"
-                                    (keyup)="replaceSpacesWithUnderscores($event)" />
+                                <input matInput type="text" [(ngModel)]="editedGroupName" 
+                                    [ngModelOptions]="{ standalone: true }" />
                             </mat-form-field>
                             <button mat-icon-button color="primary" (click)="updateGroupName(editedGroupName)">
                                 <mat-icon>done</mat-icon>
@@ -34,30 +30,19 @@
                             </button>
                         </div>
                     }
-                    
-                    @if (!groupData.hasVoted) {
-                        <p class="waiting-status">
-                            <span class="pulse-indicator">
-                                <span class="pulse-ring"></span>
-                                <span class="pulse-dot"></span>
-                            </span>
-                            Waiting for members to vote...
-                        </p>
-                    }
+                    <p class="group-subtitle">{{ groupMembers.length }} member{{ groupMembers.length !== 1 ? 's' : '' }} • {{ groupEvents.length }} movie night{{ groupEvents.length !== 1 ? 's' : '' }}</p>
                 </div>
 
                 <!-- Join Code Card -->
-                <div class="join-code-card glass-panel">
+                <div class="join-code-card">
                     <p class="join-code-label">Join Code</p>
                     <h2 class="join-code">{{ groupData.code }}</h2>
                     <div class="join-code-actions">
-                        <button mat-button class="secondary-button" (click)="showQRCode()">
-                            <mat-icon>qr_code_2</mat-icon>
-                            <span>Show QR</span>
-                        </button>
-                        <button mat-raised-button color="primary" class="primary-button" (click)="copyLink()">
+                        <button mat-icon-button (click)="copyLink()" matTooltip="Copy invite link">
                             <mat-icon>content_copy</mat-icon>
-                            <span>Copy Link</span>
+                        </button>
+                        <button mat-icon-button (click)="showQRCode()" matTooltip="Show QR code">
+                            <mat-icon>qr_code_2</mat-icon>
                         </button>
                     </div>
                 </div>
@@ -67,60 +52,31 @@
 
             <!-- Participants Section -->
             <div class="participants-section">
-                <div class="participants-header">
-                    <h3 class="participants-title">
-                        Participants
-                        <span class="participants-count">{{ groupMembers.length }}</span>
-                    </h3>
+                <div class="section-header">
+                    <h2>
+                        <mat-icon>people</mat-icon>
+                        Members
+                    </h2>
                     @if (groupData.isAdmin) {
-                        <button mat-button class="manage-button" (click)="manageInvites()">
-                            Manage Invites
-                        </button>
-                        <button mat-icon-button (click)="enterEditMode()" matTooltip="Edit Group Name">
-                            <mat-icon>edit</mat-icon>
+                        <button mat-button (click)="manageInvites()">
+                            <mat-icon>person_add</mat-icon>
+                            Invite Members
                         </button>
                     }
                 </div>
 
-                <!-- Members Grid -->
                 <div class="members-grid">
                     @for (member of groupMembers; track member.id) {
-                        <div class="member-card glass-panel" [class.host-card]="member.isHost">
-                            @if (member.isHost && groupData.isAdmin) {
-                                <div class="host-badge" title="Host">
-                                    <mat-icon>star</mat-icon>
-                                </div>
-                            }
-                            
-                            <div class="member-avatar-container">
-                                <div class="member-avatar" [style.background-image]="'url(' + getMemberAvatar(member) + ')'">
-                                </div>
-                                @if (member.isReady) {
-                                    <div class="ready-badge">
-                                        <mat-icon>check</mat-icon>
-                                    </div>
-                                }
-                            </div>
-                            
+                        <div class="member-card">
+                            <div class="member-avatar" [style.background-image]="'url(' + getMemberAvatar(member) + ')'"></div>
                             <div class="member-info">
                                 <p class="member-name">{{ member.username }}</p>
-                                <p class="member-status" [class.ready]="member.isReady">
-                                    @if (member.isHost && groupData.isAdmin) {
-                                        <span>Host • </span>
-                                    }
-                                    {{ member.isReady ? 'Ready' : 'Joining...' }}
-                                </p>
+                                @if (groupData.adminIds.includes(member.id)) {
+                                    <span class="member-role admin">Admin</span>
+                                } @else {
+                                    <span class="member-role">Member</span>
+                                }
                             </div>
-                        </div>
-                    }
-                    
-                    <!-- Empty Slots -->
-                    @for (slot of [1, 2]; track slot) {
-                        <div class="member-card empty-slot">
-                            <div class="empty-avatar">
-                                <mat-icon>person_add</mat-icon>
-                            </div>
-                            <p class="empty-text">Waiting...</p>
                         </div>
                     }
                 </div>
@@ -128,27 +84,77 @@
 
             <div class="divider"></div>
 
-            <!-- Action Buttons Section -->
-            <div class="actions-section">
-                <div class="actions-info">
-                    <p class="actions-title">Ready to start?</p>
-                    <p class="actions-subtitle">{{ getReadyCount() }}/{{ groupMembers.length }} members are ready.</p>
-                </div>
-                
-                <div class="actions-buttons">
-                    @if (groupData.isAdmin && hasMediaWithVotes()) {
-                        <button mat-stroked-button class="secondary-action" (click)="resetVotes()">
-                            <mat-icon>restart_alt</mat-icon>
-                            Reset Votes
-                        </button>
-                    }
-                    @if (!groupData.hasVoted) {
-                        <button mat-raised-button color="primary" class="primary-action" (click)="startVoting()">
-                            <mat-icon>play_arrow</mat-icon>
-                            Start Voting
+            <!-- Movie Nights Section -->
+            <div class="events-section">
+                <div class="section-header">
+                    <h2>
+                        <mat-icon>event</mat-icon>
+                        Movie Nights
+                    </h2>
+                    @if (groupData.isAdmin) {
+                        <button mat-raised-button color="primary" (click)="createEvent()">
+                            <mat-icon>add_circle</mat-icon>
+                            Plan Movie Night
                         </button>
                     }
                 </div>
+
+                @if (groupEvents.length > 0) {
+                    <div class="events-list">
+                        @for (eventItem of groupEvents; track eventItem.id) {
+                            <div class="event-card" 
+                                 (click)="viewEvent(eventItem)"
+                                 (keydown.enter)="viewEvent(eventItem)"
+                                 (keydown.space)="viewEvent(eventItem)"
+                                 tabindex="0"
+                                 role="button">
+                                <div class="event-status" [class]="'status-' + eventItem.status">
+                                    {{ getEventStatusLabel(eventItem.status) }}
+                                </div>
+                                
+                                <div class="event-main">
+                                    <div class="event-info">
+                                        <h3 class="event-name">{{ eventItem.name }}</h3>
+                                        @if (eventItem.eventDate) {
+                                            <p class="event-date">
+                                                <mat-icon>calendar_today</mat-icon>
+                                                {{ eventItem.eventDate | date:'EEE, MMM d, y' }}
+                                                @if (eventItem.startTime) {
+                                                    <span class="event-time">at {{ eventItem.startTime }}</span>
+                                                }
+                                            </p>
+                                        } @else {
+                                            <p class="event-date">
+                                                <mat-icon>event</mat-icon>
+                                                Date to be determined
+                                            </p>
+                                        }
+                                    </div>
+
+                                    <button mat-icon-button (click)="viewEvent(eventItem); $event.stopPropagation()">
+                                        <mat-icon>arrow_forward</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                } @else {
+                    <div class="empty-events">
+                        <mat-icon>event_available</mat-icon>
+                        <p>No movie nights planned yet</p>
+                        @if (!groupData.isAdmin) {
+                            <p class="hint-text">Ask an admin to schedule one!</p>
+                        }
+                    </div>
+                    @if (groupData.isAdmin) {
+                        <div class="section-header" style="justify-content: center; margin-top: 1rem;">
+                            <button mat-raised-button color="primary" (click)="createEvent()">
+                                <mat-icon>add_circle</mat-icon>
+                                Plan Movie Night
+                            </button>
+                        </div>
+                    }
+                }
             </div>
         }
     </mat-card>

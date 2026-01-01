@@ -1,51 +1,64 @@
 <main>
-    <!-- Dev mode banner -->
-    @if (isDevelopment) {
-        <div class="dev-banner">
-            <mat-icon>developer_mode</mat-icon>
-            <span>Development Mode</span>
-            <a routerLink="/auth/dev" class="dev-link">
-                Use Test Users →
-            </a>
-        </div>
-    }
+  <!-- Dev mode banner -->
+  @if (isDevelopment) {
+    <div class="dev-banner">
+      <mat-icon>developer_mode</mat-icon>
+      <span>Development Mode</span>
+      <a routerLink="/auth/dev" class="dev-link">Use Test Users →</a>
+    </div>
+  }
 
-    <mat-card class="auth-card">
-        <mat-card-header class="auth-card-title">
-            <mat-card-title>
-                <h1>
-                    @if (isLoggedIn) {
-                        Welcome back!
-                    } @else {
-                        {{ isRegisterMode ? 'Register' : 'Login' }}
-                    }
-                </h1>
-            </mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="auth-card-content">
-            @if (isLoggedIn) {
-                <button mat-raised-button color="warn" (click)="onLogout()" [disabled]="isLoading">
-                    @if (isLoading) {
-                        <mat-spinner diameter="20"></mat-spinner>
-                    } @else {
-                        <span>Logout</span>
-                    }
-                </button>
+  <div class="auth-panel">
+    <div class="auth-bg" aria-hidden="true">
+      <div class="bg-pattern"></div>
+      <div class="bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuADQjh2_sGg3EDHSKm-nXAkajVp-LfB9nTeSBOlRmn6t9CZAE4X-cIOBJCiqMh207kTfG8wZfHyNGOQdptm-tIcm9EvOgRPJ3_AacwaC31qqIkKp0dFcw1n1z16rf1AK1E5TITbjVJzdnWbo4kxKko0s8p3Wuenl_dcVnx9D2z8PRwvRQ443MUq3SwYq-f3rbVT-3beRU6s6ZMHSO685_Fv9W6Emiy2PffaZ5PfDnl1UD8Z2uMpqS_x9LqrQAUquWcItEy-FJnVOUHp');"></div>
+      <div class="bg-gradient"></div>
+      <div class="bg-cinema-gradient"></div>
+    </div>
+
+    <div class="auth-card" role="region" aria-labelledby="auth-title" style="z-index:2; position:relative;">
+      <div class="auth-header">
+        <div class="auth-logo" aria-hidden="true">
+          <mat-icon class="material-symbols-outlined">movie_filter</mat-icon>
+        </div>
+        <h1 id="auth-title" class="auth-title">FLICK PICK</h1>
+        <p class="auth-subtitle">Your scene. Your screen.</p>
+      </div>
+
+      <mat-card-content class="auth-card-content">
+        @if (isLoggedIn) {
+          <button mat-raised-button color="warn" class="auth-action-btn logout" (click)="onLogout()" [disabled]="isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20"></mat-spinner>
             } @else {
-                <button mat-raised-button color="primary" (click)="onAction()" [disabled]="isLoading">
-                    @if (isLoading) {
-                        <mat-spinner diameter="20"></mat-spinner>
-                    } @else {
-                        <span>{{ isRegisterMode ? 'Register' : 'Login' }} with External Service</span>
-                    }
-                </button>
-                <p>
-                    {{ isRegisterMode ? 'Already have an account?' : "Don't have an account?" }}
-                    <a (click)="toggleMode()" (keydown.enter)="toggleMode()" tabindex="0" [class.disabled]="isLoading">
-                        {{ isRegisterMode ? 'Login' : 'Register' }}
-                    </a>
-                </p>
+              <span>Logout</span>
             }
-        </mat-card-content>
-    </mat-card>
+          </button>
+        } @else {
+          <div class="auth-form">
+            <button mat-raised-button color="primary" class="auth-action-btn primary" (click)="onAction()" [disabled]="isLoading">
+              @if (isLoading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <span>{{ isRegisterMode ? 'Register' : 'Login' }} with External Service</span>
+              }
+            </button>
+
+            <div class="divider" aria-hidden="true"><span>Or</span></div>
+
+            <button mat-stroked-button class="create-account" type="button" (click)="toggleMode()" [disabled]="isLoading">
+              <span>{{ isRegisterMode ? 'Use External Login' : 'Create New Account' }}</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        }
+      </mat-card-content>
+    </div>
+
+    <div class="legal-links">
+      <a href="#">Privacy Policy</a>
+      <span>•</span>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
 </main>

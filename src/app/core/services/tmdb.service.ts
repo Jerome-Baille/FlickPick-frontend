@@ -22,13 +22,6 @@ interface TmdbSearchResult {
   vote_average?: number;
 }
 
-interface TmdbTrendingResponse {
-  page: number;
-  results: TmdbSearchResult[];
-  total_pages: number;
-  total_results: number;
-}
-
 interface TmdbMovieDetails {
   id: number;
   title: string;
@@ -80,9 +73,5 @@ export class TmdbService {
 
   getTVShowDetails(id: number): Observable<TmdbTvDetails> {
     return this.http.get<TmdbTvDetails>(`${environment.tmdbUrl}/tv/${id}`);
-  }
-
-  getTrendingMovies(timeWindow: 'day' | 'week'): Observable<TmdbTrendingResponse> {
-    return this.http.get<TmdbTrendingResponse>(`${environment.tmdbUrl}/trending/movie/${timeWindow}`);
   }
 }

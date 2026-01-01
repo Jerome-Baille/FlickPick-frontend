@@ -1,156 +1,85 @@
 <section class="create-group-container">
-  <!-- Left Pane: Discovery Engine -->
-  <div class="discovery-pane">
-    <!-- Page Heading -->
+  <div class="create-group-content">
+    <!-- Header -->
     <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">Curate Your Watchlist</h1>
-        <p class="page-subtitle">Search TMDB to find movies for this week's session. Build a shortlist for your group to vote on.</p>
-      </div>
+      <h1 class="page-title">Create a Group</h1>
+      <p class="page-subtitle">Start a new friend group for movie nights. You can invite members now or share the group code later.</p>
     </div>
 
-    <!-- Group Name Input -->
-    <div class="group-name-section">
+    <!-- Group Name Section -->
+    <div class="form-section">
+      <h2 class="section-title">Group Details</h2>
       <mat-form-field appearance="outline" class="group-name-field">
         <mat-label>Group Name</mat-label>
-        <input matInput [(ngModel)]="groupName" placeholder="e.g., Friday Movie Night" maxlength="50">
+        <input matInput [(ngModel)]="groupName" placeholder="e.g., Friday Movie Crew" maxlength="50">
         <mat-icon matPrefix>groups</mat-icon>
+        <mat-hint>{{ groupName.length }}/50</mat-hint>
       </mat-form-field>
     </div>
 
-    <!-- Search Bar -->
-    <div class="search-section">
-      <label class="search-wrapper">
-        <div class="search-input-container">
-          <span class="material-symbols-outlined search-icon">search</span>
-          <input 
-            type="text" 
-            class="search-input" 
-            placeholder="Search for a movie (e.g., Inception)..."
-            [(ngModel)]="searchQuery"
-            (input)="onSearchInput(searchQuery)"
-          />
-        </div>
-      </label>
-    </div>
-
-    <!-- Results Section -->
-    <div class="results-section">
-      <h3 class="results-title">{{ searchQuery ? 'Search Results' : 'Trending Now' }}</h3>
+    <!-- Members Section -->
+    <div class="form-section">
+      <h2 class="section-title">Invite Members (Optional)</h2>
+      <p class="section-hint">Add members by email. They'll receive an invitation when the group is created.</p>
       
-      @if (isSearching) {
-        <div class="loading-state">
-          <span class="material-symbols-outlined spin">progress_activity</span>
-          <p>Searching...</p>
-        </div>
-      } @else {
-        <div class="results-grid">
-          @for (movie of searchResults; track movie.tmdbId) {
-            <div 
-              class="movie-result-card" 
-              [class.in-shortlist]="isInShortlist(movie)"
-              [class.expanded]="isCardExpanded(movie.tmdbId)"
-              (click)="toggleCardExpand(movie.tmdbId)"
-              (keydown.enter)="toggleCardExpand(movie.tmdbId)"
-              (keydown.space)="toggleCardExpand(movie.tmdbId); $event.preventDefault()"
-              tabindex="0"
-              role="button"
-              [attr.aria-expanded]="isCardExpanded(movie.tmdbId)"
-            >
-              <div class="movie-poster-container">
-                <div class="movie-poster" [style.background-image]="'url(' + getPosterUrl(movie.posterPath) + ')'"></div>
-                @if (movie.voteAverage) {
-                  <div class="rating-badge">
-                    <span class="material-symbols-outlined">star</span>
-                    {{ getRatingStars(movie.voteAverage) }}
-                  </div>
-                }
-              </div>
-              
-              <div class="movie-info">
-                <div class="movie-details">
-                  <h4 class="movie-title">{{ movie.title }}</h4>
-                  <p class="movie-meta">{{ getYear(movie.releaseDate) }} • {{ movie.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</p>
-                  <p class="movie-overview">{{ movie.overview }}</p>
-                </div>
-                
-                <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-                <div 
-                  class="movie-actions" 
-                  (click)="$event.stopPropagation()"
-                  (keydown)="$event.stopPropagation()"
-                >
-                  @if (isInShortlist(movie)) {
-                    <button class="btn-added" disabled>
-                      <span class="material-symbols-outlined">check_circle</span>
-                      Added
-                    </button>
-                  } @else {
-                    <button class="btn-add" (click)="addToShortlist(movie)">
-                      <span class="material-symbols-outlined">add_circle</span>
-                      Add to Shortlist
-                    </button>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Right Pane: Active Ballot -->
-  <div class="ballot-pane">
-    <div class="ballot-content">
-      <div class="ballot-header">
-        <h3 class="ballot-title">Active Ballot</h3>
-        <div class="ballot-counter">{{ selectedMovies.length }} Selected</div>
+      <div class="member-input-row">
+        <mat-form-field appearance="outline" class="email-field">
+          <mat-label>Member Email</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="memberEmail" 
+            placeholder="friend@example.com"
+            type="email"
+            (keydown)="handleEmailKeydown($event)"
+          >
+          <mat-icon matPrefix>email</mat-icon>
+        </mat-form-field>
+        <button class="btn-add-member" (click)="addMember()" [disabled]="!memberEmail.trim()">
+          <span class="material-symbols-outlined">person_add</span>
+          Add
+        </button>
       </div>
 
-      <!-- Empty State -->
-      @if (selectedMovies.length === 0) {
-        <div class="empty-state">
-          <span class="material-symbols-outlined empty-icon">movie_edit</span>
-          <p class="empty-text">Your ballot is empty.<br>Add movies from the search results.</p>
-        </div>
-      } @else {
-        <!-- List of Selected Movies -->
-        <div class="ballot-list">
-          @for (movie of selectedMovies; track movie.tmdbId; let i = $index) {
-            <div class="ballot-item">
-              <div class="ballot-poster" [style.background-image]="'url(' + getPosterUrl(movie.posterPath) + ')'"></div>
-              <div class="ballot-info">
-                <h5 class="ballot-movie-title">{{ movie.title }}</h5>
-                <p class="ballot-movie-year">{{ getYear(movie.releaseDate) }}</p>
-              </div>
-              <div class="ballot-actions">
-                <button type="button" class="btn-remove" (click)="removeFromShortlist(i)" title="Remove from shortlist">
-                  <span class="material-symbols-outlined">delete</span>
+      <!-- Invited Members List -->
+      @if (invitedMembers.length > 0) {
+        <div class="invited-members">
+          <h3 class="members-title">Invited Members ({{ invitedMembers.length }})</h3>
+          <div class="members-list">
+            @for (member of invitedMembers; track member.id) {
+              <div class="member-chip">
+                <div class="member-avatar">{{ member.initials }}</div>
+                <span class="member-email">{{ member.email }}</span>
+                <button class="btn-remove-member" (click)="removeMember(member.id)" title="Remove member">
+                  <span class="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Footer Actions -->
-      <div class="ballot-footer">
-        <button class="btn-launch" (click)="goToSetup()" [disabled]="selectedMovies.length < 2">
-          <span class="material-symbols-outlined">arrow_forward</span>
-          Next
-        </button>
-        
-        <div class="footer-meta">
-          <button class="btn-clear" (click)="clearAll()" [disabled]="selectedMovies.length === 0">
-            Clear All
-          </button>
-          <div class="tmdb-attribution">
-            <span class="tmdb-text">Powered by</span>
-            <span class="tmdb-logo">TMDB</span>
+            }
           </div>
         </div>
+      }
+    </div>
+
+    <!-- Info Card -->
+    <div class="info-card">
+      <span class="material-symbols-outlined info-icon">info</span>
+      <div class="info-content">
+        <p class="info-title">How it works</p>
+        <p class="info-text">After creating the group, you'll get a unique code that anyone can use to join. You can also create movie night events where your group votes on what to watch!</p>
       </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="goBack()">Cancel</button>
+      <button class="btn-primary" (click)="createGroup()" [disabled]="!canCreateGroup || isSubmitting">
+        @if (isSubmitting) {
+          <span class="material-symbols-outlined spin">progress_activity</span>
+          Creating...
+        } @else {
+          <span class="material-symbols-outlined">group_add</span>
+          Create Group
+        }
+      </button>
     </div>
   </div>
 </section>

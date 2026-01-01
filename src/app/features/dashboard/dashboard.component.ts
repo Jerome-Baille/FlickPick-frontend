@@ -8,18 +8,17 @@ import { DataService } from 'src/app/core/services/data.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { User } from 'src/app/shared/models/User';
-import { Group } from 'src/app/shared/models/Group';
+import { Event as MovieNightEvent } from '../../shared/models/Event';
 
 interface GroupItem {
   id: number;
   name: string;
+  adminIds?: number[];
   isAdmin?: boolean;
   code?: string;
   Users?: { id: number; username: string }[];
+  Events?: MovieNightEvent[];
   coverImage?: string;
-  status?: 'voting' | 'selecting' | 'scheduled' | 'completed';
-  nextSession?: string;
-  scheduledMovie?: string;
 }
 
 interface UpcomingSession {
@@ -29,28 +28,6 @@ interface UpcomingSession {
   dateTime: string;
   isWinner?: boolean;
   status: 'confirmed' | 'voting';
-}
-
-interface SelectedMedia {
-  tmdbId: number;
-  mediaType: 'movie' | 'tv';
-  title?: string;
-  releaseDate?: string;
-  posterPath?: string;
-  overview?: string;
-}
-
-interface DialogResult {
-  name: string;
-  listName: string;
-  selectedMedia: SelectedMedia[];
-}
-
-interface ApiResponse {
-  message: string;
-  list?: unknown;
-  group?: Group;
-  code?: string;
 }
 
 @Component({
@@ -108,12 +85,13 @@ export class DashboardComponent implements OnInit {
         if (groups && Array.isArray(groups) && groups.length > 0) {
           this.recentGroups = groups.slice(0, 4).map((group, index) => ({
             ...group,
-            coverImage: this.groupCovers[index % this.groupCovers.length],
-            status: this.getRandomStatus(),
-            nextSession: this.getRandomSessionText()
+            coverImage: this.groupCovers[index % this.groupCovers.length]
           }));
-          // Calculate pending votes (placeholder logic)
-          this.pendingVotes = this.recentGroups.filter(g => g.status === 'voting').length;
+          this.extractUpcomingSessions(groups);
+          // Calculate pending votes from events with voting status
+          this.pendingVotes = groups.reduce((count, group) => {
+            return count + (group.Events?.filter(e => e.status === 'voting').length || 0);
+          }, 0);
         } else {
           this.recentGroups = [];
         }
@@ -122,32 +100,90 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  private getRandomStatus(): 'voting' | 'selecting' | 'scheduled' {
-    const statuses: ('voting' | 'selecting' | 'scheduled')[] = ['voting', 'selecting', 'scheduled'];
-    return statuses[Math.floor(Math.random() * statuses.length)];
+  private extractUpcomingSessions(groups: GroupItem[]): void {
+    const sessions: UpcomingSession[] = [];
+    groups.forEach(group => {
+      group.Events?.forEach(event => {
+        if (event.status === 'voting' || (event.status === 'draft' && event.eventDate)) {
+          sessions.push({
+            groupName: group.name,
+            movieTitle: event.name,
+            dateTime: event.eventDate as string,
+            status: event.status === 'voting' ? 'voting' : 'confirmed',
+            isWinner: false
+          });
+        }
+      });
+    });
+    this.upcomingSessions = sessions.slice(0, 5);
   }
 
-  private getRandomSessionText(): string {
-    const texts = ['Friday the 13th', 'This weekend', 'Next Saturday', 'TBD'];
-    return texts[Math.floor(Math.random() * texts.length)];
-  }
-
-  getStatusLabel(status?: string): string {
-    switch (status) {
-      case 'voting': return 'VOTING ACTIVE';
-      case 'selecting': return 'HOST SELECTING';
-      case 'scheduled': return 'SCHEDULED';
-      default: return '';
+  getGroupStatus(group: GroupItem): { label: string; type: 'voting' | 'selecting' | 'scheduled' | 'none' } {
+    const votingEvent = group.Events?.find(e => e.status === 'voting');
+    if (votingEvent) {
+      return { label: 'VOTING ACTIVE', type: 'voting' };
     }
+    
+    const upcomingEvent = group.Events?.find(e => e.status === 'draft' && e.eventDate);
+    if (upcomingEvent) {
+      return { label: 'SCHEDULED', type: 'scheduled' };
+    }
+
+    const draftEvent = group.Events?.find(e => e.status === 'draft');
+    if (draftEvent) {
+      return { label: 'PLANNING', type: 'selecting' };
+    }
+
+    return { label: '', type: 'none' };
   }
 
-  getStatusIcon(status?: string): string {
-    switch (status) {
+  getNextSession(group: GroupItem): string {
+    const nextEvent = group.Events?.find(e => e.status !== 'completed' && e.status !== 'cancelled');
+    if (nextEvent?.eventDate) {
+      return new Date(nextEvent.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    return 'TBD';
+  }
+
+  getStatusIcon(type: string): string {
+    switch (type) {
       case 'voting': return 'how_to_vote';
       case 'selecting': return 'edit_note';
       case 'scheduled': return 'event_available';
       default: return 'groups';
     }
+  }
+
+  getPrimaryEventId(group: GroupItem): number | null {
+    if (!group.Events || group.Events.length === 0) {
+      return null;
+    }
+    
+    // Priority: voting > scheduled > draft > any
+    const votingEvent = group.Events.find(e => e.status === 'voting');
+    if (votingEvent) return votingEvent.id;
+    
+    const scheduledEvent = group.Events.find(e => e.status === 'draft' && e.eventDate);
+    if (scheduledEvent) return scheduledEvent.id;
+    
+    const draftEvent = group.Events.find(e => e.status === 'draft');
+    if (draftEvent) return draftEvent.id;
+    
+    // Return the most recent event
+    return group.Events[group.Events.length - 1].id;
+  }
+
+  getEventRoute(group: GroupItem): string[] {
+    const eventId = this.getPrimaryEventId(group);
+    if (!eventId) {
+      return ['/group/detail', group.id.toString()];
+    }
+    
+    const status = this.getGroupStatus(group);
+    if (status.type === 'voting') {
+      return ['/event/voting', eventId.toString()];
+    }
+    return ['/event/detail', eventId.toString()];
   }
 
   createGroup() {
