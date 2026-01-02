@@ -1,0 +1,210 @@
+<main class="calendar-container">
+  <!-- Page Header with Breadcrumb -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="#" class="breadcrumb-link">Dashboard</a>
+      <span class="material-symbols-outlined breadcrumb-icon">chevron_right</span>
+      <span class="breadcrumb-current">Calendar</span>
+    </div>
+    <h2 class="page-title">Movie Night Calendar</h2>
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <div class="month-navigation glass-panel">
+      <button class="nav-btn" (click)="previousMonth()">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="month-label">{{ getMonthYearDisplay() }}</span>
+      <button class="nav-btn" (click)="nextMonth()">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+    <div class="control-buttons">
+      <button class="filter-btn glass-panel">
+        <span class="material-symbols-outlined">filter_list</span>
+        <span class="filter-text">Filter Groups</span>
+      </button>
+      <button class="add-event-btn">
+        <span class="material-symbols-outlined">add</span>
+        <span class="add-text">Add Event</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="calendar-main">
+    <!-- Calendar Grid -->
+    <div class="calendar-section">
+      <div class="calendar-grid glass-panel">
+        <!-- Day Headers -->
+        <div class="calendar-days">
+          <div class="day-label">Mon</div>
+          <div class="day-label">Tue</div>
+          <div class="day-label">Wed</div>
+          <div class="day-label">Thu</div>
+          <div class="day-label">Fri</div>
+          <div class="day-label">Sat</div>
+          <div class="day-label">Sun</div>
+        </div>
+
+        <!-- Calendar Cells -->
+        <div class="calendar-cells">
+          @for (calDay of calendarDays; track calDay.date.getTime()) {
+            <div class="calendar-cell"
+                 [class.faded]="!calDay.isCurrentMonth"
+                 [class.today]="calDay.isToday">
+              <!-- Today indicator bar -->
+              @if (calDay.isToday) {
+                <div class="today-bar"></div>
+              }
+              <!-- Cell content -->
+              <div class="cell-content">
+                <!-- Today badge and day number -->
+                <div class="cell-header">
+                  @if (calDay.isToday) {
+                    <span class="today-badge">Today</span>
+                  }
+                  <span class="day-number">{{ calDay.day }}</span>
+                </div>
+                <!-- Events for this day -->
+                <div class="events-container">
+                  @for (event of calDay.events; track event.id) {
+                    <div class="event-card"
+                         [routerLink]="['/event/detail', event.id]"
+                         [class.tonight]="isEventTonight(event)"
+                         [class.watched]="event.status === 'completed'"
+                         [class.voting]="event.status === 'voting'"
+                         [class.selecting]="event.status === 'draft'">
+                      <div class="event-header">
+                        <span class="group-name">{{ event.groupName }}</span>
+                        <span class="material-symbols-outlined status-icon"
+                              [class.animated]="isEventTonight(event) && event.status !== 'completed'">
+                          {{ getEventStatusIcon(event.status) }}
+                        </span>
+                      </div>
+                      <div class="event-title" 
+                           [class.strike]="event.status === 'completed'">
+                        {{ event.name }}
+                      </div>
+                      <div class="event-time-container">
+                        @if (event.startTime && event.status !== 'completed' && event.status !== 'voting') {
+                          <span class="material-symbols-outlined time-icon">schedule</span>
+                        }
+                        <span class="event-time">{{ getEventTimeDisplay(event) }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="calendar-sidebar">
+      <!-- Legend -->
+      <section class="sidebar-panel glass-panel">
+        <h3 class="panel-title">Legend</h3>
+        <div class="legend-list">
+          <div class="legend-item">
+            <span class="dot active"></span>
+            <span class="legend-text">Tonight / Active</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot voting"></span>
+            <span class="legend-text">Voting In Progress</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot selecting"></span>
+            <span class="legend-text">Host Selecting</span>
+          </div>
+          <div class="legend-item">
+            <span class="dot watched"></span>
+            <span class="legend-text">Watched</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Next Up -->
+      <section class="sidebar-panel glass-panel">
+        <div class="panel-header">
+          <h3 class="panel-title">Next Up</h3>
+          @if (nextUpEvents.length > 3) {
+            <button class="view-all-btn">View All</button>
+          }
+        </div>
+        
+        @if (nextUpEvents.length > 0) {
+          <div class="next-list">
+            @for (event of nextUpEvents; let last = $last; track event.id) {
+              <div class="next-item-wrapper">
+                <div class="next-item" [routerLink]="['/event/detail', event.id]">
+                  <!-- Poster -->
+                  <div class="poster">
+                    @if (event.status === 'completed' && event.posterPath) {
+                      <img [src]="'https://image.tmdb.org/t/p/w154' + event.posterPath" 
+                           [alt]="event.name + ' poster'"
+                           class="poster-image">
+                      <span class="winner-badge">WINNER</span>
+                    } @else {
+                      <span class="material-symbols-outlined poster-icon">movie</span>
+                    }
+                  </div>
+                  <!-- Event Info -->
+                  <div class="next-info">
+                    <div class="next-time" [class.tonight]="isEventTonight(event)">
+                      {{ formatEventDate(event) }}
+                    </div>
+                    <h4 class="next-title">{{ event.name }}</h4>
+                    <p class="next-group">{{ event.groupName }}</p>
+                  </div>
+                </div>
+                @if (!last) {
+                  <div class="divider"></div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-events">
+            <span class="material-symbols-outlined no-events-icon">event_available</span>
+            <p class="no-events-text">No upcoming events</p>
+          </div>
+        }
+      </section>
+
+      <!-- Your Groups -->
+      <section class="sidebar-panel glass-panel">
+        <h3 class="panel-title">Your Groups</h3>
+        
+        @if (groups.length > 0) {
+          <div class="group-list">
+            @for (group of groups; track group.id) {
+              <label class="group-label">
+                <input type="checkbox" 
+                       [checked]="isGroupSelected(group.id)"
+                       (change)="toggleGroup(group.id)"
+                       class="group-checkbox">
+                <span class="group-name-text">{{ group.name }}</span>
+              </label>
+            }
+          </div>
+        } @else {
+          <div class="no-events">
+            <p class="no-events-text">No groups yet</p>
+          </div>
+        }
+      </section>
+    </aside>
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  }
+</main>

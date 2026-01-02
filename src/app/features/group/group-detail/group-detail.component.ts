@@ -114,8 +114,8 @@ export class GroupDetailComponent {
 
     loadGroupEvents(groupId: number): void {
         this.dataService.getEventsByGroup(groupId).subscribe({
-            next: (events: MovieNightEvent[]) => {
-                this.groupEvents = events;
+            next: (res: { events: MovieNightEvent[] }) => {
+                this.groupEvents = res.events || [];
             },
             error: (err: Error) => {
                 this.snackbarService.showError('Failed to load events: ' + err.message);

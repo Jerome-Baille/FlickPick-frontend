@@ -26,14 +26,28 @@
             <div class="section-header">
                 <h2 class="section-title">Your Casting Couches</h2>
                 <div class="section-tabs">
-                    <button class="tab-btn active">Active</button>
+                    <button class="tab-btn" 
+                            [class.active]="activeTab === 'active'"
+                            (click)="switchTab('active')">
+                        Active
+                        @if (activeGroups.length > 0) {
+                            <span class="tab-count">({{ activeGroups.length }})</span>
+                        }
+                    </button>
                     <span class="tab-divider">|</span>
-                    <button class="tab-btn">Archived</button>
+                    <button class="tab-btn"
+                            [class.active]="activeTab === 'archived'"
+                            (click)="switchTab('archived')">
+                        Archived
+                        @if (archivedGroups.length > 0) {
+                            <span class="tab-count">({{ archivedGroups.length }})</span>
+                        }
+                    </button>
                 </div>
             </div>
 
             <div class="groups-grid">
-                @for (group of recentGroups; track group.id) {
+                @for (group of displayedGroups; track group.id) {
                     <div class="group-card glass-panel" [routerLink]="getEventRoute(group)">
                         <!-- Status Badge -->
                         @let status = getGroupStatus(group);
@@ -84,19 +98,29 @@
                     </div>
                 }
 
-                <!-- Create New Group Card -->
-                <div class="create-group-card" 
-                     (click)="createGroup()" 
-                     (keydown.enter)="createGroup()" 
-                     (keydown.space)="createGroup()"
-                     tabindex="0"
-                     role="button">
-                    <div class="create-icon">
-                        <span class="material-symbols-outlined">add</span>
+                <!-- Create New Group Card - Only show on active tab -->
+                @if (activeTab === 'active') {
+                    <div class="create-group-card" 
+                         (click)="createGroup()" 
+                         (keydown.enter)="createGroup()" 
+                         (keydown.space)="createGroup()"
+                         tabindex="0"
+                         role="button">
+                        <div class="create-icon">
+                            <span class="material-symbols-outlined">add</span>
+                        </div>
+                        <h3 class="create-title">Start a New Club</h3>
+                        <p class="create-description">Gather your friends and start picking flicks.</p>
                     </div>
-                    <h3 class="create-title">Start a New Club</h3>
-                    <p class="create-description">Gather your friends and start picking flicks.</p>
-                </div>
+                }
+
+                <!-- Empty state for archived tab -->
+                @if (activeTab === 'archived' && archivedGroups.length === 0) {
+                    <div class="empty-state">
+                        <span class="material-symbols-outlined">archive</span>
+                        <p>No archived events yet</p>
+                    </div>
+                }
             </div>
         </div>
 
@@ -111,8 +135,8 @@
 
                 <div class="upcoming-list">
                     @if (upcomingSessions.length > 0) {
-                        @for (session of upcomingSessions; track session.movieTitle) {
-                            <div class="upcoming-item">
+                        @for (session of upcomingSessions; track session.eventId) {
+                            <div class="upcoming-item" [routerLink]="['/event/detail', session.eventId]">
                                 <div class="movie-poster-small">
                                     @if (session.posterPath) {
                                         <img [src]="'https://image.tmdb.org/t/p/w200' + session.posterPath" 
@@ -128,12 +152,10 @@
                                     <span class="session-time">{{ formatSessionDateTime(session.dateTime) }}</span>
                                     <h4 class="movie-title">{{ session.movieTitle }}</h4>
                                     <p class="session-group">{{ session.groupName }}</p>
-                                    @if (session.status === 'confirmed') {
-                                        <div class="countdown-badge">
-                                            <span class="material-symbols-outlined">timer</span>
-                                            <span>Coming up</span>
-                                        </div>
-                                    }
+                                    <div class="countdown-badge">
+                                        <span class="material-symbols-outlined">event_available</span>
+                                        <span>Scheduled</span>
+                                    </div>
                                 </div>
                             </div>
                         }
@@ -151,7 +173,7 @@
                     }
                 </div>
 
-                <button class="view-calendar-btn">
+                <button class="view-calendar-btn" routerLink="/calendar">
                     <span>View Full Calendar</span>
                     <span class="material-symbols-outlined">arrow_forward</span>
                 </button>

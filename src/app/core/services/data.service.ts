@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Event, EventStatus } from '../../shared/models/Event';
+import { Group } from 'src/app/shared/models/Group';
 
 export interface Media {
   tmdbId: number;
@@ -132,11 +133,11 @@ export class DataService {
   }
 
   getAllGroupsForUser() {
-    return this.http.get(`${this.groupURL}`, { withCredentials: true });
+    return this.http.get<Group[]>(`${this.groupURL}`, { withCredentials: true });
   }
 
   getUserGroups() {
-    return this.http.get(`${this.groupURL}`, { withCredentials: true });
+    return this.http.get<Group[]>(`${this.groupURL}`, { withCredentials: true });
   }
 
   // ===== EVENT METHODS =====
@@ -174,8 +175,8 @@ export class DataService {
     return this.http.get<Event>(`${this.eventURL}/${eventId}`);
   }
 
-  getEventsByGroup(groupId: number): Observable<Event[]> {
-    return this.http.get<Event[]>(`${this.eventURL}/group/${groupId}`);
+  getEventsByGroup(groupId: number): Observable<{ events: Event[] }> {
+    return this.http.get<{ events: Event[] }>(`${this.eventURL}/group/${groupId}`);
   }
 
   updateEvent(eventId: number, updatedEvent: {
