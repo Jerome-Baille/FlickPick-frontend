@@ -12,8 +12,9 @@
             <nav class="desktop-nav">
                 @if (isLoggedIn()) {
                     <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-                    <a routerLink="/media" routerLinkActive="active">Movies</a>
+                    <a routerLink="/media" routerLinkActive="active">Search</a>
                     <a routerLink="/group/overview" routerLinkActive="active">Groups</a>
+                    <a routerLink="/archive" routerLinkActive="active">Archive</a>
                 } @else {
                     <a routerLink="/auth" routerLinkActive="active">Login</a>
                 }
@@ -54,9 +55,13 @@
             <span class="material-symbols-outlined">groups</span>
             <span class="nav-label">Groups</span>
         </a>
-        <a routerLink="/profile" routerLinkActive="active">
-            <span class="material-symbols-outlined">person</span>
-            <span class="nav-label">Profile</span>
+        <a routerLink="/archive" routerLinkActive="active">
+            <span class="material-symbols-outlined">archive</span>
+            <span class="nav-label">Archive</span>
+        </a>
+        <a routerLink="/auth" routerLinkActive="active">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="nav-label">Logout</span>
         </a>
     } @else {
         <a routerLink="/auth" routerLinkActive="active">
