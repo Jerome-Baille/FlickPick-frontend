@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Group } from 'src/app/shared/models/Group';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
-import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
+import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 interface ApiResponse {
   message: string;
@@ -87,13 +87,20 @@ export class GroupOverviewComponent {
     }
 
     joinGroup() {
-        const dialogRef = this.dialog.open(BasicModalComponent, {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            width: '480px',
+            maxWidth: '90vw',
+            panelClass: 'confirmation-dialog-panel',
+            disableClose: false,
+            autoFocus: false,
             data: {
                 title: 'Join Group',
-                message: 'Enter the group code:',
+                message: 'Enter the group code to join an existing group.',
+                icon: 'group_add',
                 showInput: true,
-                placeholder: 'Group Code',
-                confirmText: 'Join'
+                inputPlaceholder: 'Group Code',
+                confirmText: 'Join',
+                cancelText: 'Cancel'
             }
         });
 
@@ -116,11 +123,19 @@ export class GroupOverviewComponent {
     }
 
     deleteGroup(group: Group) {
-        const dialogRef = this.dialog.open(BasicModalComponent, {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+            width: '480px',
+            maxWidth: '90vw',
+            panelClass: 'confirmation-dialog-panel',
+            disableClose: false,
+            autoFocus: false,
             data: {
                 title: 'Delete Group',
-                message: `Are you sure you want to delete the group "${group.name}"? This action cannot be undone.`,
-                confirmText: 'Delete'
+                message: `Are you sure you want to delete <strong>${group.name}</strong>? This action cannot be undone.`,
+                icon: 'delete',
+                iconFilled: true,
+                confirmText: 'Delete',
+                cancelText: 'Cancel'
             }
         });
 

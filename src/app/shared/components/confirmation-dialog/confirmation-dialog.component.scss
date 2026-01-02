@@ -1,0 +1,185 @@
+// Confirmation dialog content styles
+.confirmation-dialog-content {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 2rem;
+}
+
+// Icon Container with Ring and Glow
+.icon-container {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(250, 221, 56, 0.10);
+  border: 1px solid rgba(250, 221, 56, 0.20);
+  box-shadow: 0 0 0 0 rgba(250, 221, 56, 0.4);
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  .dialog-icon {
+    font-size: 32px;
+    color: #fadd38;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+    &.filled {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+    }
+  }
+}
+
+// Title Styling
+.dialog-title {
+  font-family: 'Be Vietnam Pro', 'Bebas Neue', sans-serif;
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.025em;
+  color: #f5f5f5;
+  margin: 0 0 0.75rem;
+  text-align: center;
+  tracking-tight: 0.01em;
+}
+
+// Message Styling
+.dialog-message {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #e0e0e0;
+  opacity: 0.8;
+  margin: 0 0 1.5rem;
+  text-align: center;
+
+  ::ng-deep strong,
+  ::ng-deep b,
+  ::ng-deep .highlight {
+    color: #fff;
+    font-weight: 500;
+  }
+}
+
+// Input Container
+.input-container {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.dialog-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.75rem;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &:focus {
+    border-color: #fadd38;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(250, 221, 56, 0.15);
+  }
+}
+
+// Action Buttons
+.dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  flex-direction: column-reverse;
+
+  @media screen and (min-width: 640px) {
+    flex-direction: row;
+  }
+
+  button {
+    flex: 1;
+    height: 48px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+    border-radius: 0.75rem;
+    text-transform: none;
+    transition: all 0.2s ease-in-out;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+    line-height: 1;
+  }
+}
+
+// Cancel Button (Secondary)
+.cancel-btn {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: #f5f5f5 !important;
+  box-shadow: none !important;
+
+  &:hover {
+    background: rgba(255,255,255,0.10) !important;
+    border-color: rgba(255,255,255,0.20) !important;
+  }
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.20) !important;
+  }
+}
+
+// Confirm Button (Primary)
+.confirm-btn {
+  background: #fadd38 !important;
+  color: #181711 !important;
+  box-shadow: 0 0 20px -5px rgba(250,221,56,0.4) !important;
+
+  &:hover {
+    background: #eacc30 !important;
+    box-shadow: 0 0 25px -5px rgba(250,221,56,0.6) !important;
+  }
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(250,221,56,0.5) !important;
+  }
+}
+
+// Animations
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(249, 212, 6, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(249, 212, 6, 0);
+  }
+}

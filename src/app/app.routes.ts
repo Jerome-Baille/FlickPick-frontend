@@ -6,8 +6,6 @@ import { AfterLoginComponent } from './features/auth/after-login/after-login.com
 import { SearchComponent } from './features/search/search/search.component';
 import { SearchDetailViewComponent } from './features/search/search-detail-view/search-detail-view.component';
 import { CastDetailViewComponent } from './features/search/cast-detail-view/cast-detail-view.component';
-import { ProfileDetailComponent } from './features/profile/profile-detail/profile-detail.component';
-import { ProfileListComponent } from './features/profile/profile-list/profile-list.component';
 import { GroupOverviewComponent } from './features/group/group-overview/group-overview.component';
 import { GroupDetailComponent } from './features/group/group-detail/group-detail.component';
 import { environment } from 'src/environments/environment';
@@ -46,15 +44,6 @@ export const routes: Routes = [
       { path: 'detail/tv/:id', component: SearchDetailViewComponent },
       { path: 'detail/tv/:id/cast', component: CastDetailViewComponent },
       { path: '', pathMatch: 'full', redirectTo: 'search' }
-    ]
-  },
-  {
-    path: 'profile',
-    canActivate: [authGuard],
-    children: [
-      { path: 'own', component: ProfileDetailComponent },
-      { path: 'list/:listId', component: ProfileListComponent },
-      { path: '', pathMatch: 'full', redirectTo: 'own' }
     ]
   },
   {

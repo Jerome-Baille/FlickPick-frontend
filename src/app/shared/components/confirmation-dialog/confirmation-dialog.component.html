@@ -1,0 +1,45 @@
+<div class="confirmation-dialog-content">
+  <!-- Icon Container -->
+  <div class="icon-container">
+    <span class="material-symbols-outlined dialog-icon" [class.filled]="data.iconFilled">
+      {{ data.icon }}
+    </span>
+  </div>
+
+  <!-- Title -->
+  <h2 class="dialog-title">{{ data.title }}</h2>
+
+  <!-- Message -->
+  <p class="dialog-message" [innerHTML]="data.message"></p>
+
+  <!-- Optional Input Field -->
+  @if (data.showInput) {
+    <div class="input-container">
+      <input
+        [type]="data.inputType || 'text'"
+        [(ngModel)]="inputValue"
+        [placeholder]="data.inputPlaceholder"
+        class="dialog-input"
+        (keyup.enter)="onConfirm()"
+      />
+    </div>
+  }
+
+  <!-- Action Buttons -->
+  <div class="dialog-actions">
+    <button 
+      mat-button 
+      class="cancel-btn" 
+      (click)="onCancel()"
+      type="button">
+      {{ data.cancelText }}
+    </button>
+    <button 
+      mat-raised-button 
+      class="confirm-btn" 
+      (click)="onConfirm()"
+      type="button">
+      {{ data.confirmText }}
+    </button>
+  </div>
+</div>

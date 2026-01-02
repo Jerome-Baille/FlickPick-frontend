@@ -433,6 +433,35 @@ main {
   }
 }
 
+// Confirmation dialog panel - must be global to target CDK overlay
+.confirmation-dialog-panel {
+  .mat-mdc-dialog-container {
+    padding: 0;
+    background: rgba(35, 32, 15, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.6);
+    color: var(--color-text-cream, #f3f0e6);
+    overflow: hidden;
+  }
+
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border-radius: inherit;
+    overflow: hidden;
+    --mdc-dialog-container-shape: 16px;
+  }
+
+  .mat-mdc-dialog-container .mat-mdc-dialog-content {
+    margin: 0;
+    padding: 0;
+  }
+}
+
 // Material Symbols Icon styling
 .material-symbols-outlined {
   font-variation-settings:
