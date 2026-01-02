@@ -1,11 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faFilm } from '@fortawesome/free-solid-svg-icons';
 import { DataService } from 'src/app/core/services/data.service';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { BackButtonComponent } from 'src/app/shared/components/back-button/back-button.component';
@@ -59,9 +56,7 @@ interface MediaDetails {
     selector: 'app-search-detail-view',
     imports: [
         CommonModule, 
-        MatCardModule,
         MatIconModule,
-        MatProgressSpinnerModule,
         BackButtonComponent
     ],
     templateUrl: './search-detail-view.component.html',
@@ -81,8 +76,6 @@ export class SearchDetailViewComponent {
   castArray!: CastMember[];
   similarArray!: SimilarItem[];
 
-  faFilm = faFilm;
-
   constructor() {
     const id = parseInt(this.route.snapshot.paramMap.get('id')!, 10);
 
@@ -92,7 +85,6 @@ export class SearchDetailViewComponent {
     const handleMediaResponse = (media: MediaDetails) => {
       this.media = media;
       this.getCast();
-      this.getSimilar(this.mediaType);
       if (this.media?.credits?.cast) {
         this.dataService.setCastData(this.media.credits.cast);
       }
@@ -126,6 +118,29 @@ export class SearchDetailViewComponent {
     const minutes = durationNum % 60;
     if (hours === 0) return `${minutes}m`;
     return `${hours}h ${minutes}m`;
+  }
+
+  getYear(date: string | undefined): string {
+    if (!date) return '';
+    return new Date(date).getFullYear().toString();
+  }
+
+  getStars(voteAverage: number): string[] {
+    const rating = voteAverage / 2; // Convert from 10-scale to 5-scale
+    const stars: string[] = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push('star');
+    }
+    if (hasHalfStar && stars.length < 5) {
+      stars.push('star_half');
+    }
+    while (stars.length < 5) {
+      stars.push('star_outline');
+    }
+    return stars;
   }
 
   getBorderColor(voteAverage: number): string {
@@ -165,11 +180,6 @@ export class SearchDetailViewComponent {
   getCast() {
     const cast = this.media?.credits?.cast ?? [];
     this.castArray = cast.slice(0, 8);
-  }
-
-  getSimilar(mediaType: string) {
-    const similar = mediaType === 'movie' ? this.media?.similar?.results : this.media?.recommendations?.results;
-    this.similarArray = (similar ?? []).slice(0, 8);
   }
 
   onNavigateToCast() {

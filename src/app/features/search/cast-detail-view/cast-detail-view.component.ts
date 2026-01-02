@@ -1,6 +1,4 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
 import { DataService } from 'src/app/core/services/data.service';
 import { BackButtonComponent } from 'src/app/shared/components/back-button/back-button.component';
 import { environment } from 'src/environments/environment';
@@ -21,7 +19,7 @@ interface CrewMember {
 
 @Component({
     selector: 'app-cast-detail-view',
-    imports: [CommonModule, MatCardModule, BackButtonComponent],
+    imports: [BackButtonComponent],
     templateUrl: './cast-detail-view.component.html',
     styleUrls: ['./cast-detail-view.component.scss'],
     standalone: true

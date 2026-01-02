@@ -1,47 +1,46 @@
-<main>
-    <mat-card class="media-card">
-        <app-back-button />
+<main class="detail-container">
+  <nav class="breadcrumb">
+    <app-back-button />
+  </nav>
 
-        <mat-card-header>
-            <mat-card-title>
-                <h3>Cast</h3>
-            </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <ol class="cast-container">
-                @for (cast of castData; track cast.id) {
-                    <li class="cast-card">
-                        <img [src]="cast.profile_path ? TMDB_IMAGE_BASE_URL + cast.profile_path : 'assets/images/poster-not-found.png'"
-                            alt="{{ cast.name }}" />
-                        <div class="cast-text">
-                            <span class="cast-name">{{ cast.name }}</span>
-                            <span class="cast-character">{{ cast.character }}</span>
-                        </div>
-                    </li>
-                }
-            </ol>
-        </mat-card-content>
-    </mat-card>
+  <div class="glass-panel">
+    <div class="content-wrapper">
+      <div class="title-section">
+        <h1>
+          <span class="title-gradient">Cast</span>
+          <span class="title-gradient">&amp; Crew</span>
+        </h1>
+      </div>
 
-    <mat-card class="media-card">
-        <mat-card-header>
-            <mat-card-title>
-                <h3>Crew</h3>
-            </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <ol class="cast-container">
-                @for (crew of crewData; track crew.id) {
-                    <li class="cast-card">
-                        <img [src]="crew.profile_path ? TMDB_IMAGE_BASE_URL + crew.profile_path : 'assets/images/poster-not-found.png'"
-                            alt="{{ crew.name }}" />
-                        <div class="cast-text">
-                            <span class="cast-name">{{ crew.name }}</span>
-                            <span class="cast-character">{{ crew.job }}</span>
-                        </div>
-                    </li>
-                }
-            </ol>
-        </mat-card-content>
-    </mat-card>
+      <section class="cast-block">
+        <h3>Cast</h3>
+        <ul class="cast-list">
+          @for (cast of castData; track cast.id) {
+            <li class="cast-card" role="button" tabindex="0">
+              <img [src]="cast.profile_path ? TMDB_IMAGE_BASE_URL + cast.profile_path : 'assets/images/poster-not-found.png'" alt="{{ cast.name }}" />
+              <div class="cast-info">
+                <span class="cast-name">{{ cast.name }}</span>
+                <span class="cast-character">{{ cast.character }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="cast-block">
+        <h3>Crew</h3>
+        <ul class="cast-list">
+          @for (crew of crewData; track crew.id) {
+            <li class="cast-card" role="button" tabindex="0">
+              <img [src]="crew.profile_path ? TMDB_IMAGE_BASE_URL + crew.profile_path : 'assets/images/poster-not-found.png'" alt="{{ crew.name }}" />
+              <div class="cast-info">
+                <span class="cast-name">{{ crew.name }}</span>
+                <span class="cast-character">{{ crew.job }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    </div>
+  </div>
 </main>
