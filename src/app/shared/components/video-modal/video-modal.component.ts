@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YouTubePlayer } from '@angular/youtube-player';
 
@@ -11,20 +11,17 @@ import { YouTubePlayer } from '@angular/youtube-player';
     styleUrls: ['./video-modal.component.scss'],
     standalone: true
 })
-export class VideoModalComponent implements OnInit {
+export class VideoModalComponent {
   data = inject(MAT_DIALOG_DATA);
 
   videoId!: string;
+
+  // Provide origin to the YouTube player to avoid postMessage origin warnings
+  playerVars = { origin: window.location.origin };
 
   constructor() {
     const data = this.data;
 
     this.videoId = data.trailers[0].key;
-  }
-
-  ngOnInit(): void {
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    document.body.appendChild(tag);
   }
 }

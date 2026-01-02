@@ -29,8 +29,8 @@
     (function() {
       var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       var cspContent = isLocalhost
-        ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:3000 https://api.themoviedb.org; img-src *;"
-        : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://auth.jerome-baille.fr https://flick-pick.jerome-baille.fr https://api.themoviedb.org; img-src *;";
+        ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:3000 https://api.themoviedb.org https://www.youtube.com https://s.ytimg.com; img-src *; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;"
+        : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://auth.jerome-baille.fr https://flick-pick.jerome-baille.fr https://api.themoviedb.org https://www.youtube.com https://s.ytimg.com; img-src *; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;";
       
       var meta = document.createElement('meta');
       meta.httpEquiv = 'Content-Security-Policy';
