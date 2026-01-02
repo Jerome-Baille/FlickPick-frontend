@@ -36,6 +36,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/calendar/calendar.component').then(m => m.CalendarComponent)
   },
   {
+    path: 'archive',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/archive/archive.component').then(m => m.ArchiveComponent)
+  },
+  {
     path: 'auth',
     children: authChildren
   },

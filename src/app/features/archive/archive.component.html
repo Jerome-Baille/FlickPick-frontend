@@ -1,0 +1,63 @@
+<div class="archive-root">
+  <div class="archive-header">
+    <div class="title">
+      <h1>The Archive</h1>
+      <p class="subtitle">A hall of fame for our movie night champions.</p>
+    </div>
+
+    <div class="actions">
+      <div class="search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search history..." (input)="onSearchChange($any($event.target).value)" />
+      </div>
+      <div class="view-buttons">
+        <button class="btn-outline" title="View as List">
+          <span class="material-symbols-outlined">view_list</span>
+        </button>
+        <button class="btn-primary" title="View as Grid">
+          <span class="material-symbols-outlined">grid_view</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="chip">Sort: Date Watched</button>
+    <button class="chip">Filter: Genre</button>
+    <button class="chip">Filter: Rating</button>
+  </div>
+
+  <div class="archive-grid">
+    @if (!loading && filteredWinners.length === 0) {
+      <div class="empty-state">
+        <p class="empty-title">The archives are dusty...</p>
+        <p class="empty-desc">No past winners found. Finished events will appear here when a winner is chosen.</p>
+      </div>
+    }
+
+    @if (filteredWinners.length > 0) {
+      @for (item of filteredWinners; track item.eventId) {
+        <div class="card">
+          <div class="poster" [style.background-image]="'url(' + (item.media?.posterPath || '/assets/placeholder-300x450.png') + ')'">
+            <div class="poster-overlay"></div>
+            <div class="rating">⭐ {{ item.media?.rating | number:'1.1-1' }}</div>
+            <div class="meta">
+              <div class="genre">{{ item.media?.genre || '' }}</div>
+              <div class="title">{{ item.media?.title }}</div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <div class="date">{{ formatDate(item.eventDate) }}</div>
+            <a [routerLink]="['/event/detail', item.eventId]" class="play"> <span class="material-symbols-outlined">play_circle</span></a>
+          </div>
+        </div>
+      }
+    }
+
+    @if (loading) {
+      <div class="loading">
+        <span class="material-symbols-outlined animate-spin">progress_activity</span>
+      </div>
+    }
+  </div>
+</div>
