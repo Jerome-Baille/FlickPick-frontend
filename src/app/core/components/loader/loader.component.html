@@ -1,7 +1,19 @@
 @if (loaderService.isLoading$ | async) {
-<div class="loader-container">
-    <span class="loader">
-        Loading...
-    </span>
+<div class="loader-overlay" role="status" aria-live="polite">
+  <div class="overlay-bg" aria-hidden="true"></div>
+  <div class="overlay-grain" aria-hidden="true"></div>
+
+  <div class="loader-panel">
+    <div class="spinner-wrap" aria-hidden="true">
+      <div class="spinner-ring"></div>
+      <div class="spinner-top"></div>
+      <div class="spinner-icon">
+        <span class="material-symbols-outlined" aria-hidden="true">movie</span>
+      </div>
+    </div>
+
+    <h2 class="loader-title">Processing your request...</h2>
+    <p class="loader-sub">Getting the popcorn ready</p>
+  </div>
 </div>
 }

@@ -1,16 +1,10 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { faCircleCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { MatButtonModule } from '@angular/material/button';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { DataService, Media } from 'src/app/core/services/data.service';
 import { LocalStorageService } from 'src/app/core/services/local-storage.service';
@@ -40,12 +34,7 @@ interface FavoriteItem {
     selector: 'app-search',
     imports: [
         CommonModule, 
-        MatButtonModule,
-        MatCardModule,
-        FontAwesomeModule,
-        FormsModule,
-        MatFormFieldModule,
-      MatInputModule
+        FormsModule
     ],
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.scss'],
@@ -66,10 +55,10 @@ export class SearchComponent implements OnDestroy {
   loading = false;
   error: string | null = null;
   isLoggedIn = false;
+  activeFilter: 'all' | 'movie' | 'tv' = 'all';
+  searchPerformed = false;
+  @ViewChild('searchInputRef') searchInputEl?: ElementRef<HTMLInputElement>;
   TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
-
-  faCircleCheck = faCircleCheck;
-  faCirclePlus = faCirclePlus;
 
   private authSubscription: Subscription;
 
@@ -87,10 +76,19 @@ export class SearchComponent implements OnDestroy {
     }
   }
 
+  setFilter(filter: 'all' | 'movie' | 'tv') {
+    this.activeFilter = filter;
+  }
+
   search() {
     if (this.searchQuery.trim() !== '') {
+      // mark that a search has been initiated
+      this.searchPerformed = true;
       this.loading = true;
       this.error = null;
+      // clear previous results while loading
+      this.movies = [];
+      this.tvShows = [];
 
       this.tmdbService.searchMulti(this.searchQuery).subscribe({
         next: (results) => {
@@ -106,9 +104,22 @@ export class SearchComponent implements OnDestroy {
         }
       });
     } else {
+      // reset search state if query is empty
+      this.searchPerformed = false;
       this.movies = [];
       this.tvShows = [];
     }
+  }
+
+  resetSearch() {
+    // clear query and results, reset flags and focus the input
+    this.searchQuery = '';
+    this.searchPerformed = false;
+    this.movies = [];
+    this.tvShows = [];
+    this.error = null;
+    // return focus to input for quick typing
+    setTimeout(() => this.searchInputEl?.nativeElement.focus());
   }
 
   getMediaType(result: SearchResult): string {

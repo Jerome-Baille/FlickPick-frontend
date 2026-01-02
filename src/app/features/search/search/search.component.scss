@@ -1,178 +1,476 @@
+// Color Variables
+$primary: #f9d406;
+$background-dark: #181711;
+$surface-dark: #23200f;
+$glass-dark: rgba(35, 32, 15, 0.6);
+$glass-border: rgba(255, 255, 255, 0.08);
+$text-cream: #f3f0e6;
+$text-muted: #bbb69b;
+$border-color: #3a3727;
+
+// Mixins
+@mixin glass-panel {
+  background: $glass-dark;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid $glass-border;
+}
+
+// Main Container
+.search-page {
+  position: relative;
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+// Background Gradient
+.cinema-gradient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at top right, rgba(249, 212, 6, 0.08), transparent 40%);
+}
+
+// Hero Search Section
+.search-hero {
+  max-width: 56rem;
+  margin: 0 auto 4rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid $border-color;
+    background: rgba(35, 32, 15, 0.4);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: $text-muted;
+    margin-bottom: 0.5rem;
+  }
+
+  &__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    color: white;
+    letter-spacing: 0.05em;
+    margin: 0 0 2rem;
+    font-weight: 400;
+  }
+}
+
+.pulse-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: $primary;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Search Form
 .search-form {
-  display: flex;
-  flex-direction: row;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+
+  .search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+    pointer-events: none;
+  }
+
+  &:focus-within .search-icon {
+    color: $primary;
+  }
+
+  .search-input-actions {
+    position: absolute;
+    right: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.search-input {
+  box-sizing: border-box;
+  width: 100%;
+  background: rgba(35, 32, 15, 0.6);
+  border: 1px solid $border-color;
+  color: white;
+  border-radius: 1rem;
+  padding: 1.25rem 4.5rem 1.25rem 3.5rem; // increased right padding for button
+  font-size: 1.125rem;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px $primary, 0 0 30px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.search-reset-btn {
+  background: transparent;
+  color: $text-muted;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.5rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  max-width: 800px;
-  margin: 0 auto 16px;
-  
-  &-container {
-    width: 100%;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    background: rgba(255,255,255,0.03);
+    color: white;
+    transform: translateY(-2px);
   }
-  
-  mat-form-field {
-    flex: 1;
-    margin-right: 16px;
-    
-    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
+
+  .material-symbols-outlined { font-size: 1rem; }
+}
+
+.search-submit-btn {
+  background: $primary;
+  color: $background-dark;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(249, 212, 6, 0.12);
   }
-  
-  button {
-    white-space: nowrap;
-    height: 48px;
-    font-weight: 500;
-    border-radius: 8px;
-    padding: 0 24px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(123, 140, 255, 0.3);
-    
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(123, 140, 255, 0.4);
-    }
+
+  .material-symbols-outlined {
+    font-size: 1.1rem;
+    line-height: 1;
   }
 }
 
-.search-container {
+// Filter Buttons
+.filter-buttons {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   justify-content: center;
-  margin: 0 auto;
-  row-gap: 10px;
-  padding: 1rem;
-  background-color: #121933;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  margin-bottom: 24px;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
-.result-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  grid-gap: 24px;
-  justify-content: center;
-  
-  &-not-found {
-    text-align: center;
-    padding: 48px 0;
-    color: #b0b7db;
-    font-size: 1.2rem;
+.filter-btn {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid $border-color;
+  background: transparent;
+  color: $text-muted;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $text-muted;
+    color: white;
+  }
+
+  &.active {
+    border-color: $primary;
+    background: rgba(249, 212, 6, 0.1);
+    color: $primary;
+    font-weight: 600;
   }
 }
 
-.search-result-card {
-  height: 100%;
+// Results Section
+.results-section {
+  margin-bottom: 3rem;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid $border-color;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.results-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.875rem;
+  color: white;
+  letter-spacing: 0.05em;
+  margin: 0;
+  font-weight: 400;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+// Media Card
+.media-card {
+  @include glass-panel;
+  border-radius: 0.75rem;
   overflow: hidden;
-  background-color: #181D39;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
+  height: 100%;
   transition: all 0.3s ease;
-  position: relative;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  
-  &:hover {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
-    
-    .search-result-card__poster {
-      transform: scale(1.05);
-    }
-  }
-  
-  &__check-mark {
-    color: #4caf50;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 10;
-    font-size: 30px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-  }
-  
-  &__poster-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px 8px 0 0;
-  }
-  
-  &__poster {
-    width: 100%;
-    height: 270px;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-  
-  mat-card-content {
-    padding: 16px 16px 8px;
-    flex-grow: 1;
-    
-    .overview {
-      text-align: center;
-      font-weight: 500;
-      margin: 0;
-      font-size: 0.9rem;
-      color: #f0f2ff;
-      
-      span {
-        color: #b0b7db;
-        font-size: 0.8rem;
-        margin-left: 4px;
-      }
-    }
-  }
-}
 
-.result-card-action {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px;
-  
-  button {
-    color: #7b8cff;
-    transition: all 0.2s ease;
-    
-    &:hover {
-      color: #a6b1ff;
+  &:hover {
+    border-color: rgba(249, 212, 6, 0.5);
+    box-shadow: 0 0 20px rgba(249, 212, 6, 0.1);
+
+    .media-card__poster img {
       transform: scale(1.1);
     }
+
+    .media-card__overlay {
+      opacity: 1;
+    }
+
+    .media-card__title {
+      color: $primary;
+    }
   }
-}
 
-h2 {
-  font-size: 1.4rem;
-  font-weight: 500;
-  margin: 32px 0 16px;
-  color: #f0f2ff;
-  letter-spacing: 0.01em;
-  padding-left: 8px;
-  border-left: 4px solid #7b8cff;
-}
+  &__poster {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background: $surface-dark;
 
-@media (max-width: 599px) {
-  .search-form {
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+      filter: brightness(0.9);
+    }
+
+    &:hover img {
+      filter: brightness(1);
+    }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(24, 23, 17, 0.8);
+    backdrop-filter: blur(2px);
+    display: flex;
     flex-direction: column;
-    
-    mat-form-field {
-      width: 100%;
-      margin-right: 0;
-      margin-bottom: 16px;
-    }
-    
-    button {
-      width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: linear-gradient(to bottom, transparent, rgba(24, 23, 17, 0.4));
+  }
+
+  &__title {
+    font-family: 'Archivo Black', sans-serif;
+    color: white;
+    font-size: 1rem;
+    line-height: 1.25;
+    margin: 0 0 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  &__year {
+    color: $text-muted;
+    font-size: 0.75rem;
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+  }
+
+  &__type {
+    font-size: 0.625rem;
+    font-weight: 700;
+    border: 1px solid $border-color;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}
+
+// Add Button
+.add-btn {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: $primary;
+  color: $background-dark;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.5rem;
+  }
+}
+
+.add-label {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+// No Results
+.no-results {
+  text-align: center;
+  padding: 4rem 1rem;
+
+  &__icon {
+    font-size: 4rem;
+    color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+  }
+
+  &__text {
+    color: white;
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+  }
+
+  &__hint {
+    color: $text-muted;
+    font-size: 0.875rem;
+    margin: 0;
+    font-style: italic;
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 599px) {
+  .search-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .search-hero {
+    margin-bottom: 2rem;
+
+    &__title {
+      margin-bottom: 1.5rem;
     }
   }
-  
-  .result-cards {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    grid-gap: 16px;
+
+  .search-input {
+    padding: 1rem 3.25rem 1rem 3rem; // more right padding for button on small screens
+    font-size: 1rem;
   }
-  
-  .search-result-card__poster {
-    height: 210px;
+
+  .search-input-wrapper .search-input-actions {
+    right: 0.5rem;
+  }
+
+  .search-submit-btn {
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.5rem;
+    .material-symbols-outlined { font-size: 1rem; }
+  }
+
+  .filter-buttons {
+    gap: 0.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .results-grid {
+    gap: 1rem;
+  }
+
+  .media-card__title {
+    font-size: 0.875rem;
   }
 }

@@ -1,81 +1,153 @@
-<mat-card class="search-container">
-    <div class="search-form-container">
+<div class="search-page">
+    <!-- Background gradient -->
+    <div class="cinema-gradient"></div>
+    
+    <!-- Hero Search Section -->
+    <section class="search-hero">
+        <div class="search-hero__badge">
+            <span class="pulse-dot"></span>
+            Database Updated
+        </div>
+        <h1 class="search-hero__title">Find Your Next Flick</h1>
+        
         <form class="search-form" (ngSubmit)="search()">
-            <mat-form-field appearance="fill">
-                <mat-label>Search for movies or TV shows</mat-label>
-                <input matInput type="text" [(ngModel)]="searchQuery" name="searchInput" autocomplete="off" />
-            </mat-form-field>
-            <button mat-raised-button color="primary" type="submit">Search</button>
-        </form>
-    </div>
+            <div class="search-input-wrapper">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input 
+                    #searchInputRef
+                    type="text" 
+                    [(ngModel)]="searchQuery" 
+                    name="searchInput" 
+                    autocomplete="off"
+                    placeholder="Search by title, director, or genre..."
+                    class="search-input" />
 
-    @if (movies && movies.length > 0) {
-        <div>
-            <h2>Movies</h2>
-            <div class="result-cards">
+                <div class="search-input-actions">
+                    @if (searchQuery || searchPerformed) {
+                        <button class="search-reset-btn" 
+                                type="button" 
+                                aria-label="Reset search" 
+                                (click)="resetSearch()">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    }
+
+                    <button class="search-submit-btn" type="submit" aria-label="Search">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                </div> 
+            </div>
+        </form> 
+        
+        <div class="filter-buttons">
+            <button 
+                type="button" 
+                class="filter-btn" 
+                [class.active]="activeFilter === 'all'"
+                (click)="setFilter('all')">
+                All
+            </button>
+            <button 
+                type="button" 
+                class="filter-btn" 
+                [class.active]="activeFilter === 'movie'"
+                (click)="setFilter('movie')">
+                Movies
+            </button>
+            <button 
+                type="button" 
+                class="filter-btn" 
+                [class.active]="activeFilter === 'tv'"
+                (click)="setFilter('tv')">
+                TV Shows
+            </button>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    @if ((activeFilter === 'all' || activeFilter === 'movie') && movies && movies.length > 0) {
+        <section class="results-section">
+            <div class="results-header">
+                <h2 class="results-title">Movies</h2>
+            </div>
+            <div class="results-grid">
                 @for (movie of movies; track movie.id) {
-                    <mat-card class="search-result-card" (click)="onNavigateToDetail(movie)">
-                        <div class="search-result-card__poster-container">
-                            <img mat-card-image class="search-result-card__poster"
+                    <article class="media-card" 
+                        tabindex="0"
+                        (click)="onNavigateToDetail(movie)"
+                        (keydown.enter)="onNavigateToDetail(movie)">
+                        <div class="media-card__poster">
+                            <img 
                                 [src]="movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : 'assets/images/poster-not-found.png'"
-                                alt="{{ movie.title }}" />
+                                [alt]="movie.title" />
+                            <div class="media-card__overlay">
+                                <button 
+                                    class="add-btn" 
+                                    (click)="isChecked() ? removeMedia($event, movie) : addMedia($event, movie)">
+                                    <span class="material-symbols-outlined">{{ isChecked() ? 'check' : 'add' }}</span>
+                                </button>
+                                <span class="add-label">{{ isChecked() ? 'Added' : 'Add to Shortlist' }}</span>
+                            </div>
                         </div>
-                        <mat-card-content>
-                            <p class="overview">
-                                {{ movie.title }}
+                        <div class="media-card__content">
+                            <h3 class="media-card__title">{{ movie.title }}</h3>
+                            <div class="media-card__meta">
                                 @if (movie.release_date) {
-                                    <span>({{ movie.release_date | date:'yyyy'}})</span>
+                                    <span class="media-card__year">{{ movie.release_date | date:'yyyy' }}</span>
                                 }
-                            </p>
-                        </mat-card-content>
-
-                        <mat-card-actions class="result-card-action">
-                            <button mat-icon-button 
-                                (click)="isChecked() ? removeMedia($event, movie) : addMedia($event, movie)">
-                                <fa-icon [icon]="isChecked() ? faCircleCheck : faCirclePlus" />
-                            </button>
-                        </mat-card-actions>
-                    </mat-card>
-                }
-            </div>
-        </div>
-    }
-
-    @if (tvShows && tvShows.length > 0) {
-        <div>
-            <h2>TV Shows</h2>
-            <div class="result-cards">
-                @for (tvShow of tvShows; track tvShow.id) {
-                    <mat-card class="search-result-card" (click)="onNavigateToDetail(tvShow)">
-                        <div class="search-result-card__poster-container">
-                            <img mat-card-image class="search-result-card__poster"
-                                [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
-                                alt="{{ tvShow.name }}" />
+                                <span class="media-card__type">Movie</span>
+                            </div>
                         </div>
-                        <mat-card-content>
-                            <p class="overview">
-                                {{ tvShow.name }}
-                                @if (tvShow.first_air_date) {
-                                    <span>({{ tvShow.first_air_date | date:'yyyy'}})</span>
-                                }
-                            </p>
-                        </mat-card-content>
-
-                        <mat-card-actions class="result-card-action">
-                            <button mat-icon-button 
-                                (click)="isChecked() ? removeMedia($event, tvShow) : addMedia($event, tvShow)">
-                                <fa-icon [icon]="isChecked() ? faCircleCheck : faCirclePlus" />
-                            </button>
-                        </mat-card-actions>
-                    </mat-card>
+                    </article>
                 }
             </div>
-        </div>
+        </section>
     }
 
-    @if (movies && movies.length === 0 && tvShows && tvShows.length === 0) {
-        <div class="result-cards-not-found">
-            No results found.
+    @if ((activeFilter === 'all' || activeFilter === 'tv') && tvShows && tvShows.length > 0) {
+        <section class="results-section">
+            <div class="results-header">
+                <h2 class="results-title">TV Shows</h2>
+            </div>
+            <div class="results-grid">
+                @for (tvShow of tvShows; track tvShow.id) {
+                    <article class="media-card" 
+                        tabindex="0"
+                        (click)="onNavigateToDetail(tvShow)"
+                        (keydown.enter)="onNavigateToDetail(tvShow)">
+                        <div class="media-card__poster">
+                            <img 
+                                [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
+                                [alt]="tvShow.name" />
+                            <div class="media-card__overlay">
+                                <button 
+                                    class="add-btn" 
+                                    (click)="isChecked() ? removeMedia($event, tvShow) : addMedia($event, tvShow)">
+                                    <span class="material-symbols-outlined">{{ isChecked() ? 'check' : 'add' }}</span>
+                                </button>
+                                <span class="add-label">{{ isChecked() ? 'Added' : 'Add to Shortlist' }}</span>
+                            </div>
+                        </div>
+                        <div class="media-card__content">
+                            <h3 class="media-card__title">{{ tvShow.name }}</h3>
+                            <div class="media-card__meta">
+                                @if (tvShow.first_air_date) {
+                                    <span class="media-card__year">{{ tvShow.first_air_date | date:'yyyy' }}</span>
+                                }
+                                <span class="media-card__type">TV Show</span>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+
+    @if (searchPerformed && !loading && movies && movies.length === 0 && tvShows && tvShows.length === 0) {
+        <div class="no-results">
+            <span class="material-symbols-outlined no-results__icon">movie_filter</span>
+            <p class="no-results__text">No results found for "{{ searchQuery }}"</p>
+            <p class="no-results__hint">Try searching with different keywords</p>
         </div>
     }
-</mat-card>
+</div>
