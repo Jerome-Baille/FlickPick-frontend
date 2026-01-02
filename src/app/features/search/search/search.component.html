@@ -80,15 +80,7 @@
                             <img 
                                 [src]="movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : 'assets/images/poster-not-found.png'"
                                 [alt]="movie.title" />
-                            <div class="media-card__overlay">
-                                <button 
-                                    class="add-btn" 
-                                    (click)="isChecked() ? removeMedia($event, movie) : addMedia($event, movie)">
-                                    <span class="material-symbols-outlined">{{ isChecked() ? 'check' : 'add' }}</span>
-                                </button>
-                                <span class="add-label">{{ isChecked() ? 'Added' : 'Add to Shortlist' }}</span>
-                            </div>
-                        </div>
+                        </div> 
                         <div class="media-card__content">
                             <h3 class="media-card__title">{{ movie.title }}</h3>
                             <div class="media-card__meta">
@@ -119,15 +111,7 @@
                             <img 
                                 [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
                                 [alt]="tvShow.name" />
-                            <div class="media-card__overlay">
-                                <button 
-                                    class="add-btn" 
-                                    (click)="isChecked() ? removeMedia($event, tvShow) : addMedia($event, tvShow)">
-                                    <span class="material-symbols-outlined">{{ isChecked() ? 'check' : 'add' }}</span>
-                                </button>
-                                <span class="add-label">{{ isChecked() ? 'Added' : 'Add to Shortlist' }}</span>
-                            </div>
-                        </div>
+                        </div> 
                         <div class="media-card__content">
                             <h3 class="media-card__title">{{ tvShow.name }}</h3>
                             <div class="media-card__meta">

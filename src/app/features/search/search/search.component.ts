@@ -1,16 +1,11 @@
 import { Component, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CommonModule } from '@angular/common';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
-import { DataService, Media } from 'src/app/core/services/data.service';
-import { LocalStorageService } from 'src/app/core/services/local-storage.service';
-import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { ActionModalComponent } from 'src/app/shared/components/action-modal/action-modal.component';
 
 interface SearchResult {
   id: number;
@@ -25,10 +20,7 @@ interface SearchResult {
   overview?: string;
 }
 
-interface FavoriteItem {
-  tmdbId: number;
-  mediaType: string;
-}
+
 
 @Component({
     selector: 'app-search',
@@ -43,11 +35,7 @@ interface FavoriteItem {
 export class SearchComponent implements OnDestroy {
   private tmdbService = inject(TmdbService);
   private router = inject(Router);
-  private dataService = inject(DataService);
-  private localStorageService = inject(LocalStorageService);
-  private snackbarService = inject(SnackbarService);
   private authService = inject(AuthService);
-  dialog = inject(MatDialog);
 
   searchQuery = '';
   movies: SearchResult[] = [];
@@ -133,76 +121,16 @@ export class SearchComponent implements OnDestroy {
     return '';
   }
 
-  addMedia(event: Event, result: SearchResult) {
-    event.stopPropagation();
 
-    const dialogRef = this.dialog.open(ActionModalComponent);
-    const mediaType = this.getMediaType(result);
 
-    dialogRef.afterClosed().subscribe((dialogRes: number[] | undefined) => {
-      if (dialogRes) {
-        for (const res of dialogRes) {
-          const data: Media = {
-            listId: res,
-            tmdbId: result.tmdbId || result.id,
-            mediaType: mediaType,
-            title: result.title || result.name,
-            releaseDate: result.release_date || result.first_air_date,
-            posterPath: result.poster_path,
-            overview: result.overview
-          }
 
-          this.dataService.addMediaItem(data).subscribe({
-            next: (response) => {
-              this.snackbarService.showSuccess(response.message);
-            },
-            error: (err: Error) => {
-              this.snackbarService.showError(err.message);
-            }
-          });
-        }
-      }
-    });
-  }
 
-  removeMedia(event: Event, result: SearchResult) {
-    event.stopPropagation();
 
-    const tmdbId = result.tmdbId || result.id;
-    const mediaType = this.getMediaType(result);
-
-    const data: Media = { tmdbId, mediaType, listName: "My_Personal_List" };
-    this.dataService.deleteMediaItemFromList(data).subscribe({
-      next: (response) => {
-        this.snackbarService.showSuccess(response.message);
-        this.localStorageService.triggerItemRemoved();
-      },
-      error: (err: Error) => {
-        this.snackbarService.showError(err.message);
-      }
-    });
-
-    this.manageStorage({ tmdbId, mediaType });
-  }
-
-  isChecked(): boolean {
-    return false;
-  }
 
   onNavigateToDetail(result: SearchResult) {
     const mediaType = this.getMediaType(result);
     this.router.navigate(['/media/detail', mediaType, result.tmdbId || result.id], { state: { media: result } });
   }
 
-  private manageStorage(data: FavoriteItem) {
-    const storedIdsString = localStorage.getItem('userPersonalList');
-    const storedIds: FavoriteItem[] = storedIdsString ? JSON.parse(storedIdsString) : [];
-    const index = storedIds.findIndex((item: FavoriteItem) => item.tmdbId === data.tmdbId);
-    if (index === -1) {
-      storedIds.push(data);
-    } else {
-      storedIds.splice(index, 1);
-    }
-    localStorage.setItem('userPersonalList', JSON.stringify(storedIds));
-  }
+
 }
