@@ -2,8 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DataService } from 'src/app/core/services/data.service';
-import { Event as MovieNightEvent } from 'src/app/shared/models/Event';
-import type { Event } from 'src/app/shared/models/Event';
+import { firstValueFrom } from 'rxjs';
 
 interface WinnerMedia {
   title: string;
@@ -39,6 +38,12 @@ export class ArchiveComponent implements OnInit {
   filteredWinners: ArchiveItem[] = [];
   loading = false;
   search = '';
+  selectedYear = 'All';
+  selectedRating = 0;
+  years: string[] = [];
+
+  // View mode: 'grid' | 'list'
+  viewMode: 'grid' | 'list' = 'grid';
 
   ngOnInit(): void {
     this.loadWinners();
@@ -47,127 +52,151 @@ export class ArchiveComponent implements OnInit {
   private loadWinners() {
     this.loading = true;
 
-    interface Group {
-      id: number;
-      name: string;
-      Events?: MovieNightEvent[];
-    }
+    // Modern approach: fetch user lists, treat lists named "* Winner" as archive entries,
+    // load their media items and display only the winning media.
+    firstValueFrom(this.dataService.getAllListsForUser())
+      .then(async (lists: { id: number; name: string }[]) => {
+        const winnerLists = (lists || []).filter(l => /winner$/i.test(l.name));
 
-    interface MediaItem {
-      title?: string;
-      name?: string;
-      posterPath?: string;
-      releaseDate?: string;
-      tmdbId?: number;
-      mediaType?: string;
-      overview?: string;
-      sumOfRatings?: number;
-      dataValues?: { sumOfRatings?: number };
-      genre?: string;
-    }
+        const items: ArchiveItem[] = [];
+        await Promise.all(
+          winnerLists.map(async (list) => {
+            try {
+              const mediaRes: unknown = await firstValueFrom(this.dataService.getMediaItemsInList(list.id));
+              let firstMedia: unknown = undefined;
+              if (Array.isArray(mediaRes)) {
+                firstMedia = mediaRes[0];
+              } else if (
+                mediaRes &&
+                typeof mediaRes === 'object' &&
+                'MediaItems' in mediaRes &&
+                Array.isArray((mediaRes as { MediaItems: unknown[] }).MediaItems)
+              ) {
+                firstMedia = (mediaRes as { MediaItems: unknown[] }).MediaItems[0];
+              }
+              if (firstMedia && typeof firstMedia === 'object' && firstMedia !== null) {
+                const eventName = list.name.replace(/\s*Winner$/i, '').trim();
 
-    this.dataService.getAllGroupsForUser().subscribe({
-      next: (groups: Group[]) => {
-        const completedEvents: { id: number; name: string; groupId?: number; groupName?: string; eventDate?: string }[] = [];
+                // Extract eventDate and eventId safely
+                let listEventDate: string | Date | undefined = undefined;
+                let listEventId: number | undefined = undefined;
+                if (mediaRes && typeof mediaRes === 'object') {
+                  if ('eventDate' in mediaRes && typeof (mediaRes as { eventDate?: string | Date }).eventDate !== 'undefined') {
+                    listEventDate = (mediaRes as { eventDate?: string | Date }).eventDate;
+                  } else if ('dataValues' in mediaRes && typeof (mediaRes as { dataValues?: { eventDate?: string | Date } }).dataValues === 'object') {
+                    listEventDate = (mediaRes as { dataValues?: { eventDate?: string | Date } }).dataValues?.eventDate;
+                  }
+                  if ('eventId' in mediaRes && typeof (mediaRes as { eventId?: number }).eventId !== 'undefined') {
+                    listEventId = (mediaRes as { eventId?: number }).eventId;
+                  } else if ('dataValues' in mediaRes && typeof (mediaRes as { dataValues?: { eventId?: number } }).dataValues === 'object') {
+                    listEventId = (mediaRes as { dataValues?: { eventId?: number } }).dataValues?.eventId;
+                  }
+                }
 
-        // collect all completed events across groups
-        (groups || []).forEach((g: Group) => {
-          (g.Events || []).forEach((e: MovieNightEvent) => {
-            if (e.status === 'completed') {
-              completedEvents.push({
-                id: e.id,
-                name: e.name,
-                groupId: g.id,
-                groupName: g.name,
-                eventDate: e.eventDate as string
-              });
+                // Normalize media fields for the frontend
+                const fm = firstMedia as Record<string, unknown>;
+                const rawPoster = fm['posterPath'] ?? fm['poster_path'] ?? '';
+                const posterPath =
+                  typeof rawPoster === 'string' && rawPoster
+                    ? (rawPoster.startsWith('http') ? rawPoster : `https://image.tmdb.org/t/p/w500${rawPoster}`)
+                    : undefined;
+
+                const rating = Number(
+                  fm['rating'] ?? fm['sumOfRatings'] ?? (fm['dataValues'] && typeof fm['dataValues'] === 'object' ? (fm['dataValues'] as Record<string, unknown>)['sumOfRatings'] : 0) ?? 0
+                ) || 0;
+                const genre = (fm['genre'] ?? fm['type'] ?? 'Movie') as string;
+
+                items.push({
+                  eventId: listEventId ?? (fm['eventId'] as number) ?? 0,
+                  eventName,
+                  eventDate: listEventDate ?? (fm['eventDate'] as string | Date | undefined),
+                  groupId: fm['groupId'] as number | undefined,
+                  groupName: fm['groupName'] as string | undefined,
+                  media: {
+                    title: (fm['title'] ?? fm['name'] ?? '') as string,
+                    posterPath,
+                    releaseDate: (fm['releaseDate'] ?? fm['release_date'] ?? undefined) as string | undefined,
+                    tmdbId: (fm['tmdbId'] ?? fm['tmdb_id'] ?? undefined) as number | undefined,
+                    mediaType: (fm['mediaType'] ?? fm['media_type'] ?? undefined) as string | undefined,
+                    overview: (fm['overview'] ?? fm['description'] ?? undefined) as string | undefined,
+                    rating,
+                    genre
+                  }
+                });
+              }
+            } catch {
+              // ignore per-list errors
             }
-          });
+          })
+        );
+
+        // sort by eventDate desc when available
+        this.winners = items.sort((a, b) => {
+          const da = a.eventDate ? new Date(a.eventDate).getTime() : 0;
+          const db = b.eventDate ? new Date(b.eventDate).getTime() : 0;
+          return db - da;
         });
 
-        // For each completed event fetch event details (which include media item ratings)
-        Promise.all(
-          completedEvents.map(e => {
-            return this.dataService.getEventById(e.id).toPromise().then((eventResult: Event | undefined) => {
-              let mediaItems: MediaItem[] = [];
-              if (eventResult) {
-                // If eventResult has a 'shortlist' property with MediaItems
-                if ('shortlist' in eventResult && eventResult.shortlist && Array.isArray(eventResult.shortlist.MediaItems)) {
-                  mediaItems = eventResult.shortlist.MediaItems as MediaItem[];
-                } else if ('MediaItems' in eventResult && Array.isArray((eventResult as { MediaItems?: MediaItem[] }).MediaItems)) {
-                  mediaItems = (eventResult as { MediaItems?: MediaItem[] }).MediaItems ?? [];
-                }
-              }
-              const sorted = mediaItems.slice().sort((a: MediaItem, b: MediaItem) => (b.dataValues?.sumOfRatings || b.sumOfRatings || 0) - (a.dataValues?.sumOfRatings || a.sumOfRatings || 0));
-              const winner = sorted[0] || null;
+        // compute available years for the year filter (most recent first)
+        this.years = Array.from(
+          new Set(
+            this.winners
+              .map(w => (w.eventDate ? new Date(w.eventDate).getFullYear().toString() : undefined))
+              .filter((y): y is string => !!y)
+          )
+        ).sort((a, b) => Number(b) - Number(a));
 
-              const archiveItem: ArchiveItem = {
-                eventId: e.id,
-                eventName: e.name,
-                eventDate: e.eventDate,
-                groupId: e.groupId,
-                groupName: e.groupName,
-                media: winner
-                  ? {
-                      title: winner.title ?? winner.name ?? '',
-                      posterPath: winner.posterPath,
-                      releaseDate: winner.releaseDate,
-                      tmdbId: winner.tmdbId,
-                      mediaType: winner.mediaType,
-                      overview: winner.overview,
-                      rating: winner.dataValues?.sumOfRatings || winner.sumOfRatings || 0
-                    }
-                  : undefined
-              };
-
-              return archiveItem;
-            }).catch(() => {
-              return {
-                eventId: e.id,
-                eventName: e.name,
-                eventDate: e.eventDate,
-                groupId: e.groupId,
-                groupName: e.groupName
-              } as ArchiveItem;
-            });
-          })
-        )
-          .then((results: ArchiveItem[]) => {
-            // sort by eventDate desc
-            this.winners = results
-              .filter(r => !!r.media)
-              .sort((a, b) => {
-                const da = a.eventDate ? new Date(a.eventDate).getTime() : 0;
-                const db = b.eventDate ? new Date(b.eventDate).getTime() : 0;
-                return db - da;
-              });
-
-            this.filteredWinners = this.winners;
-            this.loading = false;
-          })
-          .catch(() => {
-            this.loading = false;
-            this.filteredWinners = this.winners;
-          });
-      },
-      error: () => {
+        this.applyFilters();
         this.loading = false;
-      }
-    });
+      })
+      .catch(() => {
+        this.loading = false;
+      });
   }
 
   onSearchChange(value: string) {
     this.search = value || '';
-    const term = this.search.trim().toLowerCase();
-    if (!term) {
-      this.filteredWinners = this.winners;
-      return;
-    }
+    this.applyFilters();
+  }
 
+  onYearChange(year: string) {
+    this.selectedYear = year || 'All';
+    this.applyFilters();
+  }
+
+  onRatingChange(value: string) {
+    this.selectedRating = Number(value) || 0;
+    this.applyFilters();
+  }
+
+  setViewMode(mode: 'grid' | 'list') {
+    this.viewMode = mode;
+  }
+
+  applyFilters() {
+    const term = (this.search || '').trim().toLowerCase();
     this.filteredWinners = this.winners.filter(w => {
+      // search
       const title = (w.media?.title || '').toLowerCase();
       const group = (w.groupName || '').toLowerCase();
-      return title.includes(term) || group.includes(term) || (w.eventName || '').toLowerCase().includes(term);
+      const eventName = (w.eventName || '').toLowerCase();
+      if (term && !(title.includes(term) || group.includes(term) || eventName.includes(term))) {
+        return false;
+      }
+
+      // year
+      if (this.selectedYear && this.selectedYear !== 'All') {
+        const y = w.eventDate ? new Date(w.eventDate).getFullYear().toString() : undefined;
+        if (y !== this.selectedYear) return false;
+      }
+
+      // rating
+      if (this.selectedRating && this.selectedRating > 0) {
+        const r = w.media?.rating ?? 0;
+        if (r < this.selectedRating) return false;
+      }
+
+      return true;
     });
   }
 

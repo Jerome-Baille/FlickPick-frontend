@@ -181,39 +181,110 @@ $border-light: #cbd5e1;
 }
 
 .filter-chip {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  height: 2.5rem;
-  padding: 0 1rem 0 1.25rem;
-  border: none;
-  border-radius: 9999px;
-  background: $surface-dark;
+  gap: 0.75rem;
+  height: 2.5rem; /* h-10 */
+  padding-left: 1.25rem; /* pl-5 */
+  padding-right: 1rem; /* pr-4 */
+  border-radius: 9999px; /* rounded-full */
+  /* Always use the requested background/text colors */
+  background: rgba(249, 212, 6, 0.12);
+  color: var(--color-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  position: relative;
+  overflow: visible;
+  border: 1px solid rgba(15,23,42,0.06);
 
+  /* Keep subtle lift and shadow on hover, but do NOT change colors */
   &:hover {
-    background: rgba($primary, 0.2);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  }
 
-    .chip-text,
-    .chip-arrow {
-      color: $primary;
-    }
+  &:focus-within {
+    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+    outline: 2px solid rgba(249, 212, 6, 0.18);
+  }
+
+  /* inner text + icon */
+  .chip-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: none; /* visual-only; select overlay handles interaction */
+  }
+
+  .chip-label-text {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: inherit; /* will use var(--color-primary) */
+    margin: 0;
+  }
+
+  .chip-icon {
+    color: inherit; /* match the primary text color */
+    font-size: 20px;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover .chip-icon {
+    transform: translateY(-1px);
+  }
+
+  /* Native select is overlaid and invisible but accessible */
+  .filter-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Style the native option dropdown where supported */
+  .filter-select option {
+    background: var(--color-surface);
+    color: var(--color-text-cream);
+    padding: 8px 12px;
+  }
+
+  /* small scrollbar styling for the options list in WebKit engines */
+  .filter-select::-webkit-scrollbar { width: 10px; }
+  .filter-select::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 8px; }
+
+  /* Dark mode: keep the same primary background and text color per request */
+  :host-context(.dark) & {
+    background: rgba(249, 212, 6, 0.12);
+    color: var(--color-primary);
+    border: 1px solid rgba(255,255,255,0.04);
+
+    .filter-select option { background: $surface-dark; color: $text-dark; }
   }
 }
 
-.chip-text {
-  font-size: 0.875rem;
+.chip-label {
+  font-size: 0.675rem;
   font-weight: 700;
-  color: $text-dark;
-  transition: color 0.2s ease;
+  color: rgba(255,255,255,0.72);
+  transition: color 0.18s ease;
 }
 
-.chip-arrow {
-  font-size: 1.25rem;
+.chip-value {
+  font-size: 0.9rem;
+  font-weight: 700;
   color: $text-dark;
-  transition: color 0.2s ease;
+  transition: color 0.18s ease;
+}
+
+.chip-caret {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.6);
+  transition: color 0.18s ease;
 }
 
 .view-toggle {
@@ -288,6 +359,40 @@ $border-light: #cbd5e1;
     gap: 2.5rem 1.5rem;
   }
 }
+
+/* List view styles */
+.archive-grid.list-view {
+  grid-template-columns: 1fr !important;
+}
+
+.archive-grid.list-view .movie-card {
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}
+
+.archive-grid.list-view .poster-container {
+  width: 120px;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  flex: 0 0 120px;
+  border-radius: 0.5rem;
+}
+
+.archive-grid.list-view .poster-meta {
+  position: static;
+  width: auto;
+  padding: 0.5rem 0 0 0;
+  background: transparent;
+  border-top: none;
+  transform: none;
+}
+
+.archive-grid.list-view .card-footer {
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
 
 // Movie Card
 .movie-card {
@@ -411,6 +516,7 @@ $border-light: #cbd5e1;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

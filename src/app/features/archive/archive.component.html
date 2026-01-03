@@ -20,6 +20,8 @@
           <div class="search-wrapper">
             <span class="material-symbols-outlined search-icon">search</span>
             <input 
+              id="archive-search"
+              name="search"
               type="text" 
               class="search-input" 
               placeholder="Search archive..." 
@@ -32,32 +34,58 @@
       <!-- Filters Section -->
       <div class="filters-section">
         <div class="filter-chips">
-          <button class="filter-chip">
-            <span class="chip-text">Year: All</span>
-            <span class="material-symbols-outlined chip-arrow">keyboard_arrow_down</span>
-          </button>
-          <button class="filter-chip">
-            <span class="chip-text">Genre: Any</span>
-            <span class="material-symbols-outlined chip-arrow">keyboard_arrow_down</span>
-          </button>
-          <button class="filter-chip">
-            <span class="chip-text">Rating: 4+</span>
-            <span class="material-symbols-outlined chip-arrow">keyboard_arrow_down</span>
-          </button>
+          <label class="filter-chip group">
+            <div class="chip-inner">
+              <p class="chip-label-text">Year: {{ selectedYear || 'All' }}</p>
+              <span class="material-symbols-outlined chip-icon">keyboard_arrow_down</span>
+            </div>
+            <select id="filter-year" name="year" class="filter-select" aria-label="Filter by year" (change)="onYearChange($any($event.target).value)">
+              <option value="All">All</option>
+              @for (y of years; track y) {
+                <option [value]="y">{{ y }}</option>
+              }
+            </select>
+          </label>
+          <!-- Genre filter removed -->
+          <label class="filter-chip group">
+            <div class="chip-inner">
+              <p class="chip-label-text">Rating: {{ selectedRating > 0 ? (selectedRating + '+') : 'All' }}</p>
+              <span class="material-symbols-outlined chip-icon">keyboard_arrow_down</span>
+            </div>
+            <select id="filter-rating" name="rating" class="filter-select" aria-label="Filter by rating" (change)="onRatingChange($any($event.target).value)">
+              <option value="0">All</option>
+              <option value="5">5+</option>
+              <option value="4">4+</option>
+              <option value="3">3+</option>
+              <option value="2">2+</option>
+            </select>
+          </label>
         </div>
         <div class="view-toggle">
           <span class="view-label">View Layout</span>
-          <button class="view-btn" title="View as List">
+          <button
+            class="view-btn"
+            title="View as List"
+            (click)="setViewMode('list')"
+            [class.active]="viewMode === 'list'"
+            [attr.aria-pressed]="viewMode === 'list'"
+          >
             <span class="material-symbols-outlined">view_list</span>
           </button>
-          <button class="view-btn active" title="View as Grid">
+          <button
+            class="view-btn"
+            title="View as Grid"
+            (click)="setViewMode('grid')"
+            [class.active]="viewMode === 'grid'"
+            [attr.aria-pressed]="viewMode === 'grid'"
+          >
             <span class="material-symbols-outlined">grid_view</span>
           </button>
         </div>
       </div>
 
       <!-- Grid Section -->
-      <div class="archive-grid">
+      <div class="archive-grid" [class.list-view]="viewMode === 'list'">
         @if (!loading && filteredWinners.length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
