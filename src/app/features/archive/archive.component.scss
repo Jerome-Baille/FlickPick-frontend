@@ -393,6 +393,69 @@ $border-light: #cbd5e1;
   padding: 0 0.5rem;
 }
 
+/* hide list content in grid mode */
+.list-content {
+  display: none;
+}
+
+/* List view: poster column + stacked content column */
+.archive-grid.list-view .movie-card {
+  flex-direction: row;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.archive-grid.list-view .poster-container {
+  width: 120px;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  flex: 0 0 120px;
+  border-radius: 0.5rem;
+}
+
+.archive-grid.list-view .list-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* top: meta, bottom: footer */
+  flex: 1 1 auto;
+  padding-left: 1rem;
+}
+
+.archive-grid.list-view .list-meta {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.list-meta:focus-visible {
+  outline: 2px solid rgba($primary, 0.18);
+  border-radius: 0.25rem;
+}
+
+.list-meta-title {
+  margin: 0 0 0.25rem 0;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: $text-dark;
+}
+
+.list-meta-type {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $muted-dark;
+}
+
+/* ensure footer anchor sits at the bottom of the second column */
+.archive-grid.list-view .card-footer {
+  padding: 0;
+  align-self: flex-end;
+}
+
 
 // Movie Card
 .movie-card {
@@ -401,7 +464,7 @@ $border-light: #cbd5e1;
   flex-direction: column;
   gap: 0.75rem;
   padding-bottom: 0.75rem;
-  cursor: pointer;
+  cursor: default; /* only anchors inside should be clickable */
 
   &:hover {
     .poster-container {
@@ -420,10 +483,6 @@ $border-light: #cbd5e1;
 
     .poster-meta {
       transform: translateY(0);
-    }
-
-    .play-btn {
-      color: $primary;
     }
   }
 }
@@ -526,6 +585,40 @@ $border-light: #cbd5e1;
   justify-content: space-between;
   align-items: center;
   padding: 0 0.25rem;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Grid specific footer: visible in grid, hidden in list mode */
+.card-footer-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Hide the grid footer when in list view (we show the footer inside .list-content there) */
+.archive-grid.list-view .card-footer-grid {
+  display: none;
+}
+
+/* By default, the footer inside .list-content is hidden (grid mode) */
+.archive-grid .list-content .card-footer {
+  display: none;
+}
+
+/* In list view, show the inner footer and ensure it sits at the bottom */
+.archive-grid.list-view .list-content .card-footer {
+  display: flex;
+  width: 100%;
+  padding: 0 0.5rem;
+  align-self: flex-end;
 }
 
 .date-info {
@@ -547,15 +640,7 @@ $border-light: #cbd5e1;
   color: $muted-dark;
 }
 
-.play-btn {
-  color: rgba(255, 255, 255, 0.2);
-  text-decoration: none;
-  transition: color 0.2s ease;
 
-  .material-symbols-outlined {
-    font-size: 1.5rem;
-  }
-}
 
 // Empty State
 .empty-state {

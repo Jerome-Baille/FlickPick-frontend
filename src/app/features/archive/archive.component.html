@@ -100,7 +100,7 @@
         @if (filteredWinners().length > 0) {
           @for (item of filteredWinners(); track item.eventId) {
             <div class="movie-card">
-              <div class="poster-container">
+              <a [routerLink]="['/media/detail/movie', item.media?.tmdbId]" class="poster-container" [attr.title]="item.media?.title">
                 <div 
                   class="poster-image" 
                   [style.background-image]="'url(' + (item.media?.posterPath || '/assets/placeholder-300x450.png') + ')'"
@@ -114,14 +114,24 @@
                   <p class="meta-genre">{{ item.media?.genre || 'Movie' }}</p>
                   <p class="meta-title">{{ item.media?.title }}</p>
                 </div>
-              </div>
-              <div class="card-footer">
+              </a>
+              <a [routerLink]="['/event/detail', item.eventId]" class="card-footer card-footer-grid" [attr.aria-label]="'Event ' + item.eventName">
                 <div class="date-info">
                   <span class="material-symbols-outlined date-icon">calendar_today</span>
                   <span class="date-text">{{ formatDate(item.eventDate) }}</span>
                 </div>
-                <a [routerLink]="['/event/detail', item.eventId]" class="play-btn">
-                  <span class="material-symbols-outlined">play_circle</span>
+              </a>
+              <div class="list-content">
+                <a [routerLink]="['/media/detail/movie', item.media?.tmdbId]" class="list-meta" [attr.title]="item.media?.title" [attr.aria-label]="'Media ' + item.media?.title">
+                  <p class="list-meta-title">{{ item.media?.title }}</p>
+                  <p class="list-meta-type">{{ item.media?.mediaType | titlecase }}</p>
+                </a>
+
+                <a [routerLink]="['/event/detail', item.eventId]" class="card-footer" [attr.aria-label]="'Event ' + item.eventName">
+                  <div class="date-info">
+                    <span class="material-symbols-outlined date-icon">calendar_today</span>
+                    <span class="date-text">{{ formatDate(item.eventDate) }}</span>
+                  </div>
                 </a>
               </div>
             </div>
