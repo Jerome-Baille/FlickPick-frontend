@@ -118,6 +118,11 @@ export class EventDetailComponent implements OnInit {
     this.router.navigate(['/event/voting', this.eventData.id]);
   }
 
+  viewResults(): void {
+    if (!this.eventData) return;
+    this.router.navigate(['/event/results', this.eventData.id]);
+  }
+
   editEvent(): void {
     // Navigate to edit view - to be implemented
     this.snackbarService.showSuccess('Edit event feature coming soon!');

@@ -255,6 +255,16 @@ export class DataService {
     return this.http.delete(`${this.voteURL}/event-and-user/${eventId}`, { withCredentials: true });
   }
 
+  // ===== VOTING RESULTS METHODS =====
+
+  getVotingResults(eventId: number) {
+    return this.http.get(`${this.voteURL}/results/${eventId}`);
+  }
+
+  resolveTiebreaker(eventId: number, winnerTmdbId: number) {
+    return this.http.post(`${this.voteURL}/results/${eventId}/tiebreaker`, { winnerTmdbId });
+  }
+
   // Legacy aliases (deprecated - use event-based methods)
   /** @deprecated Use getVotesByUserAndEvent instead */
   getVotesByUserAndGroup(groupId: number) {

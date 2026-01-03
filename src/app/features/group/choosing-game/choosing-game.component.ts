@@ -264,14 +264,10 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
       this.hasSubmitted = true;
       this.snackbarService.showSuccess('Your votes have been submitted!');
       
-      // Navigate back to group detail after a delay
+      // Navigate to results page after a delay
       setTimeout(() => {
-        if (this.groupId) {
-          this.router.navigate(['/group/detail', this.groupId]);
-        } else {
-          this.router.navigate(['/group/overview']);
-        }
-      }, 3000);
+        this.router.navigate(['/event/results', this.eventId]);
+      }, 2000);
       },
       error: (err: Error) => {
         const message = err.message || 'Unknown error';

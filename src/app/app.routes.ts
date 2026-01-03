@@ -9,6 +9,7 @@ import { CastDetailViewComponent } from './features/search/cast-detail-view/cast
 import { GroupOverviewComponent } from './features/group/group-overview/group-overview.component';
 import { GroupDetailComponent } from './features/group/group-detail/group-detail.component';
 import { environment } from 'src/environments/environment';
+import { eventStatusGuard } from './core/guards/event-status.guard';
 
 // Build auth children routes conditionally
 const authChildren: Route[] = [
@@ -83,11 +84,17 @@ export const routes: Routes = [
       },
       { 
         path: 'detail/:eventId', 
+        canActivate: [eventStatusGuard],
         loadComponent: () => import('./features/event/event-detail/event-detail.component').then(m => m.EventDetailComponent) 
       },
+
       { 
         path: 'voting/:eventId', 
         loadComponent: () => import('./features/group/choosing-game/choosing-game.component').then(m => m.ChoosingGameComponent) 
+      },
+      { 
+        path: 'results/:eventId', 
+        loadComponent: () => import('./features/event/voting-results/voting-results.component').then(m => m.VotingResultsComponent) 
       }
     ]
   },

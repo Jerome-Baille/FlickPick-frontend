@@ -1,0 +1,175 @@
+<main class="voting-results-container">
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Loading results...</p>
+    </div>
+  } @else if (results) {
+    <!-- Ambient Background Glow -->
+    <div class="ambient-glow"></div>
+
+    <!-- Tie Breaker Modal -->
+    @if (results.isTie && results.tiedItems && results.tiedItems.length > 0) {
+      <div class="tie-breaker-overlay">
+        <div class="tie-breaker-modal">
+          <div class="modal-header">
+            <h2>Tie Breaker Required</h2>
+            <p>The vote is deadlocked. As the host, you must choose the winner.</p>
+          </div>
+
+          <div class="tied-items-container">
+            @for (item of results.tiedItems; track item.tmdbId; let idx = $index) {
+              <div class="tied-item" 
+                   tabindex="0"
+                   role="button"
+                   (click)="selectTiebreaker(item)"
+                   (keydown.enter)="selectTiebreaker(item)"
+                   (keydown.space)="selectTiebreaker(item)">
+                @if (idx > 0) {
+                  <div class="vs-badge">VS</div>
+                }
+                <div class="poster-wrapper">
+                  <div 
+                    class="poster" 
+                    [style.background-image]="'url(' + getPosterUrl(item.posterPath) + ')'"
+                  >
+                  </div>
+                </div>
+                <div class="item-info">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.totalPoints }} Points (Ranked #1)</p>
+                  <button mat-raised-button color="warn" class="select-btn">
+                    Select Winner
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button mat-button class="coin-flip-btn">Flip a coin instead</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Main Content (Winner Announcement) -->
+    @if (!results.isTie && results.winner) {
+      <div class="content-wrapper" @fadeInUp>
+        <!-- Header Section -->
+        <div class="results-header">
+          <div class="stars-badge">
+            <span class="material-symbols-outlined filled">star</span>
+            <span class="badge-text">Voting Complete</span>
+            <span class="material-symbols-outlined filled">star</span>
+          </div>
+          <h1 class="main-title">And the winner is...</h1>
+          <p class="subtitle">Based on ranked-choice voting results from {{ results.totalVoters }} members</p>
+        </div>
+
+        <!-- Winner Card -->
+        <div class="winner-card" @scaleIn>
+          <div class="card-inner">
+            <!-- Poster Section -->
+            <div class="poster-section">
+              <div 
+                class="winner-poster"
+                [style.background-image]="'url(' + getPosterUrl(results.winner.posterPath) + ')'"
+              >
+                <div class="poster-gradient"></div>
+              </div>
+              <div class="winner-badge">Winner</div>
+            </div>
+
+            <!-- Details Section -->
+            <div class="details-section">
+              <div class="movie-meta">
+                @if (getYear(results.winner.releaseDate)) {
+                  <span class="year-badge">{{ getYear(results.winner.releaseDate) }}</span>
+                  <span class="separator">•</span>
+                }
+                <span class="media-type">{{ results.winner.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</span>
+              </div>
+
+              <h2 class="movie-title">{{ results.winner.title }}</h2>
+
+              @if (results.winner.overview) {
+                <p class="movie-overview">{{ results.winner.overview }}</p>
+              }
+
+              <div class="stats-row">
+                <div class="stat-item">
+                  <span class="material-symbols-outlined stat-icon points">emoji_events</span>
+                  <div class="stat-content">
+                    <p class="stat-label">Total Points</p>
+                    <p class="stat-value">{{ results.winner.totalPoints }}</p>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <span class="material-symbols-outlined stat-icon votes">how_to_vote</span>
+                  <div class="stat-content">
+                    <p class="stat-label">Votes</p>
+                    <p class="stat-value">{{ results.winner.voteCount }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <button mat-raised-button color="primary" class="primary-btn" (click)="backToGroup()">
+                  <span class="material-symbols-outlined filled">play_arrow</span>
+                  Start Movie Night
+                </button>
+                <button mat-stroked-button class="secondary-btn" (click)="backToEvent()">
+                  <span class="material-symbols-outlined">movie</span>
+                  Event Details
+                </button>
+              </div>
+
+              <button type="button" class="breakdown-toggle" (click)="toggleVotingBreakdown()">
+                <span class="material-symbols-outlined" [class.rotated]="showVotingBreakdown">expand_more</span>
+                <span>View full voting breakdown</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Runner Ups Section -->
+        @if (results.runnerUps && results.runnerUps.length > 0) {
+          <div class="runner-ups-section" @staggerIn>
+            <h3 class="section-title">Runner Ups</h3>
+            <div class="runner-ups-grid">
+              @for (item of results.runnerUps; track item.tmdbId) {
+                <div class="runner-up-card">
+                  <div 
+                    class="runner-poster"
+                    [style.background-image]="'url(' + getPosterUrl(item.posterPath) + ')'"
+                  >
+                  </div>
+                  <div class="runner-info">
+                    <span class="runner-title">{{ item.title }}</span>
+                    <span class="runner-stats">
+                      {{ item.rank }}{{ getOrdinalSuffix(item.rank) }} Place • {{ item.totalPoints }} points
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- No Results State -->
+    @if (!results.winner && !results.isTie) {
+      <div class="empty-state">
+        <mat-icon>ballot</mat-icon>
+        <h2>No Results Yet</h2>
+        <p>Voting is still in progress. Check back when all members have voted.</p>
+        <button mat-raised-button color="primary" (click)="backToEvent()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Event
+        </button>
+      </div>
+    }
+  }
+</main>

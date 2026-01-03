@@ -107,12 +107,20 @@
                     <mat-icon>how_to_vote</mat-icon>
                     Vote Now
                 </button>
+                <button mat-raised-button color="primary" (click)="viewResults()">
+                    <mat-icon>emoji_events</mat-icon>
+                    View Results
+                </button>
                 <button mat-button (click)="editEvent()">
                     <mat-icon>edit</mat-icon>
                     Edit Event
                 </button>
             } @else if (eventData.status === 'completed') {
-                <button mat-raised-button (click)="backToGroup()">
+                <button mat-raised-button color="primary" (click)="viewResults()" class="primary-action">
+                    <mat-icon>emoji_events</mat-icon>
+                    View Results
+                </button>
+                <button mat-button (click)="backToGroup()">
                     <mat-icon>arrow_back</mat-icon>
                     Back to Group
                 </button>
