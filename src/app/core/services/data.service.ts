@@ -197,6 +197,11 @@ export class DataService {
     return this.http.get(`${this.eventURL}/${eventId}/media`);
   }
 
+  // Archive - completed events user has been part of with winners
+  getArchive() {
+    return this.http.get(`${this.eventURL}/archive`);
+  }
+
   launchVoting(eventId: number): Observable<{ message: string; event: Event }> {
     return this.http.post<{ message: string; event: Event }>(`${this.eventURL}/${eventId}/launch-voting`, {});
   }

@@ -26,6 +26,7 @@
               class="search-input" 
               placeholder="Search archive..." 
               (input)="onSearchChange($any($event.target).value)" 
+              [value]="search()"
             />
           </div>
         </div>
@@ -36,12 +37,12 @@
         <div class="filter-chips">
           <label class="filter-chip group">
             <div class="chip-inner">
-              <p class="chip-label-text">Year: {{ selectedYear || 'All' }}</p>
+              <p class="chip-label-text">Year: {{ selectedYear() || 'All' }}</p>
               <span class="material-symbols-outlined chip-icon">keyboard_arrow_down</span>
             </div>
             <select id="filter-year" name="year" class="filter-select" aria-label="Filter by year" (change)="onYearChange($any($event.target).value)">
               <option value="All">All</option>
-              @for (y of years; track y) {
+              @for (y of years(); track y) {
                 <option [value]="y">{{ y }}</option>
               }
             </select>
@@ -49,7 +50,7 @@
           <!-- Genre filter removed -->
           <label class="filter-chip group">
             <div class="chip-inner">
-              <p class="chip-label-text">Rating: {{ selectedRating > 0 ? (selectedRating + '+') : 'All' }}</p>
+              <p class="chip-label-text">Rating: {{ selectedRating() > 0 ? (selectedRating() + '+') : 'All' }}</p>
               <span class="material-symbols-outlined chip-icon">keyboard_arrow_down</span>
             </div>
             <select id="filter-rating" name="rating" class="filter-select" aria-label="Filter by rating" (change)="onRatingChange($any($event.target).value)">
@@ -67,8 +68,8 @@
             class="view-btn"
             title="View as List"
             (click)="setViewMode('list')"
-            [class.active]="viewMode === 'list'"
-            [attr.aria-pressed]="viewMode === 'list'"
+            [class.active]="viewMode() === 'list'"
+            [attr.aria-pressed]="viewMode() === 'list'"
           >
             <span class="material-symbols-outlined">view_list</span>
           </button>
@@ -76,8 +77,8 @@
             class="view-btn"
             title="View as Grid"
             (click)="setViewMode('grid')"
-            [class.active]="viewMode === 'grid'"
-            [attr.aria-pressed]="viewMode === 'grid'"
+            [class.active]="viewMode() === 'grid'"
+            [attr.aria-pressed]="viewMode() === 'grid'"
           >
             <span class="material-symbols-outlined">grid_view</span>
           </button>
@@ -85,8 +86,8 @@
       </div>
 
       <!-- Grid Section -->
-      <div class="archive-grid" [class.list-view]="viewMode === 'list'">
-        @if (!loading && filteredWinners.length === 0) {
+      <div class="archive-grid" [class.list-view]="viewMode() === 'list'">
+        @if (!loading() && filteredWinners().length === 0) {
           <div class="empty-state">
             <div class="empty-icon">
               <span class="material-symbols-outlined">movie</span>
@@ -96,8 +97,8 @@
           </div>
         }
 
-        @if (filteredWinners.length > 0) {
-          @for (item of filteredWinners; track item.eventId) {
+        @if (filteredWinners().length > 0) {
+          @for (item of filteredWinners(); track item.eventId) {
             <div class="movie-card">
               <div class="poster-container">
                 <div 
@@ -128,7 +129,7 @@
         }
       </div>
 
-      @if (loading) {
+      @if (loading()) {
         <div class="loading-container">
           <span class="material-symbols-outlined loading-spinner">progress_activity</span>
         </div>
