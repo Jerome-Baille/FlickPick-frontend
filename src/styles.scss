@@ -290,6 +290,16 @@ main {
   border-radius: 8px;
 }
 
+// Ensure MDC / Mat button labels layout horizontally with spacing
+.mdc-button .mdc-button__label,
+.mat-mdc-button .mdc-button__label,
+.mat-mdc-raised-button .mdc-button__label,
+.mat-mdc-outlined-button .mdc-button__label {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .mat-mdc-raised-button.mat-primary {
   box-shadow: 0 0 15px rgba(249, 212, 6, 0.3);
 }
@@ -368,6 +378,9 @@ main {
   
   .movie-poster {
     aspect-ratio: 2/3;
+    width: 100%;
+    max-height: 550px;
+    height: auto;
     object-fit: cover;
     border-radius: 8px 8px 0 0;
   }
