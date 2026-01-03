@@ -13,12 +13,20 @@ import { Event as MovieNightEvent } from '../../shared/models/Event';
 interface GroupItem {
   id: number;
   name: string;
-  adminIds?: number[];
-  isAdmin?: boolean;
-  code?: string;
   Users?: { id: number; username: string }[];
   Events?: MovieNightEvent[];
   coverImage?: string;
+}
+
+interface DisplayEvent {
+  id: number;
+  name: string;
+  eventDate?: string | Date;
+  status?: string;
+  groupId: number;
+  groupName: string;
+  coverImage?: string;
+  isWinner?: boolean;
 }
 
 interface UpcomingSession {
@@ -56,14 +64,17 @@ export class DashboardComponent implements OnInit {
   userName = '';
   pendingVotes = 0;
   activeTab: DashboardTab = 'active';
-  
-  // All groups from API
+
+  // Raw groups from API
   private allGroups: GroupItem[] = [];
-  
-  // Filtered groups for display
-  activeGroups: GroupItem[] = [];
-  archivedGroups: GroupItem[] = [];
-  
+
+  // Flattened events
+  private allEvents: DisplayEvent[] = [];
+
+  // Event lists for tabs
+  activeEvents: DisplayEvent[] = [];
+  archivedEvents: DisplayEvent[] = [];
+
   // Coming soon sessions (scheduled events with future dates)
   upcomingSessions: UpcomingSession[] = [];
   readonly maxUpcomingSessions = 5;
@@ -71,20 +82,31 @@ export class DashboardComponent implements OnInit {
   /**
    * Formats a date string as 'SAT, JAN 3 · 7:00 PM' or 'TONIGHT · 7:00 PM' if today.
    */
-  formatSessionDateTime(dateTime: string): string {
+  formatSessionDateTime(dateTime?: string | Date): string {
     if (!dateTime) return '';
-    const date = new Date(dateTime);
+    let date: Date;
+    if (typeof dateTime === 'string') {
+      date = new Date(dateTime);
+    } else if (dateTime instanceof Date) {
+      date = dateTime;
+    } else {
+      // Fallback - attempt to coerce
+      date = new Date(String(dateTime));
+    }
+
+    if (isNaN(date.getTime())) return '';
+
     const now = new Date();
-    // Check if the date is today (local time)
     const isToday = date.getFullYear() === now.getFullYear() &&
       date.getMonth() === now.getMonth() &&
       date.getDate() === now.getDate();
-    // Always show minutes (e.g., 7:00 PM)
+
     const timeString = date.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     });
+
     if (isToday) {
       return `TONIGHT · ${timeString}`;
     }
@@ -94,7 +116,7 @@ export class DashboardComponent implements OnInit {
     return `${day}, ${month} ${dayNum} · ${timeString}`;
   }
 
-  // Placeholder cover images for groups
+  // Placeholder cover images (used when group doesn't provide one)
   private readonly groupCovers = [
     'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80',
     'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80',
@@ -122,94 +144,94 @@ export class DashboardComponent implements OnInit {
     this.dataService.getAllGroupsForUser().subscribe({
       next: (response: unknown) => {
         const groups = response as GroupItem[];
-        if (groups && Array.isArray(groups) && groups.length > 0) {
+        if (groups && Array.isArray(groups)) {
+          // Ensure each group has a cover
           this.allGroups = groups.map((group, index) => ({
             ...group,
-            coverImage: this.groupCovers[index % this.groupCovers.length]
+            coverImage: group.coverImage || this.groupCovers[index % this.groupCovers.length]
           }));
-          
-          this.categorizeGroups();
+
+          // Build flattened events list and categorize
+          this.extractEventsFromGroups();
+          this.categorizeEvents();
           this.extractUpcomingSessions();
-          
+
           // Calculate pending votes from events with voting status
-          this.pendingVotes = this.allGroups.reduce((count, group) => {
-            return count + (group.Events?.filter(e => e.status === 'voting').length || 0);
-          }, 0);
+          this.pendingVotes = this.allEvents.filter(e => e.status === 'voting').length;
         } else {
           this.allGroups = [];
-          this.activeGroups = [];
-          this.archivedGroups = [];
+          this.allEvents = [];
+          this.activeEvents = [];
+          this.archivedEvents = [];
         }
       },
       error: (err) => this.snackbarService.showError(err.message)
     });
   }
 
-  /**
-   * Categorizes groups into active and archived based on their events.
-   * Active: Groups with at least one event in 'draft' or 'voting' status
-   * Archived: Groups where all events are 'completed' or 'cancelled'
-   */
-  private categorizeGroups(): void {
-    this.activeGroups = [];
-    this.archivedGroups = [];
-
+  private extractEventsFromGroups(): void {
+    const events: DisplayEvent[] = [];
     this.allGroups.forEach(group => {
-      const hasActiveEvents = group.Events?.some(
-        e => e.status === 'draft' || e.status === 'voting'
-      );
-      
-      if (hasActiveEvents || !group.Events || group.Events.length === 0) {
-        // Groups with active events or no events go to active tab
-        this.activeGroups.push(group);
-      } else {
-        // Groups where all events are completed/cancelled go to archived
-        this.archivedGroups.push(group);
-      }
+      group.Events?.forEach(ev => {
+        events.push({
+          id: ev.id,
+          name: ev.name,
+          eventDate: ev.eventDate,
+          status: ev.status,
+          groupId: group.id,
+          groupName: group.name,
+          coverImage: group.coverImage,
+          isWinner: ev.status === 'completed'
+        });
+      });
     });
+    this.allEvents = events;
   }
 
   /**
-   * Extracts upcoming sessions from all groups.
-   * Only includes events with a future eventDate that are scheduled (completed voting or draft with date).
-   * Sorted by date ascending, limited to maxUpcomingSessions.
+   * Categorizes events into active and archived based on their status.
+   * Active: 'draft' or 'voting'
+   * Archived: 'completed' or 'cancelled'
+   */
+  private categorizeEvents(): void {
+    this.activeEvents = this.allEvents.filter(e => e.status === 'draft' || e.status === 'voting' || !e.status);
+    this.archivedEvents = this.allEvents.filter(e => e.status === 'completed' || e.status === 'cancelled');
+  }
+
+  /**
+   * Extracts upcoming sessions from all events.
    */
   private extractUpcomingSessions(): void {
     const now = new Date();
     const sessions: UpcomingSession[] = [];
 
-    this.allGroups.forEach(group => {
-      group.Events?.forEach(event => {
-        // Only include events with a scheduled date in the future
-        // that are either completed (winner chosen) or draft with a date set
-        if (event.eventDate) {
-          const eventDate = new Date(event.eventDate);
-          if (eventDate > now && (event.status === 'completed' || event.status === 'draft')) {
-            sessions.push({
-              groupId: group.id,
-              groupName: group.name,
-              eventId: event.id,
-              movieTitle: event.name,
-              dateTime: event.eventDate as string,
-              status: 'scheduled',
-              isWinner: event.status === 'completed'
-            });
-          }
+    this.allEvents.forEach(event => {
+      if (event.eventDate) {
+        const eventDate = new Date(event.eventDate);
+        if (eventDate > now) {
+          sessions.push({
+            groupId: event.groupId,
+            groupName: event.groupName,
+            eventId: event.id,
+            movieTitle: event.name,
+            dateTime: (typeof event.eventDate === 'string') ? event.eventDate : (event.eventDate ? event.eventDate.toISOString() : ''),
+            status: 'scheduled',
+            isWinner: event.isWinner
+          });
         }
-      });
+      }
     });
 
-    // Sort by date ascending and limit
     this.upcomingSessions = sessions
       .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
       .slice(0, this.maxUpcomingSessions);
   }
 
   /**
-   * Returns the groups to display based on the active tab.
+   * Returns the events to display based on the active tab.
    */
-  get displayedGroups(): GroupItem[] {
-    return this.activeTab === 'active' ? this.activeGroups : this.archivedGroups;
+  get displayedEvents(): DisplayEvent[] {
+    return this.activeTab === 'active' ? this.activeEvents : this.archivedEvents;
   }
 
   /**
@@ -219,31 +241,13 @@ export class DashboardComponent implements OnInit {
     this.activeTab = tab;
   }
 
-  getGroupStatus(group: GroupItem): { label: string; type: 'voting' | 'selecting' | 'scheduled' | 'none' } {
-    const votingEvent = group.Events?.find(e => e.status === 'voting');
-    if (votingEvent) {
-      return { label: 'VOTING ACTIVE', type: 'voting' };
-    }
-    
-    const upcomingEvent = group.Events?.find(e => e.status === 'draft' && e.eventDate);
-    if (upcomingEvent) {
-      return { label: 'SCHEDULED', type: 'scheduled' };
-    }
-
-    const draftEvent = group.Events?.find(e => e.status === 'draft');
-    if (draftEvent) {
-      return { label: 'PLANNING', type: 'selecting' };
-    }
-
+  getEventStatus(event: DisplayEvent): { label: string; type: 'voting' | 'selecting' | 'scheduled' | 'archived' | 'none' } {
+    if (event.status === 'voting') return { label: 'VOTING ACTIVE', type: 'voting' };
+    if (event.status === 'draft' && event.eventDate) return { label: 'SCHEDULED', type: 'scheduled' };
+    if (event.status === 'draft') return { label: 'PLANNING', type: 'selecting' };
+    if (event.status === 'completed') return { label: 'COMPLETED', type: 'archived' };
+    if (event.status === 'cancelled') return { label: 'CANCELLED', type: 'archived' };
     return { label: '', type: 'none' };
-  }
-
-  getNextSession(group: GroupItem): string {
-    const nextEvent = group.Events?.find(e => e.status !== 'completed' && e.status !== 'cancelled');
-    if (nextEvent?.eventDate) {
-      return new Date(nextEvent.eventDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-    return 'TBD';
   }
 
   getStatusIcon(type: string): string {
@@ -251,43 +255,20 @@ export class DashboardComponent implements OnInit {
       case 'voting': return 'how_to_vote';
       case 'selecting': return 'edit_note';
       case 'scheduled': return 'event_available';
-      default: return 'groups';
+      case 'archived': return 'archive';
+      default: return 'event';
     }
   }
 
-  getPrimaryEventId(group: GroupItem): number | null {
-    if (!group.Events || group.Events.length === 0) {
-      return null;
+  getEventRoute(event: DisplayEvent): string[] {
+    if (event.status === 'voting') {
+      return ['/event/voting', event.id.toString()];
     }
-    
-    // Priority: voting > scheduled > draft > any
-    const votingEvent = group.Events.find(e => e.status === 'voting');
-    if (votingEvent) return votingEvent.id;
-    
-    const scheduledEvent = group.Events.find(e => e.status === 'draft' && e.eventDate);
-    if (scheduledEvent) return scheduledEvent.id;
-    
-    const draftEvent = group.Events.find(e => e.status === 'draft');
-    if (draftEvent) return draftEvent.id;
-    
-    // Return the most recent event
-    return group.Events[group.Events.length - 1].id;
-  }
-
-  getEventRoute(group: GroupItem): string[] {
-    const eventId = this.getPrimaryEventId(group);
-    if (!eventId) {
-      return ['/group/detail', group.id.toString()];
-    }
-    
-    const status = this.getGroupStatus(group);
-    if (status.type === 'voting') {
-      return ['/event/voting', eventId.toString()];
-    }
-    return ['/event/detail', eventId.toString()];
+    return ['/event/detail', event.id.toString()];
   }
 
   createGroup() {
+    // Keep existing flow for creating groups as before
     this.router.navigate(['/group/create']);
   }
 }

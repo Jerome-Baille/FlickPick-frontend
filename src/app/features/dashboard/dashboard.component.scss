@@ -114,8 +114,8 @@
     }
 }
 
-// Groups Section
-.groups-section {
+// Events Section
+.events-section {
     .section-header {
         display: flex;
         align-items: center;
@@ -169,7 +169,7 @@
         }
     }
 
-    .groups-grid {
+    .events-grid {
         display: grid;
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -180,8 +180,8 @@
     }
 }
 
-// Group Card
-.group-card {
+// Event Card
+.event-card {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
@@ -191,11 +191,11 @@
     &:hover {
         border-color: rgba(249, 212, 6, 0.3);
 
-        .group-name {
+        .event-name {
             color: var(--color-primary);
         }
 
-        .group-cover {
+        .event-cover {
             transform: scale(1.05);
         }
     }
@@ -236,9 +236,15 @@
             color: #bbf7d0;
             border: 1px solid #166534;
         }
+
+        &.archived {
+            background-color: var(--color-border);
+            color: var(--color-text-muted);
+            border: 1px solid var(--color-border-hover);
+        }
     }
 
-    .group-cover {
+    .event-cover {
         height: 160px;
         background-size: cover;
         background-position: center;
@@ -252,13 +258,13 @@
         }
     }
 
-    .group-info {
+    .event-info {
         padding: 1.25rem;
         margin-top: -3rem;
         position: relative;
         z-index: 5;
 
-        .group-name {
+        .event-name {
             font-family: 'Archivo Black', sans-serif;
             font-size: 1.25rem;
             color: white;
@@ -266,7 +272,7 @@
             transition: color 0.2s;
         }
 
-        .group-session {
+        .event-date {
             font-family: 'Playfair Display', serif;
             font-style: italic;
             color: var(--color-text-muted);
@@ -274,48 +280,19 @@
             margin: 0 0 1rem;
         }
 
-        .group-footer {
+        .event-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-top: 1rem;
 
-            .member-avatars {
-                display: flex;
-                margin-left: -0.5rem;
-
-                .avatar-placeholder {
-                    width: 2rem;
-                    height: 2rem;
-                    border-radius: 50%;
-                    background: var(--color-border);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    color: white;
-                    border: 2px solid var(--color-surface);
-                    margin-left: -0.5rem;
-                }
-
-                .avatar-more {
-                    width: 2rem;
-                    height: 2rem;
-                    border-radius: 50%;
-                    background: var(--color-border);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 0.7rem;
-                    font-weight: 700;
-                    color: white;
-                    border: 2px solid var(--color-surface);
-                    margin-left: -0.5rem;
-                }
+            .event-group-name {
+                color: var(--color-text-muted);
+                font-size: 0.875rem;
+                font-style: italic;
             }
 
-            .group-action-btn {
+            .event-action-btn {
                 background: var(--color-border);
                 border: none;
                 color: white;
@@ -368,8 +345,8 @@
     }
 }
 
-// Create Group Card
-.create-group-card {
+// Create Event Card
+.create-event-card {
     border: 2px dashed var(--color-border);
     border-radius: 12px;
     background: rgba(35, 32, 15, 0.3);

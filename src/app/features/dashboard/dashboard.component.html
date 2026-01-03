@@ -21,17 +21,17 @@
 
     <!-- Main Content Grid -->
     <div class="main-grid">
-        <!-- Left Column - Groups -->
-        <div class="groups-section">
+        <!-- Left Column - Events -->
+        <div class="events-section">
             <div class="section-header">
-                <h2 class="section-title">Your Casting Couches</h2>
+                <h2 class="section-title">Your Events</h2>
                 <div class="section-tabs">
                     <button class="tab-btn" 
                             [class.active]="activeTab === 'active'"
                             (click)="switchTab('active')">
                         Active
-                        @if (activeGroups.length > 0) {
-                            <span class="tab-count">({{ activeGroups.length }})</span>
+                        @if (activeEvents.length > 0) {
+                            <span class="tab-count">({{ activeEvents.length }})</span>
                         }
                     </button>
                     <span class="tab-divider">|</span>
@@ -39,83 +39,68 @@
                             [class.active]="activeTab === 'archived'"
                             (click)="switchTab('archived')">
                         Archived
-                        @if (archivedGroups.length > 0) {
-                            <span class="tab-count">({{ archivedGroups.length }})</span>
+                        @if (archivedEvents.length > 0) {
+                            <span class="tab-count">({{ archivedEvents.length }})</span>
                         }
                     </button>
                 </div>
             </div>
 
-            <div class="groups-grid">
-                @for (group of displayedGroups; track group.id) {
-                    <div class="group-card glass-panel" [routerLink]="getEventRoute(group)">
+            <div class="events-grid">
+                @for (event of displayedEvents; track event.id) {
+                    <a class="event-card glass-panel" [routerLink]="getEventRoute(event)">
                         <!-- Status Badge -->
-                        @let status = getGroupStatus(group);
+                        @let status = getEventStatus(event);
                         @if (status.label) {
                             <div class="status-badge" 
                                  [class.voting]="status.type === 'voting'" 
                                  [class.selecting]="status.type === 'selecting'"
-                                 [class.scheduled]="status.type === 'scheduled'">
+                                 [class.scheduled]="status.type === 'scheduled'"
+                                 [class.archived]="status.type === 'archived'">
                                 <span class="material-symbols-outlined">{{ getStatusIcon(status.type) }}</span>
                                 {{ status.label }}
                             </div>
                         }
 
                         <!-- Cover Image -->
-                        <div class="group-cover" [style.background-image]="'url(' + group.coverImage + ')'">
+                        <div class="event-cover" [style.background-image]="'url(' + event.coverImage + ')'">
                             <div class="cover-gradient"></div>
                         </div>
 
-                        <!-- Group Info -->
-                        <div class="group-info">
-                            <h3 class="group-name">{{ group.name }}</h3>
-                            <p class="group-session">{{ getNextSession(group) }}</p>
+                        <!-- Event Info -->
+                        <div class="event-info">
+                            <h3 class="event-name">{{ event.name }}</h3>
+                            <p class="event-date">{{ formatSessionDateTime(event.eventDate) }}</p>
 
-                            <div class="group-footer">
-                                <div class="member-avatars">
-                                    @if (group.Users && group.Users.length > 0) {
-                                        @for (user of group.Users.slice(0, 3); track user.id) {
-                                            <div class="avatar-placeholder">
-                                                {{ user.username.charAt(0).toUpperCase() }}
-                                            </div>
-                                        }
-                                        @if (group.Users.length > 3) {
-                                            <div class="avatar-more">+{{ group.Users.length - 3 }}</div>
-                                        }
-                                    }
-                                </div>
-                                <button class="group-action-btn" 
+                            <div class="event-footer">
+                                <div class="event-group-name">{{ event.groupName }}</div>
+                                <button class="event-action-btn" 
                                         [class.primary]="status.type === 'selecting'"
                                         (click)="$event.stopPropagation()">
                                     @switch (status.type) {
                                         @case ('voting') { Cast Vote }
                                         @case ('selecting') { Plan Event }
-                                        @default { View Details }
+                                        @default { View Event }
                                     }
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 }
 
-                <!-- Create New Group Card - Only show on active tab -->
+                <!-- Create New Event Card - Only show on active tab -->
                 @if (activeTab === 'active') {
-                    <div class="create-group-card" 
-                         (click)="createGroup()" 
-                         (keydown.enter)="createGroup()" 
-                         (keydown.space)="createGroup()"
-                         tabindex="0"
-                         role="button">
+                    <a class="create-event-card" [routerLink]="['/event/create']">
                         <div class="create-icon">
                             <span class="material-symbols-outlined">add</span>
                         </div>
-                        <h3 class="create-title">Start a New Club</h3>
-                        <p class="create-description">Gather your friends and start picking flicks.</p>
-                    </div>
+                        <h3 class="create-title">Create an Event</h3>
+                        <p class="create-description">Pick a date and invite your friends.</p>
+                    </a>
                 }
 
                 <!-- Empty state for archived tab -->
-                @if (activeTab === 'archived' && archivedGroups.length === 0) {
+                @if (activeTab === 'archived' && archivedEvents.length === 0) {
                     <div class="empty-state">
                         <span class="material-symbols-outlined">archive</span>
                         <p>No archived events yet</p>
@@ -136,7 +121,7 @@
                 <div class="upcoming-list">
                     @if (upcomingSessions.length > 0) {
                         @for (session of upcomingSessions; track session.eventId) {
-                            <div class="upcoming-item" [routerLink]="['/event/detail', session.eventId]">
+                            <a class="upcoming-item" [routerLink]="['/event/detail', session.eventId]">
                                 <div class="movie-poster-small">
                                     @if (session.posterPath) {
                                         <img [src]="'https://image.tmdb.org/t/p/w200' + session.posterPath" 
@@ -157,7 +142,7 @@
                                         <span>Scheduled</span>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         }
                     } @else {
                         <div class="empty-upcoming">
@@ -173,10 +158,10 @@
                     }
                 </div>
 
-                <button class="view-calendar-btn" routerLink="/calendar">
+                <a class="view-calendar-btn" [routerLink]="['/calendar']">
                     <span>View Full Calendar</span>
                     <span class="material-symbols-outlined">arrow_forward</span>
-                </button>
+                </a>
             </div>
 
         </div>

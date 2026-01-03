@@ -1,6 +1,7 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { DataService } from '../../core/services/data.service';
+import { Event as MovieNightEvent } from '../../shared/models/Event';
 import { of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -8,25 +9,29 @@ import { map, catchError } from 'rxjs/operators';
 export const eventStatusGuard: CanActivateFn = (route) => {
   const dataService = inject(DataService);
   const router = inject(Router);
-  const eventId = route.params['eventId'];
-  console.log('eventStatusGuard: checking event', eventId);
-  if (!eventId) return of(false);
+  const eventIdParam = route.params['eventId'];
+  const eventId = Number(eventIdParam);
+  if (Number.isNaN(eventId)) return of(false);
+
   return dataService.getEventById(eventId).pipe(
-    map(response => {
-      // Backend returns { event, MediaItems } — unwrap if needed
-      const ev: any = (response as any)?.event ?? response;
-      console.log('eventStatusGuard: got event', ev?.id, ev?.status);
+    map((response: unknown) => {
+      // Backend might return { event, MediaItems } or the event object directly
+      let ev: MovieNightEvent | undefined;
+      if (response && typeof response === 'object' && 'event' in response) {
+        ev = (response as { event: MovieNightEvent }).event;
+      } else {
+        ev = response as MovieNightEvent;
+      }
+
       if (ev && ev.status === 'completed') {
         // Redirect to results if completed
-        console.log('eventStatusGuard: redirecting to results for', eventId);
         router.navigate(['/event/results', eventId]);
         return false;
       }
       return true;
     }),
     catchError(() => {
-      // On error, allow navigation (or could block)
-      console.log('eventStatusGuard: error fetching event, allowing navigation');
+      // On error, allow navigation
       return of(true);
     })
   );
