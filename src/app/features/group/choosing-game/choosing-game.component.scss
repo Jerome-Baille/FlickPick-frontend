@@ -741,15 +741,36 @@
 }
 
 // CDK Drag Placeholder & Preview
+/* Ensure the drag preview and the dragged element have no transition so
+   they follow the mouse exactly (no easing/blend). Keep the list-item
+   reflow animation for other elements on drop. */
 .cdk-drag-preview {
     opacity: 0.8;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: none !important;
+}
+
+/* Also ensure the original card and any cloned preview of the card do not
+   have transitions while being dragged (prevents laggy/bezier motion). */
+.movie-card.cdk-drag,
+.movie-card.cdk-drag-preview,
+.cdk-drag-preview.movie-card,
+.cdk-drag-placeholder {
+    transition: none !important;
+}
+
+/* Prevent the poster image's transform transition on the drag preview */
+.cdk-drag-preview .poster-image,
+.movie-card.cdk-drag .poster-image,
+.movie-card.cdk-drag-preview .poster-image {
+    transition: none !important;
 }
 
 .cdk-drag-placeholder {
     opacity: 0.3;
 }
 
+/* Keep reflow animations for non-preview elements (drop animations) */
 .cdk-drag-animating {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
