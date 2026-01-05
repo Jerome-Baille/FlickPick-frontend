@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { CreateCardComponent } from 'src/app/shared/components/create-card/create-card.component';
+import { HeaderBadgeComponent } from 'src/app/shared/components/header-badge/header-badge.component';
 import { DataService } from 'src/app/core/services/data.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
@@ -52,7 +53,8 @@ type DashboardTab = 'active' | 'archived';
     MatButtonModule,
     MatIconModule,
     RouterLink,
-    CreateCardComponent
+    CreateCardComponent,
+    HeaderBadgeComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

@@ -224,6 +224,16 @@ h1 {
   font-family: 'Playfair Display', serif;
 }
 
+.header-subtitle {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+  max-width: 42rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
 .font-inter {
   font-family: 'Inter', sans-serif;
 }
