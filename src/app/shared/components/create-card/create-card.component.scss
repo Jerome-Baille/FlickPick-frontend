@@ -1,0 +1,53 @@
+.create-card {
+    border: 2px dashed var(--color-border);
+    border-radius: 12px;
+    background: rgba(35, 32, 15, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba(35, 32, 15, 0.5);
+
+        .create-icon {
+            background: var(--color-primary);
+            color: var(--color-background);
+        }
+    }
+
+    .create-icon {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        background: var(--color-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+
+        .material-symbols-outlined {
+            font-size: 1.5rem;
+        }
+    }
+
+    .create-title {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 1.25rem;
+        color: white;
+        letter-spacing: 0.02em;
+        margin: 0 0 0.5rem;
+    }
+
+    .create-description {
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+        max-width: 200px;
+        margin: 0;
+    }
+}

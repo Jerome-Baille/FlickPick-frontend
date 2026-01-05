@@ -90,13 +90,11 @@
 
                 <!-- Create New Event Card - Only show on active tab -->
                 @if (activeTab === 'active') {
-                    <a class="create-event-card" [routerLink]="['/event/create']">
-                        <div class="create-icon">
-                            <span class="material-symbols-outlined">add</span>
-                        </div>
-                        <h3 class="create-title">Create an Event</h3>
-                        <p class="create-description">Pick a date and invite your friends.</p>
-                    </a>
+                    <app-create-card title="Create an Event"
+                                     description="Pick a date and invite your friends."
+                                     icon="add"
+                                     [routerLink]="['/event/create']">
+                    </app-create-card>
                 }
 
                 <!-- Empty state for archived tab -->

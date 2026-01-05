@@ -1,0 +1,26 @@
+<!-- If routerLink is provided, render as an anchor to allow normal navigation -->
+<a *ngIf="routerLink; else buttonTpl"
+   class="create-card"
+   [routerLink]="routerLink"
+   [attr.aria-label]="ariaLabel || title">
+  <div class="create-icon">
+    <span class="material-symbols-outlined">{{ icon }}</span>
+  </div>
+  <h3 class="create-title">{{ title }}</h3>
+  <p class="create-description" *ngIf="description">{{ description }}</p>
+</a>
+
+<ng-template #buttonTpl>
+  <div class="create-card"
+       role="button"
+       tabindex="0"
+       (click)="onClick($event)"
+       (keydown)="onKeydown($event)"
+       [attr.aria-label]="ariaLabel || title">
+    <div class="create-icon">
+      <span class="material-symbols-outlined">{{ icon }}</span>
+    </div>
+    <h3 class="create-title">{{ title }}</h3>
+    <p class="create-description" *ngIf="description">{{ description }}</p>
+  </div>
+</ng-template>

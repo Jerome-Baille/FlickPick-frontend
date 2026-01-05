@@ -109,20 +109,11 @@
         }
 
         <!-- Create New Group Card -->
-        <div class="group-card create-card" 
-             (click)="createGroup()"
-             (keydown.enter)="createGroup()"
-             (keydown.space)="createGroup()"
-             tabindex="0"
-             role="button">
-            <div class="create-icon">
-                <span class="material-symbols-outlined">add</span>
-            </div>
-            <h4 class="create-title">Start a New Club</h4>
-            <p class="create-description">
-                "I think this is the beginning of a beautiful friendship."
-            </p>
-        </div>
+        <app-create-card title="Start a New Club"
+                         description="I think this is the beginning of a beautiful friendship."
+                         icon="add"
+                         (action)="createGroup()">
+        </app-create-card>
 
         <!-- Empty State (shown when no groups) -->
         @if (!groups.length) {

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { CreateCardComponent } from 'src/app/shared/components/create-card/create-card.component';
 import { Group } from 'src/app/shared/models/Group';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
@@ -23,7 +24,8 @@ interface ApiResponse {
     imports: [
         CommonModule,
         RouterLink,
-        ViewToggleComponent
+        ViewToggleComponent,
+        CreateCardComponent
     ]
 })
 export class GroupOverviewComponent {
