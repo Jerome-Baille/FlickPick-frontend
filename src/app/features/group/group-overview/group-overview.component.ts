@@ -109,7 +109,7 @@ export class GroupOverviewComponent {
         });
     }
 
-    copyGroupCode(ev: MouseEvent, code: string) {
+    copyGroupCode(ev: Event, code: string) {
         ev.stopPropagation();
         navigator.clipboard.writeText(code).then(() => {
             this.snackbarService.showSuccess('Group code copied to clipboard!');
