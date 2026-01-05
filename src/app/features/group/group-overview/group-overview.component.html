@@ -27,17 +27,10 @@
         </div>
     </div>
 
-    <!-- Tab Navigation -->
+    <!-- View Toggle (moved to flex-end) -->
     <div class="tabs-container">
-        <div class="tabs">
-            <button class="tab active">
-                All Groups <span class="tab-count">({{ groups.length }})</span>
-            </button>
-            <button class="tab">Active Votes</button>
-            <button class="tab">Scheduled</button>
-            <button class="tab">Archived</button>
-        </div>
         <app-view-toggle
+            class="view-toggle"
             [viewMode]="viewMode"
             (viewModeChange)="setViewMode($event)"
         ></app-view-toggle>
@@ -45,21 +38,6 @@
 
     <!-- Groups Grid -->
     <div class="groups-grid" [class.list-mode]="viewMode === 'list'">
-        <!-- Create New Group Card -->
-        <div class="group-card create-card" 
-             (click)="createGroup()"
-             (keydown.enter)="createGroup()"
-             (keydown.space)="createGroup()"
-             tabindex="0"
-             role="button">
-            <div class="create-icon">
-                <span class="material-symbols-outlined">add</span>
-            </div>
-            <h4 class="create-title">Start a New Club</h4>
-            <p class="create-description">
-                "I think this is the beginning of a beautiful friendship."
-            </p>
-        </div>
 
         <!-- Group Cards -->
         @for (group of groups; track group.id) {
@@ -129,6 +107,22 @@
                 </div>
             </div>
         }
+
+        <!-- Create New Group Card -->
+        <div class="group-card create-card" 
+             (click)="createGroup()"
+             (keydown.enter)="createGroup()"
+             (keydown.space)="createGroup()"
+             tabindex="0"
+             role="button">
+            <div class="create-icon">
+                <span class="material-symbols-outlined">add</span>
+            </div>
+            <h4 class="create-title">Start a New Club</h4>
+            <p class="create-description">
+                "I think this is the beginning of a beautiful friendship."
+            </p>
+        </div>
 
         <!-- Empty State (shown when no groups) -->
         @if (!groups.length) {

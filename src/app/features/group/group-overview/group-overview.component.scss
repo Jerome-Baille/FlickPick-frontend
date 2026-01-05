@@ -124,56 +124,14 @@ main {
     }
 }
 
-// Tab Navigation
+// View Toggle (moved to flex-end)
 .tabs-container {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
     margin-bottom: 2rem;
 
-    .tabs {
-        display: flex;
-        gap: 2rem;
-        overflow-x: auto;
-        flex-grow: 1;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab {
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            color: var(--color-text-muted);
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.25rem;
-            letter-spacing: 0.02em;
-            padding: 0 0 1rem 0;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-
-            &:hover {
-                color: #fff;
-                border-bottom-color: var(--color-border);
-            }
-
-            &.active {
-                color: #fff;
-                border-bottom-color: var(--color-primary);
-            }
-
-            .tab-count {
-                font-family: 'Inter', sans-serif;
-                font-size: 0.875rem;
-                color: var(--color-text-muted);
-                margin-left: 0.25rem;
-            }
-        }
-    }
-
     .view-toggle {
+        margin-left: auto;
         display: none;
         gap: 0.5rem;
         padding-bottom: 1rem;
