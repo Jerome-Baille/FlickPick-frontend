@@ -1,9 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/breadcrumb.component';
 import { DataService } from '../../../core/services/data.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { Event as MovieNightEvent } from '../../../shared/models/Event';
@@ -40,7 +41,7 @@ interface EventResponse {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    RouterLink
+    BreadcrumbComponent
   ],
   templateUrl: './event-detail.component.html',
   styleUrls: ['./event-detail.component.scss']
@@ -56,6 +57,8 @@ export class EventDetailComponent implements OnInit {
   groupId = 0;
   shortlistItems: EventMediaItem[] = [];
   isLoading = true;
+
+  breadcrumbItems: { label: string; link?: (string | number | Record<string, unknown>)[] }[] = [];
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -75,7 +78,12 @@ export class EventDetailComponent implements OnInit {
         this.groupName = res.event.Group?.name || '';
         this.groupId = res.event.Group?.id || res.event.groupId;
         this.shortlistItems = res.event.shortlist?.MediaItems || [];
-        this.isLoading = false;
+        this.breadcrumbItems = [
+          { label: 'Dashboard', link: ['/dashboard'] },
+          { label: this.groupName || 'Group', link: ['/group/detail', this.groupId] },
+          { label: this.eventData.name }
+        ];
+        this.isLoading = false; 
       },
       error: (err: Error) => {
         this.snackbarService.showError('Failed to load event: ' + err.message);

@@ -20,6 +20,7 @@ import { RankSelectorSheetComponent } from './rank-selector-sheet.component';
 import { Event as MovieNightEvent } from '../../../shared/models/Event';
 import { MediaCardComponent } from 'src/app/shared/components/media-card/media-card.component';
 import { ViewToggleComponent } from 'src/app/shared/components/view-toggle/view-toggle.component';
+import { BreadcrumbComponent } from 'src/app/shared/components/breadcrumb/breadcrumb.component';
 
 interface Genre {
   id: number;
@@ -62,7 +63,8 @@ interface EventMediaResponse {
       MatBottomSheetModule,
       DragDropModule,
       MediaCardComponent,
-      ViewToggleComponent
+      ViewToggleComponent,
+      BreadcrumbComponent
     ],
     templateUrl: './choosing-game.component.html',
     styleUrls: ['./choosing-game.component.scss'],
@@ -129,6 +131,9 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
   // View mode state for shortlist layout (grid | list)
   viewMode: 'grid' | 'list' = 'grid';
 
+  // Breadcrumb items for page navigation
+  breadcrumbItems: Array<{ label: string; link?: any[] }> = []; 
+
   // Drag state
   draggingItem: MediaItem | null = null;
   draggingFromSlotIndex: number | null = null;
@@ -176,8 +181,20 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
 
   loadEventDetails() {
     this.dataService.getEventById(this.eventId).subscribe({
-      next: (event: MovieNightEvent) => {
+      next: (data: unknown) => {
+        // The API sometimes returns { event: Event, ... } and sometimes the Event directly.
+        const resAny = data as any;
+        const event = resAny.event ?? resAny as MovieNightEvent;
+
         this.groupId = event.groupId;
+        const eventName = event.name;
+        const groupName = event.Group?.name;
+
+        this.breadcrumbItems = [
+          { label: 'Dashboard', link: ['/dashboard'] },
+          { label: groupName || 'Group', link: ['/group/detail', this.groupId] },
+          { label: eventName }
+        ];
       },
       error: (err: Error) => {
         console.error('Failed to load event details:', err);

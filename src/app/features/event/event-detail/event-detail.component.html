@@ -6,13 +6,7 @@
         </div>
     } @else if (eventData) {
         <!-- Header -->
-        <nav class="breadcrumb">
-            <a [routerLink]="['/dashboard']" class="breadcrumb-link">Dashboard</a>
-            <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
-            <a [routerLink]="['/group/detail', groupId]" class="breadcrumb-link">{{ groupName || 'Group' }}</a>
-            <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
-            <a [routerLink]="['/event/detail', eventData.id]" class="breadcrumb-current">{{ eventData.name }}</a>
-        </nav>
+        <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb> 
         <div class="event-header">
             <div class="header-content">
                 <div class="header-top">

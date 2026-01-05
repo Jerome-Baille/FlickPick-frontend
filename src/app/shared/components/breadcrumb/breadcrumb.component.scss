@@ -1,0 +1,24 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #999);
+
+  .breadcrumb-link {
+    color: var(--text-secondary, #999);
+    text-decoration: none;
+  }
+
+  .breadcrumb-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary, #999);
+  }
+
+  .breadcrumb-current {
+    color: var(--text-primary, #fff);
+    font-weight: 600;
+  }
+}
