@@ -11,6 +11,68 @@
 	flex-direction: column;
 } 
 
+/* List layout modifier applied by parent via host class 'list-layout' */
+:host(.list-layout).movie-card {
+    /* Use a two-row grid so we can stack info and actions vertically */
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+:host(.list-layout) .movie-poster {
+    /* Poster spans both rows on the left */
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 96px;
+    height: 136px;
+    border-radius: 8px;
+    flex: none;
+}
+
+:host(.list-layout) .poster-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+:host(.list-layout) .movie-info {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+:host(.list-layout) .movie-title {
+    font-size: 1rem;
+}
+
+:host(.list-layout) .movie-meta {
+    font-size: 0.75rem;
+}
+
+/* Ensure mobile action button sits under the movie-info in list layout */
+:host(.list-layout) .mobile-assign-btn {
+    grid-column: 2;
+    grid-row: 2;
+    width: auto;
+    margin: 0;
+    align-self: start;
+}
+
+/* Keep drag overlay hidden or non-intrusive in list layout */
+:host(.list-layout) .drag-overlay {
+    display: none;
+}
+
+
 :host.movie-card:hover {
 	border-color: rgba(249, 212, 6, 0.5);
 

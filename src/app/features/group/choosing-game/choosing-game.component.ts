@@ -19,6 +19,7 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { RankSelectorSheetComponent } from './rank-selector-sheet.component';
 import { Event as MovieNightEvent } from '../../../shared/models/Event';
 import { MediaCardComponent } from 'src/app/shared/components/media-card/media-card.component';
+import { ViewToggleComponent } from 'src/app/shared/components/view-toggle/view-toggle.component';
 
 interface Genre {
   id: number;
@@ -60,7 +61,8 @@ interface EventMediaResponse {
       MatButtonModule,
       MatBottomSheetModule,
       DragDropModule,
-      MediaCardComponent
+      MediaCardComponent,
+      ViewToggleComponent
     ],
     templateUrl: './choosing-game.component.html',
     styleUrls: ['./choosing-game.component.scss'],
@@ -123,9 +125,18 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
 
   /** Toggle for showing the "Assign Rank" action on cards (mobile UI). */
   showAssignRankButton = true;
+
+  // View mode state for shortlist layout (grid | list)
+  viewMode: 'grid' | 'list' = 'grid';
+
   // Drag state
   draggingItem: MediaItem | null = null;
   draggingFromSlotIndex: number | null = null;
+
+  onViewModeChange(mode: 'grid' | 'list') {
+    this.viewMode = mode;
+    // Future: adapt layout rendering based on viewMode
+  }
 
   ngOnInit() {
     // Initialize ranking slots

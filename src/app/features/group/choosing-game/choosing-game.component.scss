@@ -143,22 +143,8 @@
     }
 }
 
-.view-toggle {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.view-button {
-    width: 32px;
-    height: 32px;
-    color: rgba(255, 255, 255, 0.6);
-    transition: all 0.2s;
-    
-    &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-}
+/* view-toggle styles moved to `ViewToggleComponent` */
+/* See: src/app/shared/components/view-toggle/view-toggle.component.scss */
 
 // Movie Grid
 .movie-grid {
@@ -177,6 +163,13 @@
     
     @media (min-width: 1280px) {
         grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* List view: show as stacked items */
+    &.list-view {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 }
 

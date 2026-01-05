@@ -30,24 +30,22 @@
                         <mat-icon>list_alt</mat-icon>
                         The Shortlist
                     </h3>
-                    <div class="view-toggle">
-                        <button mat-icon-button class="view-button">
-                            <mat-icon>grid_view</mat-icon>
-                        </button>
-                        <button mat-icon-button class="view-button">
-                            <mat-icon>view_list</mat-icon>
-                        </button>
-                    </div>
+                    <app-view-toggle
+                        [viewMode]="viewMode"
+                        (viewModeChange)="onViewModeChange($event)"
+                    ></app-view-toggle> 
                 </div>
 
                 <!-- Movie Grid -->
-                <div class="movie-grid" cdkDropList 
+                <div class="movie-grid" [class.list-view]="viewMode === 'list'" cdkDropList 
                      [id]="shortlistDropListId"
                      [cdkDropListData]="availableItems"
                      [cdkDropListConnectedTo]="slotDropListIds"
                      (cdkDropListDropped)="onDropToShortlist($event)">
                     @for (item of availableItems; track item.tmdbId) {
                         <app-media-card
+                            class="shortlist-media"
+                            [class.list-layout]="viewMode === 'list'"
                             cdkDrag
                             [cdkDragDisabled]="isMobile"
                             [cdkDragData]="{ item: item, slotIndex: -1 }"
