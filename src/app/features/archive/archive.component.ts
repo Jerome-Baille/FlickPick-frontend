@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ViewToggleComponent } from 'src/app/shared/components/view-toggle/view-toggle.component';
+import { HeaderBadgeComponent } from 'src/app/shared/components/header-badge/header-badge.component';
 import { DataService } from 'src/app/core/services/data.service';
 import { Observable } from 'rxjs';
 import { PendingTasks } from '@angular/core';
@@ -70,7 +71,7 @@ interface ArchiveResponse {
 @Component({
   selector: 'app-archive',
   standalone: true,
-  imports: [CommonModule, RouterLink, ViewToggleComponent],
+  imports: [CommonModule, RouterLink, ViewToggleComponent, HeaderBadgeComponent],
   templateUrl: './archive.component.html',
   styleUrls: ['./archive.component.scss']
 })

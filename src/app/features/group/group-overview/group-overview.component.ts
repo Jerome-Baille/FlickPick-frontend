@@ -9,6 +9,7 @@ import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ViewToggleComponent } from 'src/app/shared/components/view-toggle/view-toggle.component';
+import { HeaderBadgeComponent } from 'src/app/shared/components/header-badge/header-badge.component';
 
 interface ApiResponse {
   message: string;
@@ -26,6 +27,7 @@ interface ApiResponse {
         CommonModule,
         RouterLink,
         ViewToggleComponent,
+        HeaderBadgeComponent,
         CreateCardComponent
     ]
 })

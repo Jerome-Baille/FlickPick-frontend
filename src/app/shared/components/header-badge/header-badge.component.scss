@@ -1,0 +1,29 @@
+/* Header badge styles (moved from archive view) */
+.header-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.badge-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #f9d406; /* same primary as archive styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-icon mat-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.badge-text {
+  color: #f9d406;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
