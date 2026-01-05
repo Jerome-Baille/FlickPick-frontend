@@ -37,18 +37,14 @@
             <button class="tab">Scheduled</button>
             <button class="tab">Archived</button>
         </div>
-        <div class="view-toggle">
-            <button class="view-btn">
-                <span class="material-symbols-outlined">grid_view</span>
-            </button>
-            <button class="view-btn">
-                <span class="material-symbols-outlined">list</span>
-            </button>
-        </div>
+        <app-view-toggle
+            [viewMode]="viewMode"
+            (viewModeChange)="setViewMode($event)"
+        ></app-view-toggle>
     </div>
 
     <!-- Groups Grid -->
-    <div class="groups-grid">
+    <div class="groups-grid" [class.list-mode]="viewMode === 'list'">
         <!-- Create New Group Card -->
         <div class="group-card create-card" 
              (click)="createGroup()"

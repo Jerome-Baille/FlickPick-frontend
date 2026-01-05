@@ -6,6 +6,7 @@ import { Group } from 'src/app/shared/models/Group';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { ViewToggleComponent } from 'src/app/shared/components/view-toggle/view-toggle.component';
 
 interface ApiResponse {
   message: string;
@@ -21,7 +22,8 @@ interface ApiResponse {
     standalone: true,
     imports: [
         CommonModule,
-        RouterLink
+        RouterLink,
+        ViewToggleComponent
     ]
 })
 export class GroupOverviewComponent {
@@ -31,6 +33,7 @@ export class GroupOverviewComponent {
     dialog = inject(MatDialog);
 
     groups: Group[] = [];
+    viewMode: 'grid' | 'list' = (localStorage.getItem('groupViewMode') as 'grid' | 'list') || 'grid';
 
     // Mock images for demonstration
     private mockImages = [
@@ -59,6 +62,11 @@ export class GroupOverviewComponent {
     getMockMembers(group: Group): string[] {
         const count = Math.min(3, group.Users.length || 1);
         return this.mockAvatars.slice(0, count);
+    }
+
+    setViewMode(mode: 'grid' | 'list') {
+        this.viewMode = mode;
+        try { localStorage.setItem('groupViewMode', mode); } catch {}
     }
 
     loadGroups() {

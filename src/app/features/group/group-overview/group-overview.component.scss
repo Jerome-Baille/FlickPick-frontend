@@ -217,6 +217,27 @@ main {
     }
 }
 
+/* List mode overrides */
+.groups-grid.list-mode {
+    grid-template-columns: 1fr !important;
+}
+
+.groups-grid.list-mode .group-card:not(.create-card) {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.groups-grid.list-mode .group-card:not(.create-card) .card-image {
+    width: 12rem;
+    min-width: 12rem;
+    height: auto;
+    flex: 0 0 12rem;
+}
+
+.groups-grid.list-mode .group-card:not(.create-card) .card-content {
+    padding: 1rem;
+}
+
 // Create New Group Card
 .create-card {
     background-color: rgba(35, 32, 15, 0.2);
@@ -227,7 +248,6 @@ main {
     justify-content: center;
     text-align: center;
     padding: 2rem;
-    min-height: 20rem;
     cursor: pointer;
     transition: all 0.3s ease;
 
