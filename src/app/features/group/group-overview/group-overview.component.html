@@ -100,8 +100,8 @@
                     <div class="card-meta">
                         <div class="meta-item">
                             <span class="material-symbols-outlined">calendar_clock</span>
-                            <span>Next Session TBA</span>
-                        </div>
+                            <span>{{ getNextEventDate(group) || 'Next Session TBA' }}</span>
+                        </div> 
                         <div class="meta-item">
                             <span class="material-symbols-outlined">people</span>
                             <span>{{ group.Users.length || 1 }} members</span>

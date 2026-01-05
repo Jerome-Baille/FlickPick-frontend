@@ -64,6 +64,32 @@ export class GroupOverviewComponent {
         return this.mockAvatars.slice(0, count);
     }
 
+    /**
+     * Finds the next event closest to today for the given group.
+     * Excludes events with status 'completed' or 'cancelled'.
+     * Returns a formatted date string (e.g. "Jan 6 • 20:00") or null when none.
+     */
+    getNextEventDate(group: any): string | null {
+        const events = (group?.Events || []).filter((e: any) => e?.eventDate && e.status !== 'completed' && e.status !== 'cancelled');
+        if (!events.length) return null;
+
+        const now = Date.now();
+        let closest = events[0];
+        let minDiff = Math.abs(new Date(closest.eventDate).getTime() - now);
+
+        for (const e of events) {
+            const diff = Math.abs(new Date(e.eventDate).getTime() - now);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closest = e;
+            }
+        }
+
+        const date = new Date(closest.eventDate);
+        const dateStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return closest.startTime ? `${dateStr} • ${closest.startTime}` : dateStr;
+    }
+
     setViewMode(mode: 'grid' | 'list') {
         this.viewMode = mode;
         try { localStorage.setItem('groupViewMode', mode); } catch {}
