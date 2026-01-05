@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, HostBinding } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,6 +35,14 @@ export class MediaCardComponent {
 
   /** Controls whether the mobile "Assign Rank" action is shown. */
   @Input() showAssignRankButton = true;
+
+  /** When true, the component host receives a `.clickable` class so parents can opt-in to pointer cursor */
+  @Input() clickable = false;
+
+  @HostBinding('class.clickable')
+  get clickableHostClass(): boolean {
+    return !!this.clickable;
+  }
 
   @Output() assignRank = new EventEmitter<MediaCardItem>();
 

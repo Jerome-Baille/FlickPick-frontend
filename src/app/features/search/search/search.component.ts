@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { CommonModule } from '@angular/common';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { MediaCardComponent } from 'src/app/shared/components/media-card/media-card.component';
 
 interface SearchResult {
   id: number;
@@ -26,7 +27,8 @@ interface SearchResult {
     selector: 'app-search',
     imports: [
         CommonModule, 
-        FormsModule
+        FormsModule,
+        MediaCardComponent
     ],
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.scss'],
@@ -46,7 +48,7 @@ export class SearchComponent implements OnDestroy {
   activeFilter: 'all' | 'movie' | 'tv' = 'all';
   searchPerformed = false;
   @ViewChild('searchInputRef') searchInputEl?: ElementRef<HTMLInputElement>;
-  TMDB_IMAGE_BASE_URL = environment.TMDB_IMAGE_BASE_URL;
+  TMDB_IMAGE_BASE_URL: string = environment.TMDB_IMAGE_BASE_URL ?? '';
 
   private authSubscription: Subscription;
 

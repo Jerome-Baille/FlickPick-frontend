@@ -258,3 +258,8 @@
 		display: none !important;
 	}
 }
+
+/* When a parent opts this card in as clickable, show the pointer cursor everywhere */
+:host(.clickable) {
+	cursor: pointer !important;
+} 

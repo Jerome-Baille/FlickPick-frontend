@@ -72,24 +72,22 @@
             </div>
             <div class="results-grid">
                 @for (movie of movies; track movie.id) {
-                    <article class="media-card" 
-                        tabindex="0"
-                        (click)="onNavigateToDetail(movie)"
-                        (keydown.enter)="onNavigateToDetail(movie)">
-                        <div class="media-card__poster">
-                            <img 
-                                [src]="movie.poster_path ? TMDB_IMAGE_BASE_URL + movie.poster_path : 'assets/images/poster-not-found.png'"
-                                [alt]="movie.title" />
-                        </div> 
-                        <div class="media-card__content">
-                            <h3 class="media-card__title">{{ movie.title }}</h3>
-                            <div class="media-card__meta">
-                                @if (movie.release_date) {
-                                    <span class="media-card__year">{{ movie.release_date | date:'yyyy' }}</span>
-                                }
-                                <span class="media-card__type">Movie</span>
-                            </div>
-                        </div>
+                    <article tabindex="0"
+                             (click)="onNavigateToDetail(movie)"
+                             (keydown.enter)="onNavigateToDetail(movie)">
+                        <app-media-card
+                            [item]="{
+                              tmdbId: movie.tmdbId || movie.id,
+                              mediaType: 'movie',
+                              title: movie.title || '',
+                              releaseDate: movie.release_date,
+                              posterPath: movie.poster_path
+                            }"
+                            [imageBaseUrl300]="TMDB_IMAGE_BASE_URL"
+                            [isMobile]="true"
+                            [showAssignRankButton]="false"
+                            [clickable]="true">
+                        </app-media-card>
                     </article>
                 }
             </div>
@@ -103,24 +101,22 @@
             </div>
             <div class="results-grid">
                 @for (tvShow of tvShows; track tvShow.id) {
-                    <article class="media-card" 
-                        tabindex="0"
-                        (click)="onNavigateToDetail(tvShow)"
-                        (keydown.enter)="onNavigateToDetail(tvShow)">
-                        <div class="media-card__poster">
-                            <img 
-                                [src]="tvShow.poster_path ? TMDB_IMAGE_BASE_URL + tvShow.poster_path : 'assets/images/poster-not-found.png'"
-                                [alt]="tvShow.name" />
-                        </div> 
-                        <div class="media-card__content">
-                            <h3 class="media-card__title">{{ tvShow.name }}</h3>
-                            <div class="media-card__meta">
-                                @if (tvShow.first_air_date) {
-                                    <span class="media-card__year">{{ tvShow.first_air_date | date:'yyyy' }}</span>
-                                }
-                                <span class="media-card__type">TV Show</span>
-                            </div>
-                        </div>
+                    <article tabindex="0"
+                             (click)="onNavigateToDetail(tvShow)"
+                             (keydown.enter)="onNavigateToDetail(tvShow)">
+                        <app-media-card
+                            [item]="{
+                              tmdbId: tvShow.tmdbId || tvShow.id,
+                              mediaType: 'tv',
+                              title: tvShow.name || '',
+                              releaseDate: tvShow.first_air_date,
+                              posterPath: tvShow.poster_path
+                            }"
+                            [imageBaseUrl300]="TMDB_IMAGE_BASE_URL"
+                            [isMobile]="true"
+                            [showAssignRankButton]="false"
+                            [clickable]="true">
+                        </app-media-card>
                     </article>
                 }
             </div>
