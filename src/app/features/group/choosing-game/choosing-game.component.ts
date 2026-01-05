@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -114,6 +114,8 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
   // Ranking configuration
   requiredSlots = 3;
   rankingSlots: RankingSlot[] = [];
+  slotDropListIds: string[] = [];
+  shortlistDropListId = '';
   
   // State management
   hasSubmitted = false;
@@ -122,12 +124,19 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
   
   // Mobile detection
   isMobile = false;
+  // Drag state
+  draggingItem: MediaItem | null = null;
+  draggingFromSlotIndex: number | null = null;
 
   ngOnInit() {
     // Initialize ranking slots
     for (let i = 1; i <= this.requiredSlots; i++) {
       this.rankingSlots.push({ rank: i, item: null });
     }
+    // Build slot drop list IDs for cdkDropListConnectedTo
+    this.slotDropListIds = this.rankingSlots.map((_, i) => 'slot-' + i);
+    // Add shortlist ID for slots to connect back to
+    this.shortlistDropListId = 'shortlist-drop-list';
 
     // Detect mobile viewport
     this.breakpointObserver
@@ -188,53 +197,94 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDrop(event: CdkDragDrop<MediaItem[]>) {
-    if (event.previousContainer === event.container) {
-      // Reordering within the same list
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      
-      // Update ranking slots if reordering in ranked items
-      if (event.container.data === this.rankedItems) {
-        this.updateRankingSlots();
+  // Returns other slot IDs plus shortlist for cdkDropListConnectedTo
+  getOtherSlotIds(currentIndex: number): string[] {
+    const otherSlots = this.slotDropListIds.filter((_, i) => i !== currentIndex);
+    return [this.shortlistDropListId, ...otherSlots];
+  }
+
+  // Handle drop onto a specific ranking slot
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDropToSlot(event: CdkDragDrop<any, any, any>, targetSlotIndex: number) {
+
+
+    const dragData = event.item.data as { item: MediaItem; slotIndex: number };
+    const item = dragData.item;
+    const sourceSlotIndex = dragData.slotIndex;
+
+    // If coming from shortlist (slotIndex === -1)
+    if (sourceSlotIndex === -1) {
+      // Remove from available items
+      const idx = this.availableItems.findIndex(i => i.tmdbId === item.tmdbId);
+      if (idx !== -1) {
+        this.availableItems.splice(idx, 1);
       }
+      // If target slot already has an item, swap it back to shortlist
+      if (this.rankingSlots[targetSlotIndex].item) {
+        this.availableItems.push(this.rankingSlots[targetSlotIndex].item!);
+      }
+      this.rankingSlots[targetSlotIndex].item = item;
     } else {
-      // Moving between lists
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-      
-      // Update ranking slots
-      this.updateRankingSlots();
-      
-      // Limit ranked items to requiredSlots
-      if (this.rankedItems.length > this.requiredSlots) {
-        const overflow = this.rankedItems.splice(this.requiredSlots);
-        this.availableItems.push(...overflow);
-      }
-    }
-  }
-
-  updateRankingSlots() {
-    // Update the ranking slots with current ranked items
-    this.rankingSlots = this.rankingSlots.map((slot, index) => ({
-      rank: index + 1,
-      item: this.rankedItems[index] || null
-    }));
-  }
-
-  removeFromRanking(index: number) {
-    const item = this.rankedItems.splice(index, 1)[0];
-    if (item) {
-      this.availableItems.push(item);
+      // Moving between slots - swap items
+      const sourceItem = this.rankingSlots[sourceSlotIndex].item;
+      const targetItem = this.rankingSlots[targetSlotIndex].item;
+      this.rankingSlots[targetSlotIndex].item = sourceItem;
+      this.rankingSlots[sourceSlotIndex].item = targetItem;
     }
     this.updateRankingSlots();
   }
 
+  // Handle drop back to shortlist
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDropToShortlist(event: CdkDragDrop<any, any, any>) {
+
+
+    const dragData = event.item.data as { item: MediaItem; slotIndex: number };
+    const item = dragData.item;
+    const sourceSlotIndex = dragData.slotIndex;
+
+    // Reordering within shortlist
+    if (sourceSlotIndex === -1) {
+      moveItemInArray(this.availableItems, event.previousIndex, event.currentIndex);
+      return;
+    }
+
+    // Moving from a slot back to shortlist
+    this.rankingSlots[sourceSlotIndex].item = null;
+    this.availableItems.splice(event.currentIndex, 0, item);
+    this.updateRankingSlots();
+  }
+
+  // Ensure rankingSlots ranks remain correct and update compact rankedItems list
+  updateRankingSlots() {
+    this.rankingSlots = this.rankingSlots.map((slot, index) => ({ ...slot, rank: index + 1 }));
+    this.rankedItems = this.rankingSlots.map(s => s.item).filter(Boolean) as MediaItem[];
+  }
+
+  removeFromRanking(index: number) {
+    const slot = this.rankingSlots[index];
+    if (slot && slot.item) {
+      this.availableItems.push(slot.item);
+      slot.item = null;
+      this.updateRankingSlots();
+    }
+  }
+
+
+
+  onDragStarted(item: MediaItem | null, slotIndex: number) {
+    if (!item) return;
+    this.draggingItem = item;
+    this.draggingFromSlotIndex = slotIndex;
+  }
+
+  onDragEnded() {
+    this.draggingItem = null;
+    this.draggingFromSlotIndex = null;
+  }
+
   isRankingComplete(): boolean {
-    return this.rankedItems.length === this.requiredSlots;
+    return this.rankingSlots.every(slot => !!slot.item);
   }
 
   submitVotes() {
@@ -243,31 +293,31 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Assign points based on ranking (higher rank = more points)
-    this.rankedItems.forEach((item, index) => {
-      item.points = this.requiredSlots - index;
+    // Assign points based on slot order (slot 1 gets highest)
+    const rankings = this.rankingSlots.map((slot, index) => {
+      const mediaItem = slot.item as MediaItem;
+      const points = this.requiredSlots - index;
+      mediaItem.points = points;
+      return {
+        tmdbId: mediaItem.tmdbId,
+        mediaType: mediaItem.mediaType,
+        rating: mediaItem.points || 0,
+        title: mediaItem.title,
+        posterPath: mediaItem.posterPath,
+        releaseDate: mediaItem.releaseDate,
+        overview: mediaItem.overview,
+      };
     });
-
-    // Save the entire ballot in one call
-    const rankings = this.rankedItems.map((mediaItem: MediaItem) => ({
-      tmdbId: mediaItem.tmdbId,
-      mediaType: mediaItem.mediaType,
-      rating: mediaItem.points || 0,
-      title: mediaItem.title,
-      posterPath: mediaItem.posterPath,
-      releaseDate: mediaItem.releaseDate,
-      overview: mediaItem.overview,
-    }));
 
     this.dataService.submitBallot({ eventId: this.eventId, rankings }).subscribe({
       next: () => {
-      this.hasSubmitted = true;
-      this.snackbarService.showSuccess('Your votes have been submitted!');
-      
-      // Navigate to results page after a delay
-      setTimeout(() => {
-        this.router.navigate(['/event/results', this.eventId]);
-      }, 2000);
+        this.hasSubmitted = true;
+        this.snackbarService.showSuccess('Your votes have been submitted!');
+
+        // Navigate to results page after a delay
+        setTimeout(() => {
+          this.router.navigate(['/event/results', this.eventId]);
+        }, 2000);
       },
       error: (err: Error) => {
         const message = err.message || 'Unknown error';
@@ -301,33 +351,38 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
   }
 
   assignToSlot(item: MediaItem, slotIndex: number) {
-    // Remove item from current position if already ranked
-    const currentIndex = this.rankedItems.findIndex(i => i.tmdbId === item.tmdbId);
-    if (currentIndex !== -1) {
-      this.rankedItems.splice(currentIndex, 1);
-    } else {
-      // Remove from available items if not already ranked
-      const availableIndex = this.availableItems.findIndex(i => i.tmdbId === item.tmdbId);
-      if (availableIndex !== -1) {
-        this.availableItems.splice(availableIndex, 1);
+    // Remove item from any other slot
+    this.rankingSlots.forEach(slot => {
+      if (slot.item && slot.item.tmdbId === item.tmdbId) {
+        slot.item = null;
       }
+    });
+
+    // Remove from available items if present
+    const availableIndex = this.availableItems.findIndex(i => i.tmdbId === item.tmdbId);
+    if (availableIndex !== -1) {
+      this.availableItems.splice(availableIndex, 1);
     }
 
-    // Insert at new position
-    this.rankedItems.splice(slotIndex, 0, item);
+    // Assign into the requested slot
+    this.rankingSlots[slotIndex].item = item;
     this.updateRankingSlots();
   }
 
   moveUp(index: number) {
     if (index > 0) {
-      moveItemInArray(this.rankedItems, index, index - 1);
+      const item = this.rankingSlots[index].item;
+      this.rankingSlots[index].item = this.rankingSlots[index - 1].item;
+      this.rankingSlots[index - 1].item = item;
       this.updateRankingSlots();
     }
   }
 
   moveDown(index: number) {
-    if (index < this.rankedItems.length - 1) {
-      moveItemInArray(this.rankedItems, index, index + 1);
+    if (index < this.rankingSlots.length - 1) {
+      const item = this.rankingSlots[index].item;
+      this.rankingSlots[index].item = this.rankingSlots[index + 1].item;
+      this.rankingSlots[index + 1].item = item;
       this.updateRankingSlots();
     }
   }

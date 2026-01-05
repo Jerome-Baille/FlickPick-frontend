@@ -527,6 +527,17 @@
     margin-right: 0.5rem;
 }
 
+/* Desktop: show reorder buttons only on hover */
+.reorder-buttons-desktop {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .ranked-card:hover .reorder-buttons-desktop {
+        display: flex;
+    }
+}
+
 .reorder-button {
     width: 36px;
     height: 36px;
@@ -744,12 +755,40 @@
 /* Ensure the drag preview and the dragged element have no transition so
    they follow the mouse exactly (no easing/blend). Keep the list-item
    reflow animation for other elements on drop. */
-.cdk-drag-preview {
-    opacity: 0.8;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    transition: none !important;
+
+// Custom drag preview - compact poster thumbnail
+.drag-preview-poster {
+    width: 80px;
+    height: 120px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--color-primary);
+    opacity: 0.95;
 }
 
+.cdk-drag-preview {
+    opacity: 0.95;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: none !important;
+    z-index: 9999 !important; /* ensure preview sits above slots */
+}
+
+/* Hide any placeholder element inserted into a ranking slot while dragging */
+.ranking-slot .cdk-drag-placeholder {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    pointer-events: none !important;
+}
+
+/* When a slot is being hovered during a drag, hide its contents so the preview appears on-top */
+.ranking-slot .ranked-card.cdk-drag-placeholder {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    pointer-events: none !important;
+}
 /* Also ensure the original card and any cloned preview of the card do not
    have transitions while being dragged (prevents laggy/bezier motion). */
 .movie-card.cdk-drag,
@@ -843,4 +882,11 @@
     .ranking-panel {
         margin-bottom: 2rem;
     }
+}
+
+// Hide the ranked card placeholder in the slot while dragging
+.ranked-card.cdk-drag-placeholder {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }

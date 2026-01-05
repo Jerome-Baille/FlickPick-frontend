@@ -41,12 +41,17 @@
                 </div>
 
                 <!-- Movie Grid -->
-                <div class="movie-grid" cdkDropList #shortlistDropList="cdkDropList" 
+                <div class="movie-grid" cdkDropList 
+                     [id]="shortlistDropListId"
                      [cdkDropListData]="availableItems"
-                     [cdkDropListConnectedTo]="[rankingDropList]"
-                     (cdkDropListDropped)="onDrop($event)">
+                     [cdkDropListConnectedTo]="slotDropListIds"
+                     (cdkDropListDropped)="onDropToShortlist($event)">
                     @for (item of availableItems; track item.tmdbId) {
-                        <div class="movie-card" cdkDrag [@cardAnimation]>
+                        <div class="movie-card" cdkDrag [cdkDragData]="{item: item, slotIndex: -1}" (cdkDragStarted)="onDragStarted(item, -1)" (cdkDragEnded)="onDragEnded()" [@cardAnimation]>
+                            <!-- Custom drag preview - compact poster only -->
+                            <div class="drag-preview-poster" *cdkDragPreview
+                                 [style.background-image]="'url(' + (item.posterPath ? TMDB_IMAGE_BASE_URL_300 + item.posterPath : 'assets/images/poster-not-found.png') + ')'">
+                            </div>
                             <div class="movie-poster">
                                 <div class="poster-image" 
                                      [style.background-image]="'url(' + (item.posterPath ? TMDB_IMAGE_BASE_URL_300 + item.posterPath : 'assets/images/poster-not-found.png') + ')'">
@@ -100,21 +105,46 @@
                         <span class="slots-badge">{{ requiredSlots }} slots required</span>
                     </div>
 
-                    <div class="ranking-slots" cdkDropList #rankingDropList="cdkDropList"
-                         [cdkDropListData]="rankedItems"
-                         [cdkDropListConnectedTo]="[shortlistDropList]"
-                         (cdkDropListDropped)="onDrop($event)">
+                    <div class="ranking-slots">
                         @for (slot of rankingSlots; track slot.rank; let i = $index) {
-                            <div class="ranking-slot" [class.filled]="slot.item" [class.rank-one]="slot.rank === 1">
+                            <div class="ranking-slot" 
+                                 cdkDropList
+                                 [id]="'slot-' + i"
+                                 [cdkDropListData]="{slot: slot, index: i}"
+                                 [cdkDropListConnectedTo]="getOtherSlotIds(i)"
+                                 (cdkDropListDropped)="onDropToSlot($event, i)"
+                                 [class.filled]="slot.item" 
+                                 [class.rank-one]="slot.rank === 1">
                                 <div class="rank-number">{{ slot.rank }}</div>
+
+
+
                                 @if (slot.item) {
                                     <!-- Filled State -->
-                                    <div class="ranked-card" cdkDrag>
+                                    <div class="ranked-card" cdkDrag [cdkDragData]="{item: slot.item, slotIndex: i}" (cdkDragStarted)="onDragStarted(slot.item, i)" (cdkDragEnded)="onDragEnded()">
+                                        <!-- Full-card preview on desktop when ranking is complete, otherwise compact poster preview -->
+                                        @if (!isMobile && isRankingComplete()) {
+                                            <div class="drag-preview-full" *cdkDragPreview>
+                                                <div class="ranked-poster" 
+                                                     [style.background-image]="'url(' + (slot.item.posterPath ? TMDB_IMAGE_BASE_URL_300 + slot.item.posterPath : 'assets/images/poster-not-found.png') + ')'">
+                                                </div>
+                                                <div class="ranked-info">
+                                                    <h4 class="ranked-title">{{ slot.item.title }}</h4>
+                                                    <p class="ranked-meta">{{ slot.item.releaseDate | date:'yyyy' }}</p>
+                                                </div>
+                                            </div>
+                                        } @else {
+                                            <div class="drag-preview-poster" *cdkDragPreview
+                                                 [style.background-image]="'url(' + (slot.item.posterPath ? TMDB_IMAGE_BASE_URL_300 + slot.item.posterPath : 'assets/images/poster-not-found.png') + ')'">
+                                            </div>
+                                        }
+
                                         @if (!isMobile) {
                                             <div class="drag-handle" cdkDragHandle>
                                                 <mat-icon>drag_indicator</mat-icon>
                                             </div>
                                         }
+
                                         <div class="ranked-poster" 
                                              [style.background-image]="'url(' + (slot.item.posterPath ? TMDB_IMAGE_BASE_URL_300 + slot.item.posterPath : 'assets/images/poster-not-found.png') + ')'">
                                         </div>
@@ -122,23 +152,21 @@
                                             <h4 class="ranked-title">{{ slot.item.title }}</h4>
                                             <p class="ranked-meta">{{ slot.item.releaseDate | date:'yyyy' }}</p>
                                         </div>
-                                        <!-- Mobile Reorder Buttons -->
-                                        @if (isMobile) {
-                                            <div class="mobile-reorder-buttons">
+                                        <!-- Reorder Buttons (also available on desktop) -->
+                                            <div class="mobile-reorder-buttons reorder-buttons-desktop">
                                                 <button mat-icon-button class="reorder-button" 
-                                                        [disabled]="i === 0"
+                                                        [disabled]="i === 0 || !slot.item"
                                                         (click)="moveUp(i)"
                                                         aria-label="Move up">
                                                     <mat-icon>arrow_upward</mat-icon>
                                                 </button>
                                                 <button mat-icon-button class="reorder-button" 
-                                                        [disabled]="i === rankedItems.length - 1"
+                                                        [disabled]="i === rankingSlots.length - 1 || !slot.item"
                                                         (click)="moveDown(i)"
                                                         aria-label="Move down">
                                                     <mat-icon>arrow_downward</mat-icon>
                                                 </button>
                                             </div>
-                                        }
                                         <button mat-icon-button class="remove-button" (click)="removeFromRanking(i)">
                                             <mat-icon>close</mat-icon>
                                         </button>
