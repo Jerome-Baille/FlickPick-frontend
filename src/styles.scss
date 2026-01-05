@@ -203,8 +203,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Global H1 visual style (components keep their own margins) */
 h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-weight: 400;
   font-size: clamp(3rem, 8vw, 4.5rem);
   line-height: 1;
   letter-spacing: 0.05em;

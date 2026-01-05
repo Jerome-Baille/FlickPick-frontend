@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,7 +39,8 @@ interface EventResponse {
     CommonModule,
     MatCardModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    RouterLink
   ],
   templateUrl: './event-detail.component.html',
   styleUrls: ['./event-detail.component.scss']
@@ -142,10 +143,6 @@ export class EventDetailComponent implements OnInit {
         }
       });
     }
-  }
-
-  backToGroup(): void {
-    this.router.navigate(['/group/detail', this.groupId]);
   }
 
   getPosterUrl(posterPath?: string): string {

@@ -6,22 +6,23 @@
         </div>
     } @else if (eventData) {
         <!-- Header -->
+        <nav class="breadcrumb">
+            <a [routerLink]="['/dashboard']" class="breadcrumb-link">Dashboard</a>
+            <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
+            <a [routerLink]="['/group/detail', groupId]" class="breadcrumb-link">{{ groupName || 'Group' }}</a>
+            <mat-icon class="breadcrumb-icon">chevron_right</mat-icon>
+            <a [routerLink]="['/event/detail', eventData.id]" class="breadcrumb-current">{{ eventData.name }}</a>
+        </nav>
         <div class="event-header">
-            <button mat-icon-button (click)="backToGroup()" class="back-button">
-                <mat-icon>arrow_back</mat-icon>
-            </button>
             <div class="header-content">
                 <div class="header-top">
-                    <div class="breadcrumb">
-                        <span class="group-name">{{ groupName }}</span>
-                        <mat-icon>chevron_right</mat-icon>
-                        <span class="event-name">{{ eventData.name }}</span>
-                    </div>
+
+                    <h1 class="event-header__title">{{ eventData.name }}</h1>
                     <span class="status-badge" [ngClass]="getStatusClass()">
                         {{ getStatusLabel() }}
                     </span>
                 </div>
-                <h1 class="event-title">{{ eventData.name }}</h1>
+                
                 
                 @if (eventData.eventDate) {
                     <div class="event-datetime">
@@ -119,15 +120,6 @@
                 <button mat-raised-button color="primary" (click)="viewResults()" class="primary-action">
                     <mat-icon>emoji_events</mat-icon>
                     View Results
-                </button>
-                <button mat-button (click)="backToGroup()">
-                    <mat-icon>arrow_back</mat-icon>
-                    Back to Group
-                </button>
-            } @else {
-                <button mat-raised-button (click)="backToGroup()">
-                    <mat-icon>arrow_back</mat-icon>
-                    Back to Group
                 </button>
             }
         </div>
