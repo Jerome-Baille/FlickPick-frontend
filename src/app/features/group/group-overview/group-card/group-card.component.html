@@ -1,0 +1,58 @@
+<div class="group-card" tabindex="0" role="link" (click)="onNavigate()" (keydown.enter)="onNavigate()" (keydown.space)="onNavigate()">
+    @if (group.isAdmin) {
+        <div class="status-badge badge-admin">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            ADMIN
+        </div>
+    }
+
+    <div class="card-image" [style.background-image]="'url(' + getGroupImage(group) + ')'">
+        <div class="image-overlay"></div>
+        @if (group.isAdmin) {
+            <div class="card-creator">
+                <span>Created by You</span>
+            </div>
+        }
+    </div>
+
+    <div class="card-content">
+        <div class="card-header">
+            <h4 class="card-title">{{ group.name }}</h4>
+            <p class="card-subtitle"
+               (click)="onCopy($event, group.code)"
+               (keydown.enter)="onCopy($event, group.code)"
+               (keydown.space)="onCopy($event, group.code)"
+               tabindex="0"
+               role="button"
+               title="Click to copy code">
+                Code: {{ group.code }}
+            </p>
+        </div>
+
+        <div class="card-meta">
+            <div class="meta-item">
+                <span class="material-symbols-outlined">calendar_clock</span>
+                <span>{{ getNextEventDate(group) || 'Next Session TBA' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="material-symbols-outlined">people</span>
+                <span>{{ group.Users.length || 1 }} members</span>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="member-avatars">
+                @for (member of getMockMembers(group); track member; let i = $index) {
+                    <div class="avatar" [style.z-index]="10 - i">
+                        <img [src]="member" alt="Member avatar">
+                    </div>
+                }
+                @if ((group.Users.length || 1) > 3) {
+                    <div class="avatar avatar-count">
+                        +{{ (group.Users.length || 1) - 3 }}
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

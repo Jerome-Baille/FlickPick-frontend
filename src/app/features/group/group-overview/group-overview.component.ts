@@ -10,6 +10,7 @@ import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
 import { ViewToggleComponent } from 'src/app/shared/components/view-toggle/view-toggle.component';
 import { HeaderBadgeComponent } from 'src/app/shared/components/header-badge/header-badge.component';
+import { GroupCardComponent } from './group-card/group-card.component';
 
 interface ApiResponse {
   message: string;
@@ -28,7 +29,8 @@ interface ApiResponse {
         RouterLink,
         ViewToggleComponent,
         HeaderBadgeComponent,
-        CreateCardComponent
+        CreateCardComponent,
+        GroupCardComponent
     ]
 })
 export class GroupOverviewComponent {
@@ -95,6 +97,10 @@ export class GroupOverviewComponent {
         return closest.startTime ? `${dateStr} • ${closest.startTime}` : dateStr;
     }
 
+    trackByGroupId(index: number, group: Group) {
+        return group.id;
+    }
+
     setViewMode(mode: 'grid' | 'list') {
         this.viewMode = mode;
         try { localStorage.setItem('groupViewMode', mode); } catch (err) { void err; }
@@ -111,8 +117,7 @@ export class GroupOverviewComponent {
         });
     }
 
-    copyGroupCode(ev: Event, code: string) {
-        ev.stopPropagation();
+    copyGroupCode(code: string) {
         navigator.clipboard.writeText(code).then(() => {
             this.snackbarService.showSuccess('Group code copied to clipboard!');
         }).catch(err => {

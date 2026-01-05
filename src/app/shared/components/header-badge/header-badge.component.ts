@@ -14,7 +14,7 @@ export class HeaderBadgeComponent {
   @Input() text = '';
 
   /** Material icon name to render (default: emoji_events) */
-  @Input() icon: string = 'emoji_events';
+  @Input() icon = 'emoji_events';
 
   /** Optional CSS class to apply to the root element */
   @Input() className = '';
