@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MediaCardComponent } from 'src/app/shared/components/media-card/media-card.component';
-import { MatIcon } from "@angular/material/icon";
 
 interface SearchResult {
   id: number;
@@ -29,8 +28,7 @@ interface SearchResult {
     imports: [
     CommonModule,
     FormsModule,
-    MediaCardComponent,
-    MatIcon
+    MediaCardComponent
 ],
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.scss'],
