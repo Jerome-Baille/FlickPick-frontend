@@ -47,49 +47,18 @@
                      [cdkDropListConnectedTo]="slotDropListIds"
                      (cdkDropListDropped)="onDropToShortlist($event)">
                     @for (item of availableItems; track item.tmdbId) {
-                        <div class="movie-card" cdkDrag [cdkDragData]="{item: item, slotIndex: -1}" (cdkDragStarted)="onDragStarted(item, -1)" (cdkDragEnded)="onDragEnded()" [@cardAnimation]>
-                            <!-- Custom drag preview - compact poster only -->
-                            <div class="drag-preview-poster" *cdkDragPreview
-                                 [style.background-image]="'url(' + (item.posterPath ? TMDB_IMAGE_BASE_URL_300 + item.posterPath : 'assets/images/poster-not-found.png') + ')'">
-                            </div>
-                            <div class="movie-poster">
-                                <div class="poster-image" 
-                                     [style.background-image]="'url(' + (item.posterPath ? TMDB_IMAGE_BASE_URL_300 + item.posterPath : 'assets/images/poster-not-found.png') + ')'">
-                                </div>
-                                <div class="poster-overlay"></div>
-                                @if (item.sumOfRatings) {
-                                    <div class="rating-badge">
-                                        {{ (item.sumOfRatings / 10).toFixed(1) }}
-                                    </div>
-                                }
-                            </div>
-                            <div class="movie-info">
-                                <h4 class="movie-title">{{ item.title }}</h4>
-                                <div class="movie-meta">
-                                    @if (item.releaseDate) {
-                                        <span>{{ item.releaseDate | date:'yyyy' }}</span>
-                                        <span class="meta-dot"></span>
-                                    }
-                                    <span>{{ item.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</span>
-                                </div>
-                            </div>
-                            <!-- Desktop: Hover Action Overlay -->
-                            @if (!isMobile) {
-                                <div class="drag-overlay">
-                                    <span class="drag-cta">
-                                        <mat-icon>drag_pan</mat-icon> Drag to Rank
-                                    </span>
-                                </div>
-                            }
-                            <!-- Mobile: Assign Button -->
-                            @if (isMobile) {
-                                <button mat-raised-button color="primary" class="mobile-assign-btn" 
-                                        (click)="openRankSelector(item)">
-                                    <mat-icon>add</mat-icon>
-                                    Assign Rank
-                                </button>
-                            }
-                        </div>
+                        <app-media-card
+                            cdkDrag
+                            [cdkDragDisabled]="isMobile"
+                            [cdkDragData]="{ item: item, slotIndex: -1 }"
+                            (cdkDragStarted)="onDragStarted(item, -1)"
+                            (cdkDragEnded)="onDragEnded()"
+                            [item]="item"
+                            [imageBaseUrl300]="TMDB_IMAGE_BASE_URL_300"
+                            [isMobile]="isMobile"
+                            [showAssignRankButton]="showAssignRankButton"
+                            (assignRank)="openRankSelector($event)">
+                        </app-media-card>
                     }
                 </div>
             </div>
@@ -121,7 +90,7 @@
 
                                 @if (slot.item) {
                                     <!-- Filled State -->
-                                    <div class="ranked-card" cdkDrag [cdkDragData]="{item: slot.item, slotIndex: i}" (cdkDragStarted)="onDragStarted(slot.item, i)" (cdkDragEnded)="onDragEnded()">
+                                    <div class="ranked-card" cdkDrag [cdkDragDisabled]="isMobile" [cdkDragData]="{item: slot.item, slotIndex: i}" (cdkDragStarted)="onDragStarted(slot.item, i)" (cdkDragEnded)="onDragEnded()">
                                         <!-- Full-card preview on desktop when ranking is complete, otherwise compact poster preview -->
                                         @if (!isMobile && isRankingComplete()) {
                                             <div class="drag-preview-full" *cdkDragPreview>

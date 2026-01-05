@@ -18,6 +18,7 @@ import { TmdbService } from 'src/app/core/services/tmdb.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { RankSelectorSheetComponent } from './rank-selector-sheet.component';
 import { Event as MovieNightEvent } from '../../../shared/models/Event';
+import { MediaCardComponent } from 'src/app/shared/components/media-card/media-card.component';
 
 interface Genre {
   id: number;
@@ -33,7 +34,7 @@ interface MediaItem {
   overview?: string;
   runtime?: number;
   genres?: Genre[];
-  points: number;
+  points?: number;
   sumOfRatings?: number;
 }
 
@@ -58,7 +59,8 @@ interface EventMediaResponse {
       MatIconModule,
       MatButtonModule,
       MatBottomSheetModule,
-      DragDropModule
+      DragDropModule,
+      MediaCardComponent
     ],
     templateUrl: './choosing-game.component.html',
     styleUrls: ['./choosing-game.component.scss'],
@@ -73,13 +75,7 @@ interface EventMediaResponse {
           animate('400ms ease-out', style({ opacity: 0 }))
         ])
       ]),
-      // Card animation for movie cards
-      trigger('cardAnimation', [
-        transition(':enter', [
-          style({ opacity: 0, transform: 'scale(0.9)' }),
-          animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
-        ])
-      ]),
+
       // Celebration animation for game completion
       trigger('celebrateAnimation', [
         transition(':enter', [
@@ -124,6 +120,9 @@ export class ChoosingGameComponent implements OnInit, OnDestroy {
   
   // Mobile detection
   isMobile = false;
+
+  /** Toggle for showing the "Assign Rank" action on cards (mobile UI). */
+  showAssignRankButton = true;
   // Drag state
   draggingItem: MediaItem | null = null;
   draggingFromSlotIndex: number | null = null;

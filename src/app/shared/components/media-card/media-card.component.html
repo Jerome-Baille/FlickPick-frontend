@@ -1,0 +1,50 @@
+<!-- Custom drag preview - compact poster only -->
+<div
+	class="drag-preview-poster"
+	*cdkDragPreview
+	[style.background-image]="'url(' + posterUrl + ')'">
+</div>
+
+<div class="movie-poster">
+	<div class="poster-image" [style.background-image]="'url(' + posterUrl + ')'">
+	</div>
+	<div class="poster-overlay"></div>
+
+	@if (ratingText) {
+		<div class="rating-badge">{{ ratingText }}</div>
+	}
+</div>
+
+<div class="movie-info">
+	<h4 class="movie-title">{{ item.title }}</h4>
+	<div class="movie-meta">
+		@if (item.releaseDate) {
+			<span>{{ item.releaseDate | date:'yyyy' }}</span>
+			<span class="meta-dot"></span>
+		}
+		<span>{{ item.mediaType === 'movie' ? 'Movie' : 'TV Show' }}</span>
+	</div>
+</div>
+
+<!-- Desktop: Hover Action Overlay -->
+@if (!isMobile) {
+	<div class="drag-overlay">
+		<span class="drag-cta">
+			<mat-icon>drag_indicator</mat-icon>
+			Drag to Rank
+		</span>
+	</div>
+}
+
+<!-- Mobile: Assign Button (optional) -->
+@if (isMobile && showAssignRankButton) {
+	<button
+		mat-raised-button
+		color="primary"
+		class="mobile-assign-btn"
+		type="button"
+		(click)="onAssignRankClick()">
+		<mat-icon>add</mat-icon>
+		Assign Rank
+	</button>
+}

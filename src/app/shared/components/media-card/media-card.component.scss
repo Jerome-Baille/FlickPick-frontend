@@ -1,0 +1,198 @@
+
+:host.movie-card {
+	position: relative;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+	backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	overflow: hidden;
+	transition: none;
+	display: flex;
+	flex-direction: column;
+} 
+
+:host.movie-card:hover {
+	border-color: rgba(249, 212, 6, 0.5);
+
+	.drag-overlay {
+		opacity: 1;
+	}
+}
+
+@media (min-width: 1024px) {
+	:host.movie-card {
+		cursor: grab;
+	}
+
+	:host.movie-card:active {
+		cursor: grabbing;
+	}
+}
+
+.mobile-assign-btn {
+	margin: 0.75rem;
+	width: calc(100% - 1.5rem);
+
+	mat-icon {
+		margin-right: 0.25rem;
+	}
+}
+
+.movie-poster {
+	position: relative;
+	aspect-ratio: 2/3;
+	overflow: hidden;
+	background-color: var(--color-surface);
+}
+
+.poster-image {
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+	transition: none;
+}
+
+.poster-overlay {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 40%, transparent);
+	opacity: 0.8;
+}
+
+.rating-badge {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.5rem;
+	background-color: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(4px);
+	border-radius: 6px;
+	padding: 0.25rem 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--color-primary);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.movie-info {
+	padding: 0.75rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	flex-grow: 1;
+}
+
+.movie-title {
+	font-weight: 700;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	color: white;
+	margin: 0;
+	transition: none;
+} 
+
+.movie-meta {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.625rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+.meta-dot {
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.drag-overlay {
+	position: absolute;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: none;
+} 
+
+.drag-cta {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background-color: var(--color-primary);
+	color: var(--color-background);
+	font-weight: 700;
+	padding: 0.75rem 1.25rem;
+	border-radius: 9999px;
+	transform: none;
+	transition: none;
+
+	mat-icon {
+		font-size: 18px;
+		width: 18px;
+		height: 18px;
+	}
+} 
+
+/* Drag preview + CDK classes may render outside component boundaries */
+:host ::ng-deep .drag-preview-poster {
+	width: 80px;
+	height: 120px;
+	border-radius: 8px;
+	background-size: cover;
+	background-position: center;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--color-primary);
+	opacity: 0.95;
+}
+
+:host ::ng-deep .cdk-drag-preview {
+	opacity: 0.95;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+	transition: none !important;
+	z-index: 9999 !important;
+}
+
+:host ::ng-deep :is(
+	.movie-card.cdk-drag,
+	.movie-card.cdk-drag-preview,
+	.cdk-drag-preview.movie-card,
+	.cdk-drag-placeholder
+) {
+	transition: none !important;
+}
+
+:host ::ng-deep :is(
+	.cdk-drag-preview .poster-image,
+	.movie-card.cdk-drag .poster-image,
+	.movie-card.cdk-drag-preview .poster-image
+) {
+	transition: none !important;
+}
+
+@media (max-width: 767px) {
+	:host.movie-card {
+		cursor: default;
+
+		&:active {
+			cursor: default;
+		}
+
+		&.cdk-drag {
+			pointer-events: none;
+
+			> * {
+				pointer-events: auto;
+			}
+		}
+	}
+
+	.drag-overlay {
+		display: none !important;
+	}
+}
