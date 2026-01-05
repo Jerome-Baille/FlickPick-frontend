@@ -13,12 +13,12 @@ export class CreateCardComponent {
   @Input() title = 'Create';
   @Input() description = '';
   @Input() icon = 'add';
-  @Input() routerLink?: any[] | string;
+  @Input() routerLink?: string | unknown[];
   @Input() ariaLabel?: string;
   @Input() variant: 'default' | 'compact' = 'default';
   @Output() action = new EventEmitter<void>();
 
-  onClick(event: MouseEvent) {
+  onClick() {
     if (!this.routerLink) {
       this.action.emit();
     }

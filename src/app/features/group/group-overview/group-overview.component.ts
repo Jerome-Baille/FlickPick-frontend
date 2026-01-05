@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateCardComponent } from 'src/app/shared/components/create-card/create-card.component';
 import { Group } from 'src/app/shared/models/Group';
+import { Event as GroupEvent } from 'src/app/shared/models/Event';
 import { DataService } from 'src/app/core/services/data.service';
 import { SnackbarService } from 'src/app/core/services/snackbar.service';
 import { ConfirmationDialogComponent } from 'src/app/shared/components/confirmation-dialog/confirmation-dialog.component';
@@ -71,8 +72,8 @@ export class GroupOverviewComponent {
      * Excludes events with status 'completed' or 'cancelled'.
      * Returns a formatted date string (e.g. "Jan 6 • 20:00") or null when none.
      */
-    getNextEventDate(group: any): string | null {
-        const events = (group?.Events || []).filter((e: any) => e?.eventDate && e.status !== 'completed' && e.status !== 'cancelled');
+    getNextEventDate(group: Group): string | null {
+        const events = ((group?.Events || []) as GroupEvent[]).filter((e: GroupEvent) => e?.eventDate && e.status !== 'completed' && e.status !== 'cancelled');
         if (!events.length) return null;
 
         const now = Date.now();
@@ -94,7 +95,7 @@ export class GroupOverviewComponent {
 
     setViewMode(mode: 'grid' | 'list') {
         this.viewMode = mode;
-        try { localStorage.setItem('groupViewMode', mode); } catch {}
+        try { localStorage.setItem('groupViewMode', mode); } catch (err) { void err; }
     }
 
     loadGroups() {
@@ -108,8 +109,8 @@ export class GroupOverviewComponent {
         });
     }
 
-    copyGroupCode(event: Event, code: string) {
-        event.stopPropagation();
+    copyGroupCode(ev: MouseEvent, code: string) {
+        ev.stopPropagation();
         navigator.clipboard.writeText(code).then(() => {
             this.snackbarService.showSuccess('Group code copied to clipboard!');
         }).catch(err => {
