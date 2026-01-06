@@ -5,13 +5,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BreadcrumbComponent } from '../../../shared/components/breadcrumb/breadcrumb.component';
+import { MediaCardComponent } from '../../../shared/components/media-card/media-card.component';
+import { environment } from 'src/environments/environment';
 import { DataService } from '../../../core/services/data.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { Event as MovieNightEvent } from '../../../shared/models/Event';
 
 interface EventMediaItem {
   tmdbId: number;
-  mediaType: string;
+  mediaType: 'movie' | 'tv';
   title: string;
   posterPath?: string;
   releaseDate?: string;
@@ -41,7 +43,8 @@ interface EventResponse {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    MediaCardComponent
   ],
   templateUrl: './event-detail.component.html',
   styleUrls: ['./event-detail.component.scss']
@@ -57,6 +60,7 @@ export class EventDetailComponent implements OnInit {
   groupId = 0;
   shortlistItems: EventMediaItem[] = [];
   isLoading = true;
+  TMDB_IMAGE_BASE_URL_300: string = environment.TMDB_IMAGE_BASE_URL_300;
 
   breadcrumbItems: { label: string; link?: (string | number | Record<string, unknown>)[] }[] = [];
 

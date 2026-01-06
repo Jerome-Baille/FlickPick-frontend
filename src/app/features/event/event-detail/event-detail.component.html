@@ -1,121 +1,133 @@
 <main class="event-detail-container">
-    @if (isLoading) {
-        <div class="loading-state">
-            <mat-icon>hourglass_empty</mat-icon>
-            <p>Loading event details...</p>
-        </div>
-    } @else if (eventData) {
-        <!-- Header -->
-        <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb> 
-        <div class="event-header">
-            <div class="header-content">
-                <div class="header-top">
+  @if (isLoading) {
+  <div class="loading-state">
+    <mat-icon>hourglass_empty</mat-icon>
+    <p>Loading event details...</p>
+  </div>
+  } @else if (eventData) {
+  <!-- Header -->
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+  <div class="event-header">
+    <div class="header-content">
+      <div class="header-top">
+        <h1 class="event-header__title">{{ eventData.name }}</h1>
+        <span class="status-badge" [ngClass]="getStatusClass()">
+          {{ getStatusLabel() }}
+        </span>
+      </div>
 
-                    <h1 class="event-header__title">{{ eventData.name }}</h1>
-                    <span class="status-badge" [ngClass]="getStatusClass()">
-                        {{ getStatusLabel() }}
-                    </span>
-                </div>
-                
-                
-                @if (eventData.eventDate) {
-                    <div class="event-datetime">
-                        <mat-icon>calendar_today</mat-icon>
-                        <span>{{ eventData.eventDate | date:'fullDate' }}</span>
-                        @if (eventData.startTime) {
-                            <mat-icon>schedule</mat-icon>
-                            <span>{{ eventData.startTime }}
-                                @if (eventData.endTime) {
-                                    - {{ eventData.endTime }}
-                                }
-                            </span>
-                        }
-                    </div>
-                } @else {
-                    <div class="event-datetime">
-                        <mat-icon>event</mat-icon>
-                        <span>Date to be determined</span>
-                    </div>
-                }
-            </div>
-        </div>
+      @if (eventData.eventDate) {
+      <div class="event-datetime">
+        <mat-icon>calendar_today</mat-icon>
+        <span>{{ eventData.eventDate | date : "fullDate" }}</span>
+        @if (eventData.startTime) {
+        <mat-icon>schedule</mat-icon>
+        <span
+          >{{ eventData.startTime }} @if (eventData.endTime) { -
+          {{ eventData.endTime }}
+          }
+        </span>
+        }
+      </div>
+      } @else {
+      <div class="event-datetime">
+        <mat-icon>event</mat-icon>
+        <span>Date to be determined</span>
+      </div>
+      }
+    </div>
+  </div>
 
-        <!-- Shortlist Section -->
-        <mat-card class="shortlist-section">
-            <div class="section-header">
-                <h2>
-                    <mat-icon>movie_filter</mat-icon>
-                    Shortlist
-                </h2>
-                <span class="item-count">{{ shortlistItems.length }} items</span>
-            </div>
-
-            @if (shortlistItems.length > 0) {
-                <div class="media-grid">
-                    @for (item of shortlistItems; track item.tmdbId) {
-                        <div class="media-card">
-                            <div class="media-poster">
-                                <img [src]="getPosterUrl(item.posterPath)" 
-                                     [alt]="item.title"
-                                     loading="lazy">
-                            </div>
-                            <div class="media-info">
-                                <h3 class="media-title">{{ item.title }}</h3>
-                                @if (item.releaseDate) {
-                                    <p class="media-year">{{ getYear(item.releaseDate) }}</p>
-                                }
-                                @if (item.points !== undefined && item.points > 0) {
-                                    <div class="media-votes">
-                                        <mat-icon>star</mat-icon>
-                                        <span>{{ item.points }} points</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            } @else {
-                <div class="empty-state">
-                    <mat-icon>movie</mat-icon>
-                    <p>No movies added to the shortlist yet</p>
-                </div>
-            }
-        </mat-card>
-
-        <!-- Actions Section -->
-        <div class="actions-section">
-            @if (eventData.status === 'draft') {
-                <button mat-raised-button color="primary" (click)="launchVoting()" class="primary-action">
-                    <mat-icon>how_to_vote</mat-icon>
-                    Launch Voting
-                </button>
-                <button mat-button (click)="editEvent()">
-                    <mat-icon>edit</mat-icon>
-                    Edit Event
-                </button>
-                <button mat-button color="warn" (click)="deleteEvent()">
-                    <mat-icon>delete</mat-icon>
-                    Delete
-                </button>
-            } @else if (eventData.status === 'voting') {
-                <button mat-raised-button color="accent" (click)="startVoting()" class="primary-action">
-                    <mat-icon>how_to_vote</mat-icon>
-                    Vote Now
-                </button>
-                <button mat-raised-button color="primary" (click)="viewResults()">
-                    <mat-icon>emoji_events</mat-icon>
-                    View Results
-                </button>
-                <button mat-button (click)="editEvent()">
-                    <mat-icon>edit</mat-icon>
-                    Edit Event
-                </button>
-            } @else if (eventData.status === 'completed') {
-                <button mat-raised-button color="primary" (click)="viewResults()" class="primary-action">
-                    <mat-icon>emoji_events</mat-icon>
-                    View Results
-                </button>
-            }
-        </div>
+  <!-- Actions Section (moved above Shortlist, aligned right) -->
+  <div class="actions-section">
+    @if (eventData.status === 'draft') {
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="launchVoting()"
+      class="primary-action"
+    >
+      <mat-icon>how_to_vote</mat-icon>
+      Launch Voting
+    </button>
+    <button mat-stroked-button class="secondary-button" (click)="editEvent()">
+      <mat-icon>edit</mat-icon>
+      Edit Event
+    </button>
+    <button mat-stroked-button color="warn" class="secondary-button" (click)="deleteEvent()">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+    } @else if (eventData.status === 'voting') {
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="startVoting()"
+      class="primary-action"
+    >
+      <mat-icon>how_to_vote</mat-icon>
+      Vote Now
+    </button>
+    <button mat-raised-button color="primary" (click)="viewResults()">
+      <mat-icon>emoji_events</mat-icon>
+      View Results
+    </button>
+    <button mat-stroked-button class="secondary-button" (click)="editEvent()">
+      <mat-icon>edit</mat-icon>
+      Edit Event
+    </button>
+    } @else if (eventData.status === 'completed') {
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="viewResults()"
+      class="primary-action"
+    >
+      <mat-icon>emoji_events</mat-icon>
+      View Results
+    </button>
     }
+  </div>
+
+  <!-- Shortlist Section -->
+  <section class="shortlist-section">
+    <div class="section-header">
+      <div class="section-header__title">
+        <h2>
+          <mat-icon>movie_filter</mat-icon>
+          Shortlist
+        </h2>
+        <span class="item-count">({{ shortlistItems.length }} items)</span>
+      </div>
+
+    </div>
+
+    @if (shortlistItems.length > 0) {
+    <div class="media-grid">
+      @for (item of shortlistItems; track item.tmdbId) {
+      <app-media-card
+        [item]="{
+          tmdbId: item.tmdbId,
+          mediaType: item.mediaType || 'movie',
+          title: item.title,
+          posterPath: item.posterPath,
+          releaseDate: item.releaseDate,
+          sumOfRatings: item.points
+        }"
+        [imageBaseUrl300]="TMDB_IMAGE_BASE_URL_300"
+        [fallbackPosterUrl]="'assets/placeholder-movie.jpg'"
+        [clickable]="true"
+        [isMobile]="true"
+        [showAssignRankButton]="false"
+      ></app-media-card>
+      }
+    </div>
+    } @else {
+    <div class="empty-state">
+      <mat-icon>movie</mat-icon>
+      <p>No movies added to the shortlist yet</p>
+    </div>
+    }
+  </section>
+  }
 </main>
