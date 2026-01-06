@@ -1,0 +1,121 @@
+@if (!isLoading) {
+<main class="event-edit-container">
+  <app-breadcrumb [items]="breadcrumbItems"></app-breadcrumb>
+
+  <div class="event-header">
+    <div class="header-content">
+      <div class="header-top">
+        <h1 class="event-header__title">Edit: {{ form.get('name')?.value || 'Event' }}</h1>
+        <span class="status-badge" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
+      </div>
+
+      <div class="event-meta">
+        <form [formGroup]="form" class="event-form">
+          <div class="form-grid">
+            <mat-form-field appearance="fill">
+              <mat-label>Event name</mat-label>
+              <input matInput formControlName="name" />
+              @if (form.get('name')?.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                @for (s of statusOptions; track s) {
+                  <mat-option [value]="s">{{ s }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="dt" formControlName="eventDate" />
+              <mat-datepicker-toggle matSuffix [for]="dt"></mat-datepicker-toggle>
+              <mat-datepicker #dt></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Start time</mat-label>
+              <input matInput type="time" formControlName="startTime" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>End time</mat-label>
+              <input matInput type="time" formControlName="endTime" />
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Shortlist name</mat-label>
+              <input matInput formControlName="listName" aria-label="Shortlist name" />
+            </mat-form-field>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-section">
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || isSaving" class="primary-action">
+      <mat-icon>save</mat-icon>
+      Save
+    </button>
+    <button mat-stroked-button (click)="cancel()">Cancel</button>
+    <button mat-stroked-button color="warn" (click)="deleteEvent()">Delete</button>
+    @if (form.get('status')?.value === 'draft') {
+      <button mat-raised-button color="accent" (click)="launchVoting()">Launch Voting</button>
+    }
+  </div>
+
+  <section class="shortlist-section">
+    <div class="section-header">
+      <div class="section-header__title">
+        <h2>
+          <mat-icon>movie_filter</mat-icon>
+          Shortlist
+        </h2>
+        <span class="item-count">({{ shortlist.length }} items)</span>
+      </div>
+      <div class="section-actions">
+        <button mat-stroked-button (click)="addMedia()"><mat-icon>add</mat-icon>Add Media</button>
+      </div>
+    </div>
+
+    @if (shortlist.length > 0) {
+      <div class="media-grid" cdkDropList (cdkDropListDropped)="drop($event)">
+        @for (item of shortlist; track item.tmdbId) {
+          <app-media-card
+            cdkDrag
+            [item]="{ tmdbId: item.tmdbId, mediaType: getMediaType(item.mediaType), title: item.title, posterPath: item.posterPath, releaseDate: item.releaseDate, sumOfRatings: getItemPoints(item) }"
+            [imageBaseUrl300]="TMDB_IMAGE_BASE_URL_300"
+            [fallbackPosterUrl]="'assets/placeholder-movie.jpg'"
+            [clickable]="true"
+            [isMobile]="true"
+            [showAssignRankButton]="false">
+            <div class="drag-handle" cdkDragHandle>
+              <mat-icon>drag_handle</mat-icon>
+            </div>
+            <div class="media-actions">
+              <button mat-icon-button color="warn" (click)="removeMedia(item)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </app-media-card>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <mat-icon>movie</mat-icon>
+        <p>No media in shortlist yet</p>
+      </div>
+    }
+  </section>
+</main>
+
+} @else {
+  <div class="loading-state">
+    <mat-icon>hourglass_empty</mat-icon>
+    <p>Loading event...</p>
+  </div>
+}

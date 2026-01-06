@@ -108,11 +108,11 @@
       <app-media-card
         [item]="{
           tmdbId: item.tmdbId,
-          mediaType: item.mediaType || 'movie',
+          mediaType: getMediaType(item.mediaType),
           title: item.title,
           posterPath: item.posterPath,
           releaseDate: item.releaseDate,
-          sumOfRatings: item.points
+          sumOfRatings: getItemPoints(item)
         }"
         [imageBaseUrl300]="TMDB_IMAGE_BASE_URL_300"
         [fallbackPosterUrl]="'assets/placeholder-movie.jpg'"

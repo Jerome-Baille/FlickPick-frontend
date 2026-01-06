@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Event, EventStatus } from '../../shared/models/Event';
 import { Group } from 'src/app/shared/models/Group';
+import { ListMediaItem } from 'src/app/shared/models/List';
 
 export interface Media {
   tmdbId: number;
@@ -171,8 +172,8 @@ export class DataService {
     return this.http.post<{ message: string; event: Event }>(`${this.eventURL}/group/${eventData.groupId}`, eventData);
   }
 
-  getEventById(eventId: number): Observable<Event> {
-    return this.http.get<Event>(`${this.eventURL}/${eventId}`);
+  getEventById(eventId: number): Observable<{ event: Event; MediaItems?: ListMediaItem[] }> {
+    return this.http.get<{ event: Event; MediaItems?: ListMediaItem[] }>(`${this.eventURL}/${eventId}`);
   }
 
   getEventsByGroup(groupId: number): Observable<{ events: Event[] }> {

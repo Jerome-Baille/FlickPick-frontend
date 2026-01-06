@@ -87,6 +87,10 @@ export const routes: Routes = [
         canActivate: [eventStatusGuard],
         loadComponent: () => import('./features/event/event-detail/event-detail.component').then(m => m.EventDetailComponent) 
       },
+      { 
+        path: 'edit/:eventId',
+        loadComponent: () => import('./features/event/event-edit/event-edit.component').then(m => m.EventEditComponent)
+      },
 
       { 
         path: 'voting/:eventId', 

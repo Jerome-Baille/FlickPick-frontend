@@ -11,15 +11,9 @@ import { DataService } from '../../../core/services/data.service';
 import { SnackbarService } from '../../../core/services/snackbar.service';
 import { Event as MovieNightEvent } from '../../../shared/models/Event';
 
-interface EventMediaItem {
-  tmdbId: number;
-  mediaType: 'movie' | 'tv';
-  title: string;
-  posterPath?: string;
-  releaseDate?: string;
-  overview?: string;
-  points?: number;
-}
+import { List, ListMediaItem } from '../../../shared/models/List';
+
+type EventMediaItem = ListMediaItem & { sumOfRatings?: number; votes?: any[]; ListMediaItem?: any };
 
 interface EventResponse {
   event: MovieNightEvent & {
@@ -27,12 +21,11 @@ interface EventResponse {
       id: number;
       name: string;
     };
-    shortlist?: {
-      id: number;
-      name: string;
-      MediaItems?: EventMediaItem[];
-    };
+    shortlist?: List;
+    isAdmin?: boolean;
+    hasVoted?: boolean;
   };
+  MediaItems?: ListMediaItem[];
 }
 
 @Component({
@@ -76,12 +69,11 @@ export class EventDetailComponent implements OnInit {
   loadEventData(eventId: number): void {
     this.isLoading = true;
     this.dataService.getEventById(eventId).subscribe({
-      next: (response: unknown) => {
-        const res = response as EventResponse;
+      next: (res: EventResponse & { MediaItems?: EventMediaItem[] }) => {
         this.eventData = res.event;
         this.groupName = res.event.Group?.name || '';
         this.groupId = res.event.Group?.id || res.event.groupId;
-        this.shortlistItems = res.event.shortlist?.MediaItems || [];
+        this.shortlistItems = res.event.shortlist?.MediaItems || res.MediaItems || [];
         this.breadcrumbItems = [
           { label: 'Dashboard', link: ['/dashboard'] },
           { label: this.groupName || 'Group', link: ['/group/detail', this.groupId] },
@@ -165,5 +157,14 @@ export class EventDetailComponent implements OnInit {
   getYear(releaseDate?: string): string {
     if (!releaseDate) return '';
     return new Date(releaseDate).getFullYear().toString();
+  }
+
+  getMediaType(mediaType?: string): 'movie' | 'tv' {
+    return mediaType === 'tv' ? 'tv' : 'movie';
+  }
+
+  getItemPoints(item: EventMediaItem): number | undefined {
+    // prefer the computed sumOfRatings, fall back to legacy points field if present
+    return (item as EventMediaItem & { sumOfRatings?: number }).sumOfRatings ?? (item as EventMediaItem & { points?: number }).points;
   }
 }
