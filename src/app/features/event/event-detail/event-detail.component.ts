@@ -129,8 +129,8 @@ export class EventDetailComponent implements OnInit {
   }
 
   editEvent(): void {
-    // Navigate to edit view - to be implemented
-    this.snackbarService.showSuccess('Edit event feature coming soon!');
+    if (!this.eventData) return;
+    this.router.navigate(['/event/edit', this.eventData.id]);
   }
 
   deleteEvent(): void {
